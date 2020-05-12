@@ -12,7 +12,6 @@ namespace PnPApp.Database
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Session> Sessions { get; set; }
-        public DbSet<Campaign> Campaigns { get; set; }
         public DbSet<Character> Characters { get; set; }
 
 
@@ -20,9 +19,6 @@ namespace PnPApp.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<CampaignUserLink>()
-                .HasKey(cul => new { cul.UserId, cul.CampaignId });
-
             modelBuilder.Entity<SessionUserLink>()
                 .HasKey(cul => new { cul.UserId, cul.SessionId });
         }

@@ -15,7 +15,6 @@ namespace PnPApp.Models.Database
         [MaxLength(16)] public byte[] PasswordSalt { get; set; }
         [MaxLength(64)] public byte[] PasswordSha512Hash { get; set; }
         public List<Character> Characters { get; set; } = new List<Character>();
-        public List<CampaignUserLink> Campaigns { get; set; } = new List<CampaignUserLink>();
         public List<SessionUserLink> Sessions { get; set; } = new List<SessionUserLink>();
     }
 #pragma warning restore CS8618
