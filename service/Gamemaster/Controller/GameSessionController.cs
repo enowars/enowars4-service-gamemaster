@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using PnPApp.Database;
-using PnPApp.Models.Database;
+using Gamemaster.Database;
+using Gamemaster.Models.Database;
 
-namespace PnPApp.Controller
+namespace Gamemaster.Controller
 {
     [Route("api/[controller]/[action]")]
     [ApiController]

@@ -4,18 +4,19 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PnPApp.Models.Database
+namespace Gamemaster.Models.Database
 {
 #pragma warning disable CS8618
-    public class User
+    public class Session
     {
         public long Id { get; set; }
+        public long OwnerId { get; set; }
+        public User Owner { get; set; }
         public string Name { get; set; }
-        public string Email { get; set; }
+        public string Notes { get; set; }
         [MaxLength(16)] public byte[] PasswordSalt { get; set; }
         [MaxLength(64)] public byte[] PasswordSha512Hash { get; set; }
-        public List<Character> Characters { get; set; } = new List<Character>();
-        public List<SessionUserLink> Sessions { get; set; } = new List<SessionUserLink>();
+        public List<SessionUserLink> Players { get; set; } = new List<SessionUserLink>();
     }
 #pragma warning restore CS8618
 }

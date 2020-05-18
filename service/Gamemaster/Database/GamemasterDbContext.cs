@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PnPApp.Models.Database;
+using Gamemaster.Models.Database;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 #pragma warning disable CS8618
-namespace PnPApp.Database
+namespace Gamemaster.Database
 {
-    public class PnPAppDbContext : DbContext
+    public class GamemasterDbContext : DbContext
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Session> Sessions { get; set; }
@@ -18,7 +18,7 @@ namespace PnPApp.Database
 
 
 
-        public PnPAppDbContext(DbContextOptions<PnPAppDbContext> options) : base(options) { }
+        public GamemasterDbContext(DbContextOptions<GamemasterDbContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

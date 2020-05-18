@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace PnPApp.Migrations
+namespace Gamemaster.Migrations
 {
     public partial class m1 : Migration
     {

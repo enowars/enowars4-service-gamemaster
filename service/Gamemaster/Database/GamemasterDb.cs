@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using PnPApp.Models.Database;
+using Gamemaster.Models.Database;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PnPApp.Database
+namespace Gamemaster.Database
 {
     public interface IPnPAppDb
     {
@@ -30,9 +30,9 @@ namespace PnPApp.Database
         public static Random Rand = new Random(); 
         private const int MAX_PASSWORD_LENGTH = 128;
         private readonly ILogger Logger;
-        private readonly PnPAppDbContext _context;
+        private readonly GamemasterDbContext _context;
 
-        public PnPAppDb(PnPAppDbContext context, ILogger<PnPAppDb> logger)
+        public PnPAppDb(GamemasterDbContext context, ILogger<PnPAppDb> logger)
         {
             _context = context;
             Logger = logger;

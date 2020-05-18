@@ -356,9 +356,9 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 
-PnPApp/wwwroot
-PnPApp/Frontend/assets
-PnPApp/Frontend/app.js
-PnPApp/Frontend/app.js.map
-PnPApp/PnPApp.db
+Gamemaster/wwwroot
+Gamemaster/Frontend/assets
+Gamemaster/Frontend/app.js
+Gamemaster/Frontend/app.js.map
+Gamemaster/PnPApp.db
 .vscode/

@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
-using PnPApp.Database;
-using PnPApp.Models;
+using Gamemaster.Database;
+using Gamemaster.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PnPApp.Hubs
+namespace Gamemaster.Hubs
 {
     //[Authorize]
     public class PartyHub : Hub

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PnPApp.Models.Database
+namespace Gamemaster.Models.Database
 {
 #pragma warning disable CS8618
     public class Character

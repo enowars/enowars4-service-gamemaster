@@ -9,10 +9,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using PnPApp.Database;
-using PnPApp.Hubs;
+using Gamemaster.Database;
+using Gamemaster.Hubs;
 
-namespace PnPApp
+namespace Gamemaster
 {
     public class Startup
     {
@@ -24,7 +24,7 @@ namespace PnPApp
                 .AddCookie();
             services.AddSignalR();
             services.AddControllers();
-            services.AddDbContextPool<PnPAppDbContext>(options => options.UseSqlite(PnPAppDbContextFactory.CONNECTION_STRING));
+            services.AddDbContextPool<GamemasterDbContext>(options => options.UseSqlite(GamemasterDbContextFactory.CONNECTION_STRING));
             services.AddScoped<IPnPAppDb, PnPAppDb>();
         }
 

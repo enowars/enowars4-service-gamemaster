@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using PnPApp.Database;
+using Gamemaster.Database;
 
-namespace PnPApp.Migrations
+namespace Gamemaster.Migrations
 {
-    [DbContext(typeof(PnPAppDbContext))]
+    [DbContext(typeof(GamemasterDbContext))]
     [Migration("20200518111548_m1")]
     partial class m1
     {

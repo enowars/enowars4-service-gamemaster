@@ -3,11 +3,11 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using PnPApp.Database;
+using Gamemaster.Database;
 
-namespace PnPApp.Migrations
+namespace Gamemaster.Migrations
 {
-    [DbContext(typeof(PnPAppDbContext))]
+    [DbContext(typeof(GamemasterDbContext))]
     partial class PnPAppDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
