@@ -24,25 +24,6 @@ namespace PnPApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Campaigns",
-                columns: table => new
-                {
-                    Id = table.Column<long>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    OwnerId = table.Column<long>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Campaigns", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Campaigns_Users_OwnerId",
-                        column: x => x.OwnerId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Characters",
                 columns: table => new
                 {
@@ -83,30 +64,6 @@ namespace PnPApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CampaignUserLink",
-                columns: table => new
-                {
-                    CampaignId = table.Column<long>(nullable: false),
-                    UserId = table.Column<long>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CampaignUserLink", x => new { x.UserId, x.CampaignId });
-                    table.ForeignKey(
-                        name: "FK_CampaignUserLink_Campaigns_CampaignId",
-                        column: x => x.CampaignId,
-                        principalTable: "Campaigns",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CampaignUserLink_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "SessionUserLink",
                 columns: table => new
                 {
@@ -131,16 +88,6 @@ namespace PnPApp.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Campaigns_OwnerId",
-                table: "Campaigns",
-                column: "OwnerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CampaignUserLink_CampaignId",
-                table: "CampaignUserLink",
-                column: "CampaignId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Characters_OwnerId",
                 table: "Characters",
                 column: "OwnerId");
@@ -159,16 +106,10 @@ namespace PnPApp.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "CampaignUserLink");
-
-            migrationBuilder.DropTable(
                 name: "Characters");
 
             migrationBuilder.DropTable(
                 name: "SessionUserLink");
-
-            migrationBuilder.DropTable(
-                name: "Campaigns");
 
             migrationBuilder.DropTable(
                 name: "Sessions");

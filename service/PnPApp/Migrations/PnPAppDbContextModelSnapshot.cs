@@ -16,37 +16,6 @@ namespace PnPApp.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "3.1.3");
 
-            modelBuilder.Entity("PnPApp.Models.Database.Campaign", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<long>("OwnerId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OwnerId");
-
-                    b.ToTable("Campaigns");
-                });
-
-            modelBuilder.Entity("PnPApp.Models.Database.CampaignUserLink", b =>
-                {
-                    b.Property<long>("UserId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<long>("CampaignId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("UserId", "CampaignId");
-
-                    b.HasIndex("CampaignId");
-
-                    b.ToTable("CampaignUserLink");
-                });
-
             modelBuilder.Entity("PnPApp.Models.Database.Character", b =>
                 {
                     b.Property<long>("Id")
@@ -129,30 +98,6 @@ namespace PnPApp.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("PnPApp.Models.Database.Campaign", b =>
-                {
-                    b.HasOne("PnPApp.Models.Database.User", "Owner")
-                        .WithMany()
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("PnPApp.Models.Database.CampaignUserLink", b =>
-                {
-                    b.HasOne("PnPApp.Models.Database.Campaign", "Campaign")
-                        .WithMany("Players")
-                        .HasForeignKey("CampaignId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PnPApp.Models.Database.User", "User")
-                        .WithMany("Campaigns")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("PnPApp.Models.Database.Character", b =>
