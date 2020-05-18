@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace PnPApp.Hubs
 {
-    [Authorize]
+    //[Authorize]
     public class PartyHub : Hub
     {
         public static Dictionary<string, Scene> Scenes = new Dictionary<string, Scene>();

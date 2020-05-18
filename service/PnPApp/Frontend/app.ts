@@ -117,4 +117,4 @@ const gameConfig: Phaser.Types.Core.GameConfig = {
     scene: CombatScene
 };
 
-//export const game = new Phaser.Game(gameConfig);
+export const game = new Phaser.Game(gameConfig);
