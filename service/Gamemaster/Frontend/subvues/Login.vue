@@ -1,17 +1,20 @@
 <template>
     <div id="login">
         <h1>Login</h1>
-        <form id="app"
-              action="/api/account/login"
+        <form id="login"
+              action=""
               method="post">
             <input type="text" name="username" v-model="input.username" placeholder="Username" />
             <input type="password" name="password" v-model="input.password" placeholder="Password" />
-            <button type="submit" v-on:click="login()">Login</button>
+            <button type="button" v-on:click="login()">Login</button>
         </form>
     </div>
 </template>
 
-<script>
+<script lang="ts">
+    import axios, { AxiosRequestConfig, AxiosPromise, AxiosResponse } from 'axios';
+    import router from './../router';
+    import { METHODS } from 'http';
     export default {
         name: 'Login',
         data() {
@@ -24,14 +27,25 @@
         },
         methods: {
             login() {
-                if (this.input.username != "" && this.input.password != "") {
-                    console.log("Username and password set");
-                    this.$refs.form.submit();
-                } else {
-                    console.log("A username and password must be present");
-
-                }
-             return false;
+                var bodyFormData = new FormData();
+                bodyFormData.set('userName', this.input.username);
+                bodyFormData.set('password', this.input.password);
+                console.log("Logging in...");
+                const options: AxiosRequestConfig = {
+                    method: 'POST',
+                    data: bodyFormData,
+                    headers: { 'Content-Type': 'x-www-form-urlencoded' },
+                    url: '/api/account/login',
+                };
+                axios(options).then(
+                    function (response) {
+                        console.log(response);
+                        if (response.status == 200) {
+                            console.log("Logged In");
+                            router.push("/");
+                        }
+                    });
+                return false;
             }
         }
     }

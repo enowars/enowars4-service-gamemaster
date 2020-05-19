@@ -1,0 +1,9 @@
+version: '3.4'
+
+services:
+  gamemaster:
+    build:
+      context: Gamemaster
+      dockerfile: Dockerfile
+    ports:
+      - "8000:80"

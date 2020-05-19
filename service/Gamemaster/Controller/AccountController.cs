@@ -42,7 +42,7 @@ namespace Gamemaster.Controller
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, username),
-                    new Claim(ClaimTypes.NameIdentifier, "user.id")
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
                 };
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 await HttpContext.SignInAsync( new ClaimsPrincipal(claimsIdentity));
