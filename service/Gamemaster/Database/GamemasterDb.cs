@@ -146,8 +146,7 @@ namespace Gamemaster.Database
         public async Task<Token?> AddTokenToSession(long sessionId, string name, string description, bool isprivate, byte[] icon)
         {
             string uUID = "";
-            for (;uUID.Length<128; uUID += Rand.Next().ToString("X8"));
-
+            lock (Rand) for (;uUID.Length<128; uUID += Rand.Next().ToString("X8"));
             var token = new Token()
             {
                 Name = name,
