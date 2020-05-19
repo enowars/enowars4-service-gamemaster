@@ -11,10 +11,10 @@ COPY *.json ./
 COPY Frontend ./Frontend
 COPY *.js ./
 RUN npm install
-RUN ls -alh /src/Frontend
 RUN npm run release
 
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
 WORKDIR /app
 COPY --from=build /app .
+COPY --from=frontend /src/wwwroot ./wwwroot
 ENTRYPOINT ["dotnet", "Gamemaster.dll"]
