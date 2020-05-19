@@ -41,9 +41,9 @@ namespace Gamemaster
             app.UseAuthorization();
             app.UseDefaultFiles();
             
-            /*var rewrite = new RewriteOptions()
+            var rewrite = new RewriteOptions()
             .AddRewrite(@"^[\w\/]*$", "/index.html", true);
-            app.UseRewriter(rewrite); */
+            app.UseRewriter(rewrite); 
             app.UseStaticFiles();
             app.UseEndpoints(endpoints =>
             {

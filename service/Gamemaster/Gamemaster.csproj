@@ -6,19 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Frontend\app.d.ts" />
-    <None Remove="Frontend\app.ts" />
-    <None Remove="Frontend\assets\index.d.ts" />
-    <None Remove="Frontend\index.html" />
-    <None Remove="Frontend\router.ts" />
-    <None Remove="Frontend\shims-vue.d.ts" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <TypeScriptCompile Remove="phaser.d.ts" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.3">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -28,15 +15,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="wwwroot\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <TypeScriptCompile Include="Frontend\index.html" />
+    <!--<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.2" />-->
   </ItemGroup>
 
 </Project>
