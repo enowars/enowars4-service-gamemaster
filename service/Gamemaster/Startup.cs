@@ -42,7 +42,7 @@ namespace Gamemaster
             app.UseStaticFiles();
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapHub<PartyHub>("/hubs/party");
+                endpoints.MapHub<SessionHub>("/hubs/party");
                 endpoints.MapControllers();
             });
             db.Migrate();

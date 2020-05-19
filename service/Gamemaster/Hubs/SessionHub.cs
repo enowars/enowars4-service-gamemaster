@@ -13,14 +13,14 @@ using System.Threading.Tasks;
 namespace Gamemaster.Hubs
 {
     //[Authorize]
-    public class PartyHub : Hub
+    public class SessionHub : Hub
     {
         public static Dictionary<string, Scene> Scenes = new Dictionary<string, Scene>();
         public string ConnectionId => "user" + Context.ConnectionId;
         private readonly ILogger Logger;
         private readonly IPnPAppDb Db;
 
-        public PartyHub(ILogger<PartyHub> logger, IPnPAppDb db)
+        public SessionHub(ILogger<SessionHub> logger, IPnPAppDb db)
         {
             Logger = logger;
             Db = db;
