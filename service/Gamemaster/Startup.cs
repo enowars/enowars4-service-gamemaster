@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Gamemaster.Database;
 using Gamemaster.Hubs;
+using Microsoft.AspNetCore.Rewrite;
 
 namespace Gamemaster
 {
@@ -39,10 +40,14 @@ namespace Gamemaster
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseDefaultFiles();
+            
+            var rewrite = new RewriteOptions()
+            .AddRewrite(@"^[\w\/]*$", "/index.html", true);
+            app.UseRewriter(rewrite);
             app.UseStaticFiles();
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapHub<SessionHub>("/hubs/party");
+                endpoints.MapHub<SessionHub>("/hubs/Session");
                 endpoints.MapControllers();
             });
             db.Migrate();

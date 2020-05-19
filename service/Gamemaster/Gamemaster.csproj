@@ -10,6 +10,7 @@
     <None Remove="Frontend\app.ts" />
     <None Remove="Frontend\assets\index.d.ts" />
     <None Remove="Frontend\index.html" />
+    <None Remove="Frontend\router.ts" />
     <None Remove="Frontend\shims-vue.d.ts" />
   </ItemGroup>
 

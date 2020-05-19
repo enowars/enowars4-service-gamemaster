@@ -28,13 +28,13 @@ namespace Gamemaster.Controller
         }
 
         [HttpPost]
-        public async Task<ActionResult> Register(string username, string email, string password)
+        public async Task<ActionResult> Register([FromForm] string username, [FromForm] string email, [FromForm] string password)
         {
             await Db.InsertUser(username, email, password);
             return new EmptyResult();
         }
-        [HttpGet]
-        public async Task<ActionResult> Login(string username, string password)
+        [HttpPost]
+        public async Task<ActionResult> Login([FromForm] string username, [FromForm] string password)
         {
             var dbUser = await Db.AuthenticateUser(username, password);
             if (dbUser is User user)
@@ -51,7 +51,7 @@ namespace Gamemaster.Controller
             return Forbid();
         }
 
-        [HttpGet]
+        [HttpPost]
         public async Task<ActionResult> TestLogin()
         {
             var claims = new List<Claim>

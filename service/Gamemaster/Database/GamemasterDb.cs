@@ -23,6 +23,7 @@ namespace Gamemaster.Database
         Task<Session?> GetSession(long sessionId);
         Task AddUserToSession(long sessionId, long userId);
         Task<Token?> AddTokenToSession(long sessionId, string name, string description, bool isprivate, byte[] icon);
+        Task<Token> GetTokenByUUID(string UUID);
     }
 
     public partial class PnPAppDb : IPnPAppDb
@@ -142,6 +143,10 @@ namespace Gamemaster.Database
                 SessionId = sessionId
             });
             await _context.SaveChangesAsync();
+        }
+        public async Task<Token> GetTokenByUUID(string UUID)
+        {
+            return await _context.Tokens.Where(t => t.UUID.Equals(UUID)).SingleOrDefaultAsync();
         }
         public async Task<Token?> AddTokenToSession(long sessionId, string name, string description, bool isprivate, byte[] icon)
         {

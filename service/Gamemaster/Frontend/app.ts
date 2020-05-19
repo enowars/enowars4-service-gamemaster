@@ -2,11 +2,14 @@
 import * as Phaser from 'phaser';
 import { createApp } from 'vue';
 import App from './App.vue';
+import router from './router';
 
-createApp(App).mount('#app');
+const app = createApp(App);
+app.use(router);
+app.mount('#app');
 
 const connection = new signalR.HubConnectionBuilder()
-    .withUrl("/hubs/party")
+    .withUrl("/hubs/session")
     .configureLogging(signalR.LogLevel.Information)
     .build();
 
@@ -117,4 +120,4 @@ const gameConfig: Phaser.Types.Core.GameConfig = {
     scene: CombatScene
 };
 
-export const game = new Phaser.Game(gameConfig);
+//export const game = new Phaser.Game(gameConfig);

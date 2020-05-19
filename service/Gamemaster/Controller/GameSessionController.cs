@@ -23,7 +23,7 @@ namespace Gamemaster.Controller
             Logger = logger;
             Db = db;
         }
-        [HttpGet]
+        [HttpPost]
         public async Task<ActionResult> Create(string name, string notes, string password)
         {
             try
@@ -38,7 +38,7 @@ namespace Gamemaster.Controller
             }
             return new EmptyResult();
         }
-        [HttpGet]
+        [HttpPost]
         public async Task<ActionResult> AddUser(int sessionid, string username)
         {
             try
