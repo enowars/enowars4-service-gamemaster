@@ -17,33 +17,6 @@ class http_interface:
         self.address = address # type: str
         self.port = port # type: int
         self.logger = logger
-    @property
-    def http_useragent(self) -> str:
-        """
-        The useragent for http(s) requests
-        :return: the current useragent
-        """
-        return self.http_session.headers["User-Agent"]
-
-    @http_useragent.setter
-    def http_useragent(self, useragent: str) -> None:
-        """
-        Sets the useragent for http requests.
-        Randomize using http_useragent_randomize()
-        :param useragent: the useragent
-        """
-        self.http_session.headers["User-Agent"] = useragent
-
-    def http_useragent_randomize(self) -> None:
-        """
-        Choses a new random http useragent.
-        Note that http requests will be initialized with a random user agent already.
-        To retrieve a random useragent without setting it, use random instead.
-        :return: the new useragent
-        """
-        new_agent = random_useragent()
-        self.http_useragent = new_agent
-        return new_agent
 
     def http_post(self, route: str = "/", params: Optional[Dict] = None, port: Optional[int] = None, scheme: str = "http",
                   timeout: Optional[int] = None, **kwargs) -> requests.Response:
@@ -72,8 +45,21 @@ class http_interface:
         :param timeout: How long we'll try to connect
         :return: The response
         """
-        kwargs.setdefault('allow_redirects', True)
-        return self.http("get", route, params, port, scheme, timeout, **kwargs)
+        with aiohttp.Timeout(5):
+            resp =  yield from http_session.get(scheme + "://" + self.address + ":" + str(port) + route)
+            try:
+                
+                return (yield from resp.text())
+            except Exception as e:
+                # .close() on exception.
+                resp.close()
+                raise e
+            finally:
+                # .release() otherwise to return connection into free connection pool.
+                # It's ok to release closed response:
+                # https://github.com/KeepSafe/aiohttp/blob/master/aiohttp/client_reqrep.py#L664
+                yield from resp.release()
+
 
     def http(self, method: str, route: str = "/", params: Optional[Dict] = None, port: Optional[int] = None, scheme: str = "http",
              timeout: Optional[int] = None, **kwargs) -> requests.Response:
@@ -88,26 +74,7 @@ class http_interface:
         :param timeout: How long we'll try to connect (default: self.timeout)
         :return: The response
         """
-        if port is None:
-            port = self.port
-        self.logger.debug(method + " " + scheme + "://" + self.address + ":" + str(port) + route)
+
         resp = self.http_session.request(method, scheme + "://" + self.address + ":" + str(port) + route, params=params, timeout=timeout, **kwargs)
         resp.raise_for_status()
         return resp
-
-    def ws_connect(self, uri: str) -> None:
-        self._websocket_client = websocket.WebSocket()
-        cookies = ""
-        for cookie in self.http_session.cookies:
-            cookies = cookies + cookie.name+"="+cookie.value+";"
-        self.logger.debug("ws_connect " + str(uri))
-        self._websocket_client.connect(uri, cookie=cookies, timeout=15)
-
-    def ws_recv_frame(self) -> str:
-        data = self._websocket_client.recv_frame().data
-        self.logger.debug("ws_recv_frame " + str(data))
-        return data
-
-    def ws_send(self, data: str) -> None:
-        self.logger.debug("ws_send " + str(data))
-        return self._websocket_client.send(data)
