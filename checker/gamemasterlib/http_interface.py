@@ -17,6 +17,12 @@ class http_interface:
         self.address = address # type: str
         self.port = port # type: int
         self.logger = logger
+    async def __del__(self):
+        await self.http_session.close()
+
+    async def login(self, username: str, password: str) ->None:
+        params = {'username': username, 'password': password}
+        resp = await self.http_session.request("POST", self.scheme + "://" + self.address + ":" + str(self.port) + "/api/account/login", params=params)
 
     def http_post(self, route: str = "/", params: Optional[Dict] = None, port: Optional[int] = None, scheme: str = "http",
                   timeout: Optional[int] = None, **kwargs) -> requests.Response:
@@ -61,7 +67,7 @@ class http_interface:
                 yield from resp.release()
 
 
-    def http(self, method: str, route: str = "/", params: Optional[Dict] = None, port: Optional[int] = None, scheme: str = "http",
+    async def http(self, method: str, route: str = "/", params: Optional[Dict] = None, port: Optional[int] = None, scheme: str = "http",
              timeout: Optional[int] = None, **kwargs) -> requests.Response:
         """
         Performs an http request (requests lib) to the current host.
@@ -75,6 +81,5 @@ class http_interface:
         :return: The response
         """
 
-        resp = self.http_session.request(method, scheme + "://" + self.address + ":" + str(port) + route, params=params, timeout=timeout, **kwargs)
-        resp.raise_for_status()
+        resp = await self.http_session.request(method, scheme + "://" + self.address + ":" + str(port) + route, params=params, timeout=timeout, **kwargs)
         return resp
