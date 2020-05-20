@@ -32,14 +32,22 @@ class GamemasterChecker(BaseChecker):
         logger.debug("Putting Flag...")
         interface : HttpInterface = await HttpInterface.setup(task.address, GamemasterChecker.port, logger)
         await interface.register(username, email, password)
-        sessionname = hash(self.german_faker.pystr())
+        sessionname = self.german_faker.pystr()
         notes = task.flag
         password = self.getpassword(sessionname)
         await collection.insert_one({ 'flag' : task.flag, 'username': username, 'session': sessionname })
         response : aiohttp.ClientResponse = await interface.create_session(sessionname, notes, password)
 
     async def getflag(self, logger: LoggerAdapter, task: CheckerTaskMessage, collection: MotorCollection) -> None:
-        pass
+        try:
+            result = await collection.find_one({ 'flag': task.flag })
+            username = result['username']
+            session = result['session']
+        except:
+            raise BrokenServiceException(f"Cannot find flag in Database - likely putflag failed")
+        interface : HttpInterface = await HttpInterface.setup(task.address, GamemasterChecker.port, logger)
+        await interface.login(username, self.getpassword(username))
+        
 
     async def putnoise(self, logger: LoggerAdapter, task: CheckerTaskMessage, collection: MotorCollection) -> None:
         pass

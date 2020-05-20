@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 using Gamemaster.Database;
 using Gamemaster.Models.Database;
 
-namespace Gamemaster.Controller
+namespace Gamemaster.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
@@ -30,7 +30,14 @@ namespace Gamemaster.Controller
         [HttpPost]
         public async Task<ActionResult> Register([FromForm] string username, [FromForm] string email, [FromForm] string password)
         {
-            await Db.InsertUser(username, email, password);
+            var user = await Db.InsertUser(username, email, password);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, username),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+            };
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignInAsync(new ClaimsPrincipal(claimsIdentity));
             return new EmptyResult();
         }
         [HttpPost]

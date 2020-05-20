@@ -7,14 +7,17 @@ RUN dotnet publish Gamemaster.csproj -c Release -o /app
 
 FROM node as frontend
 WORKDIR /src
-COPY *.json ./
+COPY package.json .
+COPY package-lock.json .
+RUN npm install
+COPY tsconfig.json .
 COPY Frontend ./Frontend
 COPY *.js ./
-RUN npm install
 RUN npm run release
 
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
 WORKDIR /app
 COPY --from=build /app .
 COPY --from=frontend /src/wwwroot ./wwwroot
+COPY appsettings.json .
 ENTRYPOINT ["dotnet", "Gamemaster.dll"]

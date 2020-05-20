@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using Gamemaster.Models.View;
 
 namespace Gamemaster.Database
 {
@@ -20,10 +21,14 @@ namespace Gamemaster.Database
         Task<User?> GetUser(int userid);
         Task<User?> GetUser(string username);
         Task<Session> InsertSession(string name, string notes, User owner, string password);
+        Task<Session?> GetSession(long sessionId, long userId);
         Task<Session?> GetSession(long sessionId);
+        Task<Session[]> GetSessions(long userId);
+        Task<SessionView[]> GetRecentSessions(int skip, int take);
         Task AddUserToSession(long sessionId, long userId);
         Task<Token?> AddTokenToSession(long sessionId, string name, string description, bool isprivate, byte[] icon);
         Task<Token> GetTokenByUUID(string UUID);
+
     }
 
     public partial class PnPAppDb : IPnPAppDb
@@ -38,6 +43,10 @@ namespace Gamemaster.Database
             _context = context;
             Logger = logger;
             
+        }
+
+        public PnPAppDb()
+        {
         }
 
         public void Migrate()
@@ -58,6 +67,7 @@ namespace Gamemaster.Database
 
         private void Hash(string password, ReadOnlySpan<byte> salt, Span<byte> output)
         {
+            if (password.Length > MAX_PASSWORD_LENGTH) return;
             Span<byte> input = stackalloc byte[salt.Length + MAX_PASSWORD_LENGTH];
             salt.CopyTo(input);
             Encoding.UTF8.GetBytes(password, input.Slice(salt.Length));
@@ -111,7 +121,7 @@ namespace Gamemaster.Database
         {
             return await _context.Users.Where(u => u.Name == username).SingleOrDefaultAsync();
         }
-        public async Task<Session> InsertSession (string name, string notes, User owner, string password)
+        public async Task<Session> InsertSession(string name, string notes, User owner, string password)
         {
             byte[] hash = new byte[64];
             byte[] salt = new byte[16];
@@ -122,7 +132,6 @@ namespace Gamemaster.Database
             {
                 Name = name,
                 Notes = notes,
-                Owner = owner,
                 OwnerId = owner.Id,
                 PasswordSalt = salt,
                 PasswordSha512Hash = hash
@@ -131,11 +140,24 @@ namespace Gamemaster.Database
             await _context.SaveChangesAsync();
             return session;
         }
-        public async Task<Session?> GetSession (long sessionId)
+        public async Task<Session?> GetSession(long sessionId, long userId)
         {
-            return await _context.Sessions.Where(s => s.Id == sessionId).SingleOrDefaultAsync();
+            return await _context.Sessions
+                .Include(s => s.Players)
+                .Where(s => s.Players
+                    .Contains(new SessionUserLink()
+                    {
+                        SessionId = sessionId,
+                        UserId = userId
+                    }))
+                .SingleOrDefaultAsync();
         }
-        public async Task AddUserToSession (long sessionId, long userId)
+        public async Task<Session?> GetSession(long sessionId)
+        {
+            return await _context.Sessions.Where(s => s.Id == sessionId)
+                .SingleOrDefaultAsync();
+        }
+        public async Task AddUserToSession(long sessionId, long userId)
         {
             _context.SessionUserLinks.Add(new SessionUserLink()
             {
@@ -146,7 +168,7 @@ namespace Gamemaster.Database
         }
         public async Task<Token> GetTokenByUUID(string UUID)
         {
-            return await _context.Tokens.Where(t => t.UUID.Equals(UUID)).SingleOrDefaultAsync();
+            return await _context.Tokens.Where(t => t.UUID == UUID).SingleOrDefaultAsync();
         }
         public async Task<Token?> AddTokenToSession(long sessionId, string name, string description, bool isprivate, byte[] icon)
         {
@@ -163,6 +185,19 @@ namespace Gamemaster.Database
             _context.Tokens.Add(token);
             await _context.SaveChangesAsync();
             return token;
+        }
+
+        public async Task<Session[]> GetSessions(long userId)
+        {
+            return await _context.SessionUserLinks
+                .Where(sul => sul.UserId == userId)
+                .Include(sul => sul.Session)
+                .Select(sul => sul.Session)
+                .ToArrayAsync();
+        }
+        public async Task<SessionView[]> GetRecentSessions(int skip, int take)
+        {
+            return await _context.Sessions.Include(s => s.Owner).OrderByDescending(s => s.Id).Skip(skip).Take(take).Select(s => new SessionView{Name = s.Name, OwnerName = s.Owner.Name, Id = s.Id}).ToArrayAsync();
         }
     }
 }

@@ -41,10 +41,16 @@
                     function (response) {
                         console.log(response);
                         if (response.status == 200) {
-                            console.log("Logged In");
+                            console.log("Login Successful");
+                            alert("Login Successful");
                             router.push("/");
+                        } else {
+                            console.log("this should not happen...");
                         }
-                    });
+                    }).catch(error => {
+                        console.log("Login failed");
+                        alert("Login failed");
+                    })
                 return false;
             }
         }

@@ -9,11 +9,11 @@ using Microsoft.Extensions.Logging;
 using Gamemaster.Database;
 using Gamemaster.Models.Database;
 
-namespace Gamemaster.Controller
+namespace Gamemaster.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class GameSessionController : ControllerBase
+    public class GameSessionController : Controller
     {
         private readonly ILogger<GameSessionController> Logger;
         private readonly IPnPAppDb Db;
@@ -24,19 +24,73 @@ namespace Gamemaster.Controller
             Db = db;
         }
         [HttpPost]
-        public async Task<ActionResult> Create(string name, string notes, string password)
+        public async Task<ActionResult> Create([FromForm]string name, [FromForm]string notes, [FromForm]string password)
         {
             try
             {
                 var username = HttpContext.User.Identity.Name;
                 var owner = await Db.GetUser(username);
                 var session = await Db.InsertSession(name, notes, owner, password);
-            }catch (Exception e)
+                return Json(session);
+            }
+            catch (Exception e)
             {
                 Logger.LogError($"{nameof(Create)} failed: {e.Message}");
-                return Forbid(); 
+                return Forbid();
             }
-            return new EmptyResult();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> GetSessionInfo([FromForm]long id)
+        {
+            try
+            {
+                var username = HttpContext.User.Identity.Name;
+                var user = await Db.GetUser(username);
+                var session = await Db.GetSession(id, user.Id);
+                return Json(session);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError($"{nameof(Create)} failed: {e.Message}");
+                return Forbid();
+            }
+        }
+        [HttpGet]
+        public async Task<ActionResult> ListSessions()
+        {
+            try
+            {
+                var username = HttpContext.User.Identity.Name;
+                var user = await Db.GetUser(username);
+                var sessions = await Db.GetSessions(user.Id);
+                foreach (var s in sessions)
+                {
+                    s.PasswordSalt = Array.Empty<byte>();
+                    s.PasswordSha512Hash = Array.Empty<byte>();
+                    s.Notes = string.Empty;                                       //Don't leak the flags!
+                }
+                return Json(sessions);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError($"{nameof(Create)} failed: {e.Message}");
+                return Forbid();
+            }
+        }
+        [HttpGet]
+        public async Task<ActionResult> ListRecentSessions(int skip, int take)
+        {
+            try
+            {
+                var sessions = await Db.GetRecentSessions(skip, take);
+                return Json(sessions);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError($"{nameof(Create)} failed: {e.Message}");
+                return Forbid();
+            }
         }
         [HttpPost]
         public async Task<ActionResult> AddUser(int sessionid, string username)

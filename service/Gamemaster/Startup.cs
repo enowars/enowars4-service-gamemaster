@@ -22,7 +22,12 @@ namespace Gamemaster
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie();
+                .AddCookie(options => {
+                    options.Events.OnRedirectToAccessDenied = context => {
+                        context.Response.StatusCode = 403;
+                        return Task.CompletedTask;
+                    };
+                });
             services.AddSignalR();
             services.AddControllers();
             services.AddDbContextPool<GamemasterDbContext>(options => options.UseSqlite(GamemasterDbContextFactory.CONNECTION_STRING));

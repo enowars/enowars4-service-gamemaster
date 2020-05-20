@@ -3,10 +3,27 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Gamemaster.Migrations
 {
-    public partial class m1 : Migration
+    public partial class M1 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Tokens",
+                columns: table => new
+                {
+                    Id = table.Column<long>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    UUID = table.Column<string>(nullable: false),
+                    Name = table.Column<string>(nullable: false),
+                    Description = table.Column<string>(nullable: false),
+                    IsPrivate = table.Column<bool>(nullable: false),
+                    Icon = table.Column<byte[]>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tokens", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
@@ -50,7 +67,11 @@ namespace Gamemaster.Migrations
                 {
                     Id = table.Column<long>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    OwnerId = table.Column<long>(nullable: false)
+                    OwnerId = table.Column<long>(nullable: false),
+                    Name = table.Column<string>(nullable: false),
+                    Notes = table.Column<string>(nullable: false),
+                    PasswordSalt = table.Column<byte[]>(maxLength: 16, nullable: false),
+                    PasswordSha512Hash = table.Column<byte[]>(maxLength: 64, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -64,7 +85,7 @@ namespace Gamemaster.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SessionUserLink",
+                name: "SessionUserLinks",
                 columns: table => new
                 {
                     SessionId = table.Column<long>(nullable: false),
@@ -72,15 +93,15 @@ namespace Gamemaster.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SessionUserLink", x => new { x.UserId, x.SessionId });
+                    table.PrimaryKey("PK_SessionUserLinks", x => new { x.UserId, x.SessionId });
                     table.ForeignKey(
-                        name: "FK_SessionUserLink_Sessions_SessionId",
+                        name: "FK_SessionUserLinks_Sessions_SessionId",
                         column: x => x.SessionId,
                         principalTable: "Sessions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_SessionUserLink_Users_UserId",
+                        name: "FK_SessionUserLinks_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -98,9 +119,15 @@ namespace Gamemaster.Migrations
                 column: "OwnerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SessionUserLink_SessionId",
-                table: "SessionUserLink",
+                name: "IX_SessionUserLinks_SessionId",
+                table: "SessionUserLinks",
                 column: "SessionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Name",
+                table: "Users",
+                column: "Name",
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -109,7 +136,10 @@ namespace Gamemaster.Migrations
                 name: "Characters");
 
             migrationBuilder.DropTable(
-                name: "SessionUserLink");
+                name: "SessionUserLinks");
+
+            migrationBuilder.DropTable(
+                name: "Tokens");
 
             migrationBuilder.DropTable(
                 name: "Sessions");
