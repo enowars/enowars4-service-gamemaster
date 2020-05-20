@@ -6,4 +6,4 @@ services:
       context: Gamemaster
       dockerfile: Dockerfile
     ports:
-      - "8000:80"
+      - "8001:80"

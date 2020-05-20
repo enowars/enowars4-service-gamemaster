@@ -10,11 +10,11 @@ from enochecker_async import BaseChecker, BrokenServiceException, create_app, Of
 from logging import LoggerAdapter
 from motor import MotorCollection
 
-class WaspChecker(BaseChecker):
-    port = 8000
+class GamemasterChecker(BaseChecker):
+    port = 8001
 
     def __init__(self):
-        super(WaspChecker, self).__init__("WASP", 8080, 2, 0, 0)
+        super(GamemasterChecker, self).__init__("Gamemaster", 8080, 2, 1, 1)
 
     async def putflag(self, logger: LoggerAdapter, task: CheckerTaskMessage, collection: MotorCollection) -> None:
         tag = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
@@ -24,7 +24,7 @@ class WaspChecker(BaseChecker):
         async with aiohttp.ClientSession(raise_for_status=True) as session:
             # / because why not
             try:
-                await session.get("http://" + task.address + ":" + str(WaspChecker.port))
+                await session.get("http://" + task.address + ":" + str(GamemasterChecker.port))
             except Exception:
                 raise OfflineException()
             if task.flagIndex % 2 == 0:
@@ -44,7 +44,7 @@ class WaspChecker(BaseChecker):
 
             # /AddAttack
             try:
-                await session.post("http://" + task.address + ":" + str(WaspChecker.port) + "/api/AddAttack", data=attack)
+                await session.post("http://" + task.address + ":" + str(GamemasterChecker.port) + "/api/AddAttack", data=attack)
             except:
                 raise BrokenServiceException("/AddAttack failed")
             logger.debug("Flag {} up with tag: {}.".format(task.flag, tag))
@@ -59,7 +59,7 @@ class WaspChecker(BaseChecker):
             logger.info(f"GET /api/SearchAttacks needle={tag}")
             try:
                 search_result = None
-                r = await session.get("http://" + task.address + ":" + str(WaspChecker.port) + "/api/SearchAttacks", params={ "needle": tag})
+                r = await session.get("http://" + task.address + ":" + str(GamemasterChecker.port) + "/api/SearchAttacks", params={ "needle": tag})
                 search_result = await r.text()
                 search_results = json.loads(search_result)
                 attack_id = search_results["matches"][0]["id"]
@@ -69,7 +69,7 @@ class WaspChecker(BaseChecker):
             logger.info(f"Fetching attack id={attack_id} password={task.flag}")
             try:
                 get_result = None
-                r = await session.get("http://" + task.address + ":" + str(WaspChecker.port) + "/api/GetAttack", params={"id": attack_id, "password": task.flag}, timeout=5)
+                r = await session.get("http://" + task.address + ":" + str(GamemasterChecker.port) + "/api/GetAttack", params={"id": attack_id, "password": task.flag}, timeout=5)
                 get_result = await r.text()
                 matches = json.loads(get_result)
                 flag_field = "attackDate" if task.flagIndex % 2 == 0 else "location"
@@ -92,8 +92,8 @@ class WaspChecker(BaseChecker):
 
 logger = logging.getLogger()
 handler = logging.StreamHandler(sys.stdout)
-handler.setFormatter(ELKFormatter("%(message)s")) #ELK-ready output
+#handler.setFormatter(ELKFormatter("%(message)s")) #ELK-ready output
 logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 
-app = create_app(WaspChecker()) # mongodb://mongodb:27017
+app = create_app(GamemasterChecker()) # mongodb://mongodb:27017

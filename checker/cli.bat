@@ -1,0 +1,1 @@
+enochecker_cli -A http://localhost:8000 -a localhost  putflag

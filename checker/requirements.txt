@@ -1,2 +1,4 @@
 enochecker-async>=0.2
 aiohttp
+jsons
+Faker
