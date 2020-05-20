@@ -4,7 +4,6 @@ import sys
 import aiohttp
 import random
 import string
-import json
 from gamemasterlib import *
 from enochecker_async import BaseChecker, BrokenServiceException, create_app, OfflineException, ELKFormatter, CheckerTaskMessage
 from logging import LoggerAdapter
@@ -18,21 +17,29 @@ class GamemasterChecker(BaseChecker):
         super(GamemasterChecker, self).__init__("Gamemaster", 8080, 2, 1, 1)
         self.german_faker = Faker('de_DE')
     
-    def get_username():
-        return german_faker.first_name() + german_faker.last_name() + ''.join(random.choice(string.digits) for _ in range(10))
+    def getusername(self):
+        return self.german_faker.first_name() + self.german_faker.last_name() + ''.join(random.choice(string.digits) for _ in range(10))
 
-    def getpassword(username:str)->str:
-        return hash(username+"secret")
+    def getpassword(self, username:str)->str:
+        return hash(username+"suchsecretmuchwow")
+    def getemail(self, username:str)->str:
+        return self.german_faker.free_email()
 
     async def putflag(self, logger: LoggerAdapter, task: CheckerTaskMessage, collection: MotorCollection) -> None:
-        username = get_username()
-        await collection.insert_one({ 'flag' : task.flag, 'username': username })
-        password = getpassword (username)
+        username = self.getusername()
+        password = self.getpassword (username)
+        email = self.getemail(username)
         logger.debug("Putting Flag...")
-        
+        interface : HttpInterface = await HttpInterface.setup(task.address, GamemasterChecker.port, logger)
+        await interface.register(username, email, password)
+        sessionname = hash(self.german_faker.pystr())
+        notes = task.flag
+        password = self.getpassword(sessionname)
+        await collection.insert_one({ 'flag' : task.flag, 'username': username, 'session': sessionname })
+        response : aiohttp.ClientResponse = await interface.create_session(sessionname, notes, password)
 
     async def getflag(self, logger: LoggerAdapter, task: CheckerTaskMessage, collection: MotorCollection) -> None:
-
+        pass
 
     async def putnoise(self, logger: LoggerAdapter, task: CheckerTaskMessage, collection: MotorCollection) -> None:
         pass
