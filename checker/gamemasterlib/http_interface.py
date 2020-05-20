@@ -49,4 +49,12 @@ class HttpInterface:
         except:
             raise OfflineException()
         if response.status!=200:
-            raise BrokenServiceException(f"Create Session Failed: {response}")
+            raise BrokenServiceException(f"create_session Failed: {response}")
+    async def add_to_session(self, sessionid:int, username:str):
+        try:
+            params = {'sessionid': sessionid, 'username': username}
+            response:aiohttp.ClientResponse = await self.http_session.post(self.scheme + "://" + self.address + ":" + str(self.port) + "/api/gamesession/adduser", data=params)
+        except:
+            raise OfflineException()
+        if response.status!=200:
+            raise BrokenServiceException(f"add_to_session Failed: {response}")

@@ -16,6 +16,7 @@ class GamemasterChecker(BaseChecker):
     def __init__(self):
         super(GamemasterChecker, self).__init__("Gamemaster", 8080, 2, 1, 1)
         self.german_faker = Faker('de_DE')
+        self.clients = {}
     
     def getusername(self):
         return self.german_faker.first_name() + self.german_faker.last_name() + ''.join(random.choice(string.digits) for _ in range(10))
@@ -25,18 +26,42 @@ class GamemasterChecker(BaseChecker):
     def getemail(self, username:str)->str:
         return self.german_faker.free_email()
 
-    async def putflag(self, logger: LoggerAdapter, task: CheckerTaskMessage, collection: MotorCollection) -> None:
+    async def createmasterandput(self, logger: LoggerAdapter, flag: str, address: str, collection: MotorCollection) -> None:
         username = self.getusername()
         password = self.getpassword (username)
         email = self.getemail(username)
         logger.debug("Putting Flag...")
-        interface : HttpInterface = await HttpInterface.setup(task.address, GamemasterChecker.port, logger)
+        interface : HttpInterface = await HttpInterface.setup(address, GamemasterChecker.port, logger)
         await interface.register(username, email, password)
+        self.clients[username] = password
         sessionname = self.german_faker.pystr()
-        notes = task.flag
+        notes = flag
         password = self.getpassword(sessionname)
-        await collection.insert_one({ 'flag' : task.flag, 'username': username, 'session': sessionname })
+        await collection.insert_one({ 'flag' : flag, 'username': username, 'session': sessionname })
         response : aiohttp.ClientResponse = await interface.create_session(sessionname, notes, password)
+    async def createuser (self, logger: LoggerAdapter, address: str, collection: MotorCollection) -> str:
+        username = self.getusername()
+        password = self.getpassword (username)
+        email = self.getemail(username)
+        logger.debug("Create User...")
+        interface : HttpInterface = await HttpInterface.setup(address, GamemasterChecker.port, logger)
+        await interface.register(username, email, password)
+        self.clients[username] = password
+        return username
+    async def useraddsession (self, logger: LoggerAdapter, address:str, user:str, sessionid:int,mastername:str, collection: MotorCollection) -> None:
+        interface : HttpInterface = await HttpInterface.setup(address, GamemasterChecker.port, logger)
+        await interface.login(mastername, self.getpassword(mastername))
+        await interface.add_to_session(sessionid, user)
+
+    async def putflag(self, logger: LoggerAdapter, task: CheckerTaskMessage, collection: MotorCollection) -> None:
+        await self.createmasterandput(logger, task.flag, task.address, collection)
+        for k,v in self.clients:
+            if bool(random.getrandbits(1)):
+                del clients[k]
+        newsize = random.randrange(8, 15, 1)
+        while self.clients.len()<newsize:
+            createuser (logger, task.address, collection)
+        
 
     async def getflag(self, logger: LoggerAdapter, task: CheckerTaskMessage, collection: MotorCollection) -> None:
         try:
