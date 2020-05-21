@@ -54,6 +54,11 @@ class GamemasterChecker(BaseChecker):
         await interface.add_to_session(sessionid, user)
 
     async def putflag(self, logger: LoggerAdapter, task: CheckerTaskMessage, collection: MotorCollection) -> None:
+#        cursor = collection.find({'i': {'$lt': 5}}).sort('i')
+#...     for document in await cursor.to_list(length=100):
+#...         pprint.pprint(document)
+
+#### 
         await self.createmasterandput(logger, task.flag, task.address, collection)
         for k,v in self.clients:
             if bool(random.getrandbits(1)):
