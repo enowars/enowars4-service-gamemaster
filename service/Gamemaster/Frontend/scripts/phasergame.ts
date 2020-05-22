@@ -1,5 +1,6 @@
 ﻿import * as signalR from "@microsoft/signalr";
 import * as Phaser from 'phaser';
+
 const connection = new signalR.HubConnectionBuilder()
     .withUrl("/hubs/session")
     .configureLogging(signalR.LogLevel.Information)
@@ -27,7 +28,7 @@ export class CombatScene extends Phaser.Scene {
     private unitsLayer: Phaser.Tilemaps.DynamicTilemapLayer;
     private rt: Phaser.GameObjects.RenderTexture;
     private units: Map<string, Phaser.GameObjects.Sprite> = new Map();
-
+    private sessionid: number;
     constructor() {
         super(sceneConfig);
     }
@@ -39,6 +40,7 @@ export class CombatScene extends Phaser.Scene {
     }
 
     public create() {
+        
         this.map = this.make.tilemap({ key: 'map' });
         console.log(this.map);
         const tiles = this.map.addTilesetImage('Desert', 'tiles');
@@ -55,6 +57,7 @@ export class CombatScene extends Phaser.Scene {
 
         connection.start().catch(err => console.log(err));
         this.rt.draw(this.groundLayer);
+        connection.send("sessionId", sessionid)
     }
 
     public handleSceneUpdate(sceneUpdate: Scene) {

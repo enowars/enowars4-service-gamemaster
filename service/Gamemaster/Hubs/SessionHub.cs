@@ -9,13 +9,14 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Gamemaster.Models.Database;
 
 namespace Gamemaster.Hubs
 {
     //[Authorize]
     public class SessionHub : Hub
     {
-        public static Dictionary<string, Scene> Scenes = new Dictionary<string, Scene>();
+        public static Dictionary<long, Scene> Scenes = new Dictionary<string, Scene>();
         public string ConnectionId => "user" + Context.ConnectionId;
         private readonly ILogger Logger;
         private readonly IPnPAppDb Db;
@@ -51,11 +52,32 @@ namespace Gamemaster.Hubs
             await Clients.All.SendAsync(nameof(scene), scene, CancellationToken.None);
         }
 
-        public async Task Move(Direction d)
+        public async Task Join(long id)
         {
-            var id = ConnectionId;
-            var scene = Scenes["test"];
-            scene.Move(id, d);
+            var currentUsername = Context.User.Identity.Name;
+            if (currentUsername == null) return;
+            var currentUser = (await Db.GetUser(currentUsername));
+            if (currentUser == null) return;
+            var currentUserId = currentUser.Id;
+            var session = await Db.GetSession(id, currentUserId);
+            if (session == null) return;
+            await Groups.AddToGroupAsync(Context.ConnectionId, id.ToString());
+            var scene = Scenes[id];
+            await Clients.All.SendAsync(nameof(scene), scene, CancellationToken.None);
+        }
+        public async Task Move(Direction d, long id)
+        {
+            var currentUsername = Context.User.Identity.Name;
+            if (currentUsername == null) return;
+            var currentUser = (await Db.GetUser(currentUsername));
+            if (currentUser == null) return;
+            var currentUserId = currentUser.Id;
+            var session = await Db.GetSession(id, currentUserId);
+            if (session == null) return;
+
+            var cid = ConnectionId;
+            var scene = Scenes[id];
+            scene.Move(cid, d);
             await Clients.All.SendAsync(nameof(scene), scene, CancellationToken.None);
         }
     }

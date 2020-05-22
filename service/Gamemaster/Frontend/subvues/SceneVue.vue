@@ -4,7 +4,23 @@
     </div>
 </template>
 <script lang="ts">
-    /*import CombatScene from "/scripts/phasergame";
+    import { defineComponent, ref, reactive, readonly } from 'vue';
+    import { gmState } from "../store/gmstate";
+    import router from '../router';
+    import axios, { AxiosRequestConfig, AxiosPromise, AxiosResponse } from 'axios';
+    import { CombatScene } from "./../scripts/phasergame";
+    export default defineComponent({
+        props: ['sessionId'],
+        data() {
+            return {
+                input: {
+                    access: false
+                }
+            }
+        },
+        components: {
+        }
+    });
     const gameConfig: Phaser.Types.Core.GameConfig = {
         title: 'Sample',
         type: Phaser.AUTO,
@@ -22,5 +38,5 @@
         backgroundColor: '#000000',
         scene: CombatScene
     };
-    export const game = new Phaser.Game(gameConfig);  */
+    export const game = new Phaser.Game(gameConfig);
 </script>

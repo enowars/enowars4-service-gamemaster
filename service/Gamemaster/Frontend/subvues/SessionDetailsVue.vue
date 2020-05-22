@@ -11,8 +11,9 @@
     import { gmState } from "../store/gmstate";
     import router from '../router';
     import axios, { AxiosRequestConfig, AxiosPromise, AxiosResponse } from 'axios';
-    import SidebarVue from "./SidebarVue.vue";
+    //import SidebarVue from "./SidebarVue.vue";
     import SceneVue from "./SceneVue.vue";
+    import SessionListElement from "./SessionListElement.vue";
     export default defineComponent({
         props: ['sessionId'],
         data() {
@@ -23,8 +24,9 @@
             }
         },
         components: {
-            SidebarVue,
-            SceneVue
+            //SidebarVue,
+            SceneVue,
+            SessionListElement
         },
         mounted() {
             var bodyFormData = new FormData();
