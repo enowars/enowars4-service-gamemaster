@@ -20,7 +20,7 @@ namespace Gamemaster.Database
         Task<User?> AuthenticateUser(string name, string password);
         Task<User?> GetUser(int userid);
         Task<User?> GetUser(string username);
-        Task<Session> InsertSession(string name, string notes, User owner, string password);
+        Task<SessionView> InsertSession(string name, string notes, User owner, string password);
         Task<Session?> GetSession(long sessionId, long userId);
         Task<Session?> GetSession(long sessionId);
         Task<Session[]> GetSessions(long userId);
@@ -121,7 +121,7 @@ namespace Gamemaster.Database
         {
             return await _context.Users.Where(u => u.Name == username).SingleOrDefaultAsync();
         }
-        public async Task<Session> InsertSession(string name, string notes, User owner, string password)
+        public async Task<SessionView> InsertSession(string name, string notes, User owner, string password)
         {
             byte[] hash = new byte[64];
             byte[] salt = new byte[16];
@@ -138,7 +138,12 @@ namespace Gamemaster.Database
             };
             _context.Sessions.Add(session);
             await _context.SaveChangesAsync();
-            return session;
+            return new SessionView()
+            {
+                Name = session.Name,
+                Id = session.Id,
+                OwnerName = session.Owner.Name
+            };
         }
         public async Task<Session?> GetSession(long sessionId, long userId)
         {

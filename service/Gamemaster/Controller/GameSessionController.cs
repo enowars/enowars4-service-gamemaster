@@ -93,7 +93,7 @@ namespace Gamemaster.Controllers
             }
         }
         [HttpPost]
-        public async Task<ActionResult> AddUser(int sessionid, string username)
+        public async Task<ActionResult> AddUser([FromForm] int sessionid,[FromForm] string username)
         {
             try
             {

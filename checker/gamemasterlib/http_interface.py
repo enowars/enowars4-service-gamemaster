@@ -18,7 +18,7 @@ class HttpInterface:
         self.logger = logger
         self.http_session = httpsession
         self.scheme = "http"
-    async def __del__(self):
+    async def close(self):
         await self.http_session.close()
     @staticmethod
     async def setup(address: str, port: int, logger: Logger):
@@ -42,7 +42,7 @@ class HttpInterface:
             raise OfflineException()
         if response.status!=200:
             raise BrokenServiceException(f"Login Failed: {response}")
-    async def create_session(self, name:str, notes:str, password:str):
+    async def create_session(self, name:str, notes:str, password:str) -> aiohttp.ClientResponse:
         try:
             params = {'name': name, 'notes': notes, 'password': password}
             response:aiohttp.ClientResponse = await self.http_session.post(self.scheme + "://" + self.address + ":" + str(self.port) + "/api/gamesession/create", data=params)
@@ -50,6 +50,7 @@ class HttpInterface:
             raise OfflineException()
         if response.status!=200:
             raise BrokenServiceException(f"create_session Failed: {response}")
+        return response
     async def add_to_session(self, sessionid:int, username:str):
         try:
             params = {'sessionid': sessionid, 'username': username}
