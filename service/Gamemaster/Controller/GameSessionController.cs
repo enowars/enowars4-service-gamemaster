@@ -132,42 +132,5 @@ namespace Gamemaster.Controllers
             }
             return new EmptyResult();
         }
-        [HttpPost]
-        public async Task<ActionResult> AddToken([FromForm]int sessionid, [FromForm] string name, [FromForm] string description, [FromForm] bool isprivate, [FromForm] IFormFile icon)
-        {
-            try
-            {
-                var currentusername = HttpContext.User.Identity.Name;
-                if (currentusername == null)
-                {
-                    throw new System.Exception($"User not logged in");
-                }
-                var currentuser = await Db.GetUser(currentusername);
-                if (!(currentuser is User _))
-                {
-                    throw new System.Exception($"No user called {currentusername} found");
-                }
-                var session = await Db.GetSession(sessionid);
-                if (!(session is Session _))
-                {
-                    throw new System.ArgumentException("SessionId not valid");
-                }
-                if (session.Owner.Id != currentuser.Id)
-                {
-                    throw new System.Exception($"User {currentusername} not owner of session {session.Name}");
-                }
-
-                MemoryStream stream = new MemoryStream();
-                await icon.CopyToAsync(stream);
-                var iconbin = stream.ToArray();
-                await Db.AddTokenToSession(session.Id, name, description, isprivate, iconbin);
-            }
-            catch (Exception e)
-            {
-                Logger.LogError($"{nameof(AddUser)} failed: {e.Message}");
-                return Forbid();
-            }
-            return new EmptyResult();
-        }
     }
 }

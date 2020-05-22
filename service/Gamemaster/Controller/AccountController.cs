@@ -11,12 +11,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Gamemaster.Database;
 using Gamemaster.Models.Database;
+using System.IO;
 
 namespace Gamemaster.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class AccountController : ControllerBase
+    public class AccountController : Controller
     {
         private readonly ILogger<AccountController> Logger;
         private readonly IPnPAppDb Db;
@@ -104,6 +105,37 @@ namespace Gamemaster.Controllers
                 authProperties);
 
             return new EmptyResult();
+        }
+        [HttpPost]
+        public async Task<ActionResult> AddToken([FromForm] string name, [FromForm] string description, [FromForm] bool isprivate, [FromForm] IFormFile icon)
+        {
+            try
+            {
+                var currentusername = HttpContext.User.Identity.Name;
+                if (currentusername == null)
+                {
+                    throw new System.Exception($"User not logged in");
+                }
+                var currentuser = await Db.GetUser(currentusername);
+                if (!(currentuser is User _))
+                {
+                    throw new System.Exception($"No user called {currentusername} found");
+                }
+                MemoryStream stream = new MemoryStream();
+                await icon.CopyToAsync(stream);
+                var iconbin = stream.ToArray();
+                var token = await Db.AddTokenToUser(currentuser.Id, name, description, isprivate, iconbin);
+                if (token == null)
+                {
+                    throw new System.Exception($"Tokencreate failed");
+                }
+                return Json(token.UUID);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError($"{nameof(AddToken)} failed: {e.Message}");
+                return Forbid();
+            }
         }
     }
 }

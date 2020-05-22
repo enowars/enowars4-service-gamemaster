@@ -16,6 +16,7 @@ namespace Gamemaster.Models.Database
         [MaxLength(64)] public byte[] PasswordSha512Hash { get; set; }
         public List<Character> Characters { get; set; } = new List<Character>();
         public List<SessionUserLink> Sessions { get; set; } = new List<SessionUserLink>();
+        public List<Token> Tokens { get; set; } = new List<Token>();
     }
 #pragma warning restore CS8618
 }

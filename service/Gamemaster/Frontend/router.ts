@@ -6,6 +6,7 @@ import Session from './subvues/Session.vue'
 import SessionList from './subvues/SessionList.vue'
 import AccountSettings from './subvues/AccountSettings.vue'
 import SessionDetails from './subvues/SessionDetails.vue'
+import TokenAdd from './subvues/TokenAdd.vue'
 
 const routerHistory = createWebHistory()
 
@@ -40,7 +41,12 @@ const router = createRouter({
             path: '/sessionDetails/:id',
             name: 'SessionDetails',
             component: SessionDetails
-        }
+        },
+        {
+            path: '/tokenAdd',
+            component: TokenAdd
+        },
+        
 
 
         

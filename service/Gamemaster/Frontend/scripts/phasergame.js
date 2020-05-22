@@ -39,6 +39,7 @@ class CombatScene extends Phaser.Scene {
         });
         connection.start().catch(err => console.log(err));
         this.rt.draw(this.groundLayer);
+        connection.send("sessionId", this.sessionid);
     }
     handleSceneUpdate(sceneUpdate) {
         for (const id in sceneUpdate.units) {

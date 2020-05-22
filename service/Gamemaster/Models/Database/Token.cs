@@ -17,6 +17,8 @@ namespace Gamemaster.Models.Database
         public string Description { get; set; }
         public bool IsPrivate { get; set; }
         public byte[] Icon { get; set; }
+        public User Owner { get; set; }
+        public long OwnerId { get; set; }
     }
 #pragma warning restore CS8618
 }

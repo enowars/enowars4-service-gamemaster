@@ -57,7 +57,7 @@ export class CombatScene extends Phaser.Scene {
 
         connection.start().catch(err => console.log(err));
         this.rt.draw(this.groundLayer);
-        connection.send("sessionId", sessionid)
+        connection.send("sessionId", this.sessionid)
     }
 
     public handleSceneUpdate(sceneUpdate: Scene) {

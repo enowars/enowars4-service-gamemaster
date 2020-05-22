@@ -21,12 +21,12 @@ namespace Gamemaster.Database
         Task<User?> GetUser(int userid);
         Task<User?> GetUser(string username);
         Task<SessionView> InsertSession(string name, string notes, User owner, string password);
-        Task<Session?> GetSession(long sessionId, long userId);
+        Task<SessionView?> GetSession(long sessionId, long userId);
         Task<Session?> GetSession(long sessionId);
         Task<Session[]> GetSessions(long userId);
         Task<SessionView[]> GetRecentSessions(int skip, int take);
         Task AddUserToSession(long sessionId, long userId);
-        Task<Token?> AddTokenToSession(long sessionId, string name, string description, bool isprivate, byte[] icon);
+        Task<Token?> AddTokenToUser(long sessionId, string name, string description, bool isprivate, byte[] icon);
         Task<Token> GetTokenByUUID(string UUID);
 
     }
@@ -156,7 +156,7 @@ namespace Gamemaster.Database
             }
             return null;
         }
-        public async Task<Session?> GetSession(long sessionId)
+        public async Task<Session?> GetSession(long sessionId)     // #################Todo: Check Auth??
         {
             return await _context.Sessions.Where(s => s.Id == sessionId)
                 .SingleOrDefaultAsync();
@@ -174,7 +174,7 @@ namespace Gamemaster.Database
         {
             return await _context.Tokens.Where(t => t.UUID == UUID).SingleOrDefaultAsync();
         }
-        public async Task<Token?> AddTokenToSession(long sessionId, string name, string description, bool isprivate, byte[] icon)
+        public async Task<Token?> AddTokenToUser(long userid, string name, string description, bool isprivate, byte[] icon)
         {
             string uUID = "";
             lock (Rand) for (;uUID.Length<128; uUID += Rand.Next().ToString("X8"));
@@ -184,7 +184,8 @@ namespace Gamemaster.Database
                 Description = description,
                 IsPrivate = isprivate,
                 Icon = icon,
-                UUID = uUID
+                UUID = uUID,
+                OwnerId = userid
             };
             _context.Tokens.Add(token);
             await _context.SaveChangesAsync();
