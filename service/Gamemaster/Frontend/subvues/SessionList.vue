@@ -1,10 +1,19 @@
 <template>
-  <div>
-    SessionList
-      <table>
-          <SessionListElement v-for="d in tabledata" :data="d"></SessionListElement>
-      </table>
-  </div>
+    <div>
+        SessionList
+        <table>
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Name</th>
+                    <th>Owner</th>
+                </tr>
+            </thead>
+            <tbody>
+                <SessionListElement v-for="d in tabledata" :data="d"></SessionListElement>
+            </tbody>
+        </table>
+    </div>
 </template>
 <script lang="ts">
     import axios, { AxiosRequestConfig, AxiosPromise, AxiosResponse } from 'axios';

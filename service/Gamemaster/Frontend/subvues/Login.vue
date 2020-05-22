@@ -15,6 +15,7 @@
     import axios, { AxiosRequestConfig, AxiosPromise, AxiosResponse } from 'axios';
     import router from './../router';
     import { METHODS } from 'http';
+    import { gmState } from "../store/gmstate";
     export default {
         name: 'Login',
         data() {
@@ -38,17 +39,19 @@
                     url: '/api/account/login',
                 };
                 axios(options).then(
-                    function (response) {
+                    response => {
                         console.log(response);
                         if (response.status == 200) {
                             console.log("Login Successful");
                             alert("Login Successful");
+                            gmState.login(this.input.username)
                             router.push("/");
                         } else {
                             console.log("this should not happen...");
                         }
                     }).catch(error => {
                         console.log("Login failed");
+                        console.log(error);
                         alert("Login failed");
                     })
                 return false;

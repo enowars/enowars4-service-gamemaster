@@ -134,28 +134,27 @@ namespace Gamemaster.Database
                 Notes = notes,
                 OwnerId = owner.Id,
                 PasswordSalt = salt,
-                PasswordSha512Hash = hash
+                PasswordSha512Hash = hash,
+                Timestamp = DateTime.UtcNow
             };
             _context.Sessions.Add(session);
             await _context.SaveChangesAsync();
-            return new SessionView()
-            {
-                Name = session.Name,
-                Id = session.Id,
-                OwnerName = session.Owner.Name
-            };
+            return new SessionView(session);
         }
-        public async Task<Session?> GetSession(long sessionId, long userId)
+        public async Task<SessionView?> GetSession(long sessionId, long userId)
         {
-            return await _context.Sessions
+            var session = await _context.Sessions
+                .Where(s => s.Id == sessionId)
                 .Include(s => s.Players)
-                .Where(s => s.Players
-                    .Contains(new SessionUserLink()
-                    {
-                        SessionId = sessionId,
-                        UserId = userId
-                    }))
                 .SingleOrDefaultAsync();
+
+            if (session.OwnerId == userId) return new SessionView(session);
+            foreach (var u in session.Players)
+            {
+                if (u.UserId == userId)
+                    return new SessionView(session);
+            }
+            return null;
         }
         public async Task<Session?> GetSession(long sessionId)
         {
@@ -202,7 +201,7 @@ namespace Gamemaster.Database
         }
         public async Task<SessionView[]> GetRecentSessions(int skip, int take)
         {
-            return await _context.Sessions.Include(s => s.Owner).OrderByDescending(s => s.Id).Skip(skip).Take(take).Select(s => new SessionView{Name = s.Name, OwnerName = s.Owner.Name, Id = s.Id}).ToArrayAsync();
+            return await _context.Sessions.Include(s => s.Owner).OrderByDescending(s => s.Id).Skip(skip).Take(take).Select(s => new SessionView(s)).ToArrayAsync();
         }
     }
 }

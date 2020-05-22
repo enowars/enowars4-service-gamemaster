@@ -57,6 +57,12 @@ namespace Gamemaster.Controllers
             }
             return Forbid();
         }
+        [HttpPost]
+        public async Task<ActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return new EmptyResult();
+        }
 
         [HttpPost]
         public async Task<ActionResult> TestLogin()

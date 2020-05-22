@@ -14,6 +14,7 @@ namespace Gamemaster.Models.Database
         public User Owner { get; set; }
         public string Name { get; set; }
         public string Notes { get; set; }
+        public DateTime Timestamp{ get; set; }
         [MaxLength(16)] public byte[] PasswordSalt { get; set; }
         [MaxLength(64)] public byte[] PasswordSha512Hash { get; set; }
         public List<SessionUserLink> Players { get; set; } = new List<SessionUserLink>();

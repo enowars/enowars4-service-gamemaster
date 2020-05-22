@@ -67,6 +67,9 @@ namespace Gamemaster.Migrations
                         .HasColumnType("BLOB")
                         .HasMaxLength(64);
 
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("OwnerId");

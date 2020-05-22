@@ -4,6 +4,8 @@ import Login from './subvues/Login.vue'
 import Register from './subvues/Register.vue'
 import Session from './subvues/Session.vue'
 import SessionList from './subvues/SessionList.vue'
+import AccountSettings from './subvues/AccountSettings.vue'
+import SessionDetails from './subvues/SessionDetails.vue'
 
 const routerHistory = createWebHistory()
 
@@ -29,7 +31,19 @@ const router = createRouter({
         {
             path: '/sessionList',
             component: SessionList
+        },
+        {
+            path: '/accountSettings',
+            component: AccountSettings
+        },
+        {
+            path: '/sessionDetails/:id',
+            name: 'SessionDetails',
+            component: SessionDetails
         }
+
+
+        
     ]
 })
 

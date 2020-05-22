@@ -29,7 +29,9 @@ namespace Gamemaster.Controllers
             try
             {
                 var username = HttpContext.User.Identity.Name;
+                if (username == null) return Forbid();
                 var owner = await Db.GetUser(username);
+                if (owner == null) return Forbid();
                 var session = await Db.InsertSession(name, notes, owner, password);
                 return Json(session);
             }
@@ -41,7 +43,7 @@ namespace Gamemaster.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> GetSessionInfo([FromForm]long id)
+        public async Task<ActionResult> GetInfo([FromForm]long id)
         {
             try
             {

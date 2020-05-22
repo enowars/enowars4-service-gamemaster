@@ -22,7 +22,7 @@ class GamemasterChecker(BaseChecker):
     def getusername(self):
         return self.german_faker.first_name() + self.german_faker.last_name() + ''.join(random.choice(string.digits) for _ in range(10))
     def getpassword(self, username:str)->str:
-        return sha256(username+"suchsecretmuchwow").hexdigest()
+        return sha256(username.encode('utf-8')+"suchsecretmuchwow".encode('utf-8')).hexdigest()
     def getemail(self, username:str)->str:
         return self.german_faker.free_email()
 
@@ -58,8 +58,6 @@ class GamemasterChecker(BaseChecker):
         interface : HttpInterface = await HttpInterface.setup(address, GamemasterChecker.port, logger)
         await interface.login(mastername, self.getpassword(mastername))
         await asyncio.gather(*[interface.add_to_session(sessionid, k) for k in clients.keys()])
-            
-        
         await interface.close()
 
     async def clienttodb(self, logger:LoggerAdapter, round:int, collection:MotorCollection, clients:dict):
@@ -100,10 +98,8 @@ class GamemasterChecker(BaseChecker):
         interface : HttpInterface = await HttpInterface.setup(task.address, GamemasterChecker.port, logger)
         await interface.login(username, self.getpassword(username))
         await interface.close()
-        
 
     async def putnoise(self, logger: LoggerAdapter, task: CheckerTaskMessage, collection: MotorCollection) -> None:
-        
         pass
 
     async def getnoise(self, logger: LoggerAdapter, task: CheckerTaskMessage, collection: MotorCollection) -> None:

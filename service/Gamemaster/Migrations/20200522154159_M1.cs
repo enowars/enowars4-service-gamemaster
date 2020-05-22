@@ -70,6 +70,7 @@ namespace Gamemaster.Migrations
                     OwnerId = table.Column<long>(nullable: false),
                     Name = table.Column<string>(nullable: false),
                     Notes = table.Column<string>(nullable: false),
+                    Timestamp = table.Column<DateTime>(nullable: false),
                     PasswordSalt = table.Column<byte[]>(maxLength: 16, nullable: false),
                     PasswordSha512Hash = table.Column<byte[]>(maxLength: 64, nullable: false)
                 },

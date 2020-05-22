@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Gamemaster.Migrations
 {
     [DbContext(typeof(GamemasterDbContext))]
-    [Migration("20200520173652_M1")]
+    [Migration("20200522154159_M1")]
     partial class M1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -68,6 +68,9 @@ namespace Gamemaster.Migrations
                         .IsRequired()
                         .HasColumnType("BLOB")
                         .HasMaxLength(64);
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
