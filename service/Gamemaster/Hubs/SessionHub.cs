@@ -18,10 +18,10 @@ namespace Gamemaster.Hubs
     {
         public static Dictionary<long, Scene> Scenes = new Dictionary<long, Scene>();
         private readonly ILogger Logger;
-        private readonly IPnPAppDb Db;
+        private readonly IGamemasterDb Db;
         public static Dictionary<string, int> CiDtoScenes = new Dictionary<string, int>();
 
-        public SessionHub(ILogger<SessionHub> logger, IPnPAppDb db)
+        public SessionHub(ILogger<SessionHub> logger, IGamemasterDb db)
         {
             Logger = logger;
             Db = db;

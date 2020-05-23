@@ -20,9 +20,9 @@ namespace Gamemaster.Controllers
     public class AccountController : Controller
     {
         private readonly ILogger<AccountController> Logger;
-        private readonly IPnPAppDb Db;
+        private readonly IGamemasterDb Db;
 
-        public AccountController(ILogger<AccountController> logger, IPnPAppDb db)
+        public AccountController(ILogger<AccountController> logger, IGamemasterDb db)
         {
             Logger = logger;
             Db = db;

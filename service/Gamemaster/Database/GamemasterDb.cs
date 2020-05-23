@@ -13,7 +13,7 @@ using Gamemaster.Models.View;
 
 namespace Gamemaster.Database
 {
-    public interface IPnPAppDb
+    public interface IGamemasterDb
     {
         void Migrate();
         Task<User> InsertUser(string name, string email, string password);
@@ -28,24 +28,23 @@ namespace Gamemaster.Database
         Task AddUserToSession(long sessionId, long userId);
         Task<Token?> AddTokenToUser(long sessionId, string name, string description, bool isprivate, byte[] icon);
         Task<Token> GetTokenByUUID(string UUID);
-
     }
 
-    public partial class PnPAppDb : IPnPAppDb
+    public partial class GamemasterDb : IGamemasterDb
     {
         public static Random Rand = new Random(); 
         private const int MAX_PASSWORD_LENGTH = 128;
         private readonly ILogger Logger;
         private readonly GamemasterDbContext _context;
 
-        public PnPAppDb(GamemasterDbContext context, ILogger<PnPAppDb> logger)
+        public GamemasterDb(GamemasterDbContext context, ILogger<GamemasterDb> logger)
         {
             _context = context;
             Logger = logger;
             
         }
 
-        public PnPAppDb()
+        public GamemasterDb()
         {
         }
 

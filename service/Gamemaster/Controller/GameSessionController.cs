@@ -16,9 +16,9 @@ namespace Gamemaster.Controllers
     public class GameSessionController : Controller
     {
         private readonly ILogger<GameSessionController> Logger;
-        private readonly IPnPAppDb Db;
+        private readonly IGamemasterDb Db;
 
-        public GameSessionController(ILogger<GameSessionController> logger, IPnPAppDb db)
+        public GameSessionController(ILogger<GameSessionController> logger, IGamemasterDb db)
         {
             Logger = logger;
             Db = db;

@@ -31,11 +31,11 @@ namespace Gamemaster
             services.AddSignalR();
             services.AddControllers();
             services.AddDbContextPool<GamemasterDbContext>(options => options.UseSqlite(GamemasterDbContextFactory.CONNECTION_STRING));
-            services.AddScoped<IPnPAppDb, PnPAppDb>();
+            services.AddScoped<IGamemasterDb, GamemasterDb>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IPnPAppDb db)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IGamemasterDb db)
         {
             if (env.IsDevelopment())
             {
