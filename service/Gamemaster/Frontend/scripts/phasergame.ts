@@ -1,19 +1,7 @@
 ﻿import * as signalR from "@microsoft/signalr";
 import * as Phaser from 'phaser';
-
-const connection = new signalR.HubConnectionBuilder()
-    .withUrl("/hubs/session")
-    .configureLogging(signalR.LogLevel.Information)
-    .build();
-
-class Scene {
-    units: { [id: string]: Unit }
-}
-
-class Unit {
-    x: number;
-    y: number;
-}
+import { Scene, Unit } from "./types";
+import { SignalRContext } from "./SignalRhelper";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
     active: false,
@@ -29,6 +17,7 @@ export class CombatScene extends Phaser.Scene {
     private rt: Phaser.GameObjects.RenderTexture;
     private units: Map<string, Phaser.GameObjects.Sprite> = new Map();
     private sessionid: number;
+    public move: (dir: number) => void;
     constructor() {
         super(sceneConfig);
     }
@@ -36,7 +25,7 @@ export class CombatScene extends Phaser.Scene {
     public preload() {
         this.load.image('tiles', '/assets/tilemaps/tiles/tmw_desert_spacing.png');
         this.load.tilemapTiledJSON('map', '/assets/tilemaps/maps/desert.json');
-        this.load.image('car', '/assets/sprites/car.png')
+        this.load.image('car', '/assets/sprites/car.png');
     }
 
     public create() {
@@ -46,19 +35,21 @@ export class CombatScene extends Phaser.Scene {
         const tiles = this.map.addTilesetImage('Desert', 'tiles');
         this.groundLayer = this.map.createDynamicLayer('Ground', tiles, 0, 0).setVisible(false);
         this.rt = this.add.renderTexture(0, 0, 800, 600);
-
+        this.move = SignalRContext.getInstance().move;
+        /*
         connection.on("test", (data: string) => {
             console.log("recv " + data);
         });
-
+        connection.on("Chat", (msg: ChatMessage) => {
+            this.handleChat(msg);
+        });
         connection.on("Scene", (data: Scene) => {
             this.handleSceneUpdate(data);
-        });
+        });  */
 
-        connection.start().catch(err => console.log(err));
         this.rt.draw(this.groundLayer);
-        connection.send("sessionId", this.sessionid)
     }
+
 
     public handleSceneUpdate(sceneUpdate: Scene) {
         for (const id in sceneUpdate.units) {
@@ -82,16 +73,16 @@ export class CombatScene extends Phaser.Scene {
     public update() {
         const cursorKeys = this.input.keyboard.createCursorKeys();
         if (cursorKeys.up.isDown) {
-            connection.send("Move", 0)
+            this.move(0);
         }
         if (cursorKeys.right.isDown) {
-            connection.send("Move", 1)
+            this.move(1);
         }
         if (cursorKeys.down.isDown) {
-            connection.send("Move", 2)
+            this.move(2);
         }
         if (cursorKeys.left.isDown) {
-            connection.send("Move", 3)
+            this.move(3);
         }
         this.rt.draw(this.groundLayer);
     }

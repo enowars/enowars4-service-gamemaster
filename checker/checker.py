@@ -22,7 +22,8 @@ class GamemasterChecker(BaseChecker):
     def getusername(self):
         return self.german_faker.first_name() + self.german_faker.last_name() + ''.join(random.choice(string.digits) for _ in range(10))
     def getpassword(self, username:str)->str:
-        return sha256(username.encode('utf-8')+"suchsecretmuchwow".encode('utf-8')).hexdigest()
+        #return sha256(username.encode('utf-8')+"suchsecretmuchwow".encode('utf-8')).hexdigest()
+        return "password"
     def getemail(self, username:str)->str:
         return self.german_faker.free_email()
 

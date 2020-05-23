@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Gamemaster.Database;
 using Gamemaster.Models.Database;
 using System.IO;
+using Gamemaster.Models.View;
 
 namespace Gamemaster.Controllers
 {
@@ -40,6 +41,21 @@ namespace Gamemaster.Controllers
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             await HttpContext.SignInAsync(new ClaimsPrincipal(claimsIdentity));
             return new EmptyResult();
+        }
+        [HttpPost]
+        public async Task<ActionResult> Info()
+        {
+            var currentusername = HttpContext.User.Identity.Name;
+            if (currentusername == null)
+            {
+                return Forbid();
+            }
+            var currentuser = await Db.GetUser(currentusername);
+            if (!(currentuser is User _))
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"User {currentusername} not found");
+            }
+            return Json(new UserView (currentuser));
         }
         [HttpPost]
         public async Task<ActionResult> Login([FromForm] string username, [FromForm] string password)
@@ -107,6 +123,7 @@ namespace Gamemaster.Controllers
             return new EmptyResult();
         }
         [HttpPost]
+        [RequestSizeLimit(100_000)]
         public async Task<ActionResult> AddToken([FromForm] string name, [FromForm] string description, [FromForm] bool isprivate, [FromForm] IFormFile icon)
         {
             try

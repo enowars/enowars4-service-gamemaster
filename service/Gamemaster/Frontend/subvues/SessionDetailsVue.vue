@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>More Session Details for Session {{ sessionId}}:</h1>
-      <memberListVue></memberListVue>
+      <SceneVue :session-id="sessionId"></SceneVue>
       <SidebarVue></SidebarVue>
   </div>
 </template>
@@ -11,7 +11,7 @@
     import { gmState } from "../store/gmstate";
     import router from '../router';
     import axios, { AxiosRequestConfig, AxiosPromise, AxiosResponse } from 'axios';
-    //import SidebarVue from "./SidebarVue.vue";
+    import SidebarVue from "./SidebarVue.vue";
     import SceneVue from "./SceneVue.vue";
     import SessionListElement from "./SessionListElement.vue";
     export default defineComponent({
@@ -24,9 +24,8 @@
             }
         },
         components: {
-            //SidebarVue,
-            SceneVue,
-            SessionListElement
+            SidebarVue,
+            SceneVue
         },
         mounted() {
             var bodyFormData = new FormData();
@@ -39,7 +38,7 @@
             };
             axios(options).then(
                 response => {
-                    console.log(response);
+                    //console.log(response);
                     if (response.status == 200) {
                     } else {
                         console.log("this should not happen...");

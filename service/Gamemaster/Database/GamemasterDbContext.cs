@@ -12,9 +12,9 @@ namespace Gamemaster.Database
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Session> Sessions { get; set; }
-        public DbSet<Character> Characters { get; set; }
         public DbSet<SessionUserLink> SessionUserLinks { get; set; }
         public DbSet<Token> Tokens { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
 
 
 

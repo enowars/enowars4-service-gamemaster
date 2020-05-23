@@ -1,13 +1,13 @@
 <template>
-    <div id="login">
-        <h1>Login</h1>
-        <form id="login"
+    <div id="tokenAdd">
+        <h1>Add Token</h1>
+        <form id="addtoken"
               action=""
               method="post">
             <input type="text" name="name" v-model="input.name" placeholder="Name" />
-            <input type="password" name="description" v-model="input.description" placeholder="Description" />
+            <input type="text" name="description" v-model="input.description" placeholder="Description" />
             <input type="checkbox" name="isPrivate" v-model="input.isPrivate" placeholder="Description" />
-            <input type="file" name="file" @bind="@Files">
+            <input type="file" ref="file" id="file" v-on:change="handleFileUpload()"/>
             <button type="button" v-on:click="add()">Add</button>
         </form>
     </div>
@@ -25,21 +25,26 @@
                 input: {
                     name: "",
                     description: "",
-                    isPrivate: true
+                    isPrivate: true,
+                    file: ""
                 }
             }
         },
         methods: {
+            handleFileUpload() {
+                this.input.file = this.$refs.file.files[0];
+            },
             add() {
                 var bodyFormData = new FormData();
                 bodyFormData.set('name', this.input.name);
                 bodyFormData.set('description', this.input.description);
                 bodyFormData.set('isPrivate', this.input.isPrivate);
+                bodyFormData.append("icon", this.input.file);
                 console.log("Adding Token...");
                 const options: AxiosRequestConfig = {
                     method: 'POST',
                     data: bodyFormData,
-                    headers: { 'Content-Type': 'x-www-form-urlencoded' },
+                    headers: { 'Content-Type': 'multipart/form-data' },
                     url: '/api/account/AddToken',
                 };
                 axios(options).then(
@@ -48,7 +53,6 @@
                         if (response.status == 200) {
                             console.log("Token Added Successfully");
                             alert("Token Added Successfully");
-                            gmState.login(this.input.username)
                             router.push("/");
                         } else {
                             console.log("this should not happen...");

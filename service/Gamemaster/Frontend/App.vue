@@ -19,6 +19,26 @@
     import axios, { AxiosRequestConfig, AxiosPromise, AxiosResponse } from 'axios';
     export default defineComponent({
         setup() {
+            const options: AxiosRequestConfig = {
+                method: 'POST',
+                headers: { 'Content-Type': 'x-www-form-urlencoded' },
+                url: '/api/account/info',
+            }
+            axios(options).then(
+                response => {
+                    console.log(response);
+                    if (response.status == 200) {
+                        var username = response.data["name"];
+                        console.log("Login Successful as " + username);
+                        console.log(response);
+                        gmState.login(username);
+                    } else {
+                        console.log("this should not happen...");
+                    }
+                }).catch(error => {
+                    console.log("No Login found");
+                    console.log(error);
+                })
             return {
                 state: gmState.getState()
             }

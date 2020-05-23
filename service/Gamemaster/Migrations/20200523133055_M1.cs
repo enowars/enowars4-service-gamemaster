@@ -8,23 +8,6 @@ namespace Gamemaster.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Tokens",
-                columns: table => new
-                {
-                    Id = table.Column<long>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    UUID = table.Column<string>(nullable: false),
-                    Name = table.Column<string>(nullable: false),
-                    Description = table.Column<string>(nullable: false),
-                    IsPrivate = table.Column<bool>(nullable: false),
-                    Icon = table.Column<byte[]>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Tokens", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -86,6 +69,30 @@ namespace Gamemaster.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Tokens",
+                columns: table => new
+                {
+                    Id = table.Column<long>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    UUID = table.Column<string>(nullable: false),
+                    Name = table.Column<string>(nullable: false),
+                    Description = table.Column<string>(nullable: false),
+                    IsPrivate = table.Column<bool>(nullable: false),
+                    Icon = table.Column<byte[]>(nullable: false),
+                    OwnerId = table.Column<long>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tokens", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Tokens_Users_OwnerId",
+                        column: x => x.OwnerId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SessionUserLinks",
                 columns: table => new
                 {
@@ -123,6 +130,11 @@ namespace Gamemaster.Migrations
                 name: "IX_SessionUserLinks_SessionId",
                 table: "SessionUserLinks",
                 column: "SessionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tokens_OwnerId",
+                table: "Tokens",
+                column: "OwnerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_Name",

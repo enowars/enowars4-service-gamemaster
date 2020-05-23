@@ -10,6 +10,8 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Gamemaster.Models.Database;
+using SQLitePCL;
+using Gamemaster.Models.View;
 
 namespace Gamemaster.Hubs
 {
@@ -19,7 +21,7 @@ namespace Gamemaster.Hubs
         public static Dictionary<long, Scene> Scenes = new Dictionary<long, Scene>();
         private readonly ILogger Logger;
         private readonly IGamemasterDb Db;
-        public static Dictionary<string, int> CiDtoScenes = new Dictionary<string, int>();
+        public static Dictionary<string, long> ConIdtoSessionId = new Dictionary<string, long>();
 
         public SessionHub(ILogger<SessionHub> logger, IGamemasterDb db)
         {
@@ -37,7 +39,7 @@ namespace Gamemaster.Hubs
         public override async Task OnDisconnectedAsync(Exception exception)
         {
             string id = Context.ConnectionId;
-            var sceneId = CiDtoScenes[id];
+            var sceneId = ConIdtoSessionId[id];
             var scene = Scenes[sceneId];
             if (scene != null)
             {
@@ -46,42 +48,55 @@ namespace Gamemaster.Hubs
 
             }
         }
-
-        public async Task Join(long id)
+        public async Task Chat(string Message)
         {
             var currentUsername = Context.User.Identity.Name;
             if (currentUsername == null) return;
             var currentUser = (await Db.GetUser(currentUsername));
             if (currentUser == null) return;
             var currentUserId = currentUser.Id;
-            var session = await Db.GetSession(id, currentUserId);
+            var sid = ConIdtoSessionId[Context.ConnectionId];
+            var session = await Db.GetSession(sid, currentUserId);
             if (session == null) return;
-            await Groups.AddToGroupAsync(Context.ConnectionId, id.ToString());
+            var msg = await Db.InsertChatMessage(session.Id, currentUser, Message);
+            await Clients.Group(sid.ToString()).SendAsync("Chat", new ChatMessageView(msg), CancellationToken.None);
+        }
+        public async Task Join(int sid)
+        {
+            var currentUsername = Context.User.Identity.Name;
+            if (currentUsername == null) return;
+            var currentUser = (await Db.GetUser(currentUsername));
+            if (currentUser == null) return;
+            var currentUserId = currentUser.Id;
+            var session = await Db.GetSession(sid, currentUserId);
+            if (session == null) return;
+            await Groups.AddToGroupAsync(Context.ConnectionId, sid.ToString());
             lock (Scenes)
             {
-                if (!Scenes.ContainsKey(id))
+                if (!Scenes.ContainsKey(sid))
                 {
-                    Scenes[id] = new Scene();
+                    Scenes[sid] = new Scene();
                 }
             };
-            var scene = Scenes[id];
-            scene.AddUnit("unit"+ Context.ConnectionId, new Unit());
-            await Clients.All.SendAsync(nameof(scene), scene, CancellationToken.None);
+            lock (ConIdtoSessionId)
+            {
+                ConIdtoSessionId.Add(Context.ConnectionId, sid);
+            }
+            Scenes[sid].AddUnit("unit"+ Context.ConnectionId, new Unit());
+            await Clients.Group(sid.ToString()).SendAsync("Scene", Scenes[sid], CancellationToken.None);
         }
-        public async Task Move(Direction d, long id)
+        public async Task Move(Direction d)
         {
             var currentUsername = Context.User.Identity.Name;
             if (currentUsername == null) return;
-            var currentUser = (await Db.GetUser(currentUsername));
+            var currentUser = await Db.GetUser(currentUsername);
             if (currentUser == null) return;
             var currentUserId = currentUser.Id;
-            var session = await Db.GetSession(id, currentUserId);
+            var sid = ConIdtoSessionId[Context.ConnectionId];
+            var session = await Db.GetSession(sid, currentUserId);
             if (session == null) return;
-
-            var cid = Context.ConnectionId;
-            var scene = Scenes[id];
-            scene.Move(cid, d);
-            await Clients.All.SendAsync(nameof(scene), scene, CancellationToken.None);
+            Scenes[sid].Move(Context.ConnectionId, d);
+            await Clients.Group(sid.ToString()).SendAsync("Scene", Scenes[sid], CancellationToken.None);
         }
     }
 }

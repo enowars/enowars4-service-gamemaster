@@ -14,7 +14,7 @@ namespace Gamemaster.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.3");
+                .HasAnnotation("ProductVersion", "3.1.4");
 
             modelBuilder.Entity("Gamemaster.Models.Database.Character", b =>
                 {
@@ -113,11 +113,16 @@ namespace Gamemaster.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<long>("OwnerId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("UUID")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
 
                     b.ToTable("Tokens");
                 });
@@ -183,6 +188,15 @@ namespace Gamemaster.Migrations
                     b.HasOne("Gamemaster.Models.Database.User", "User")
                         .WithMany("Sessions")
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Gamemaster.Models.Database.Token", b =>
+                {
+                    b.HasOne("Gamemaster.Models.Database.User", "Owner")
+                        .WithMany("Tokens")
+                        .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

@@ -17,6 +17,7 @@ namespace Gamemaster.Database
     {
         void Migrate();
         Task<User> InsertUser(string name, string email, string password);
+        Task<ChatMessage> InsertChatMessage(long context, User sender, string content);
         Task<User?> AuthenticateUser(string name, string password);
         Task<User?> GetUser(int userid);
         Task<User?> GetUser(string username);
@@ -118,7 +119,12 @@ namespace Gamemaster.Database
         }
         public async Task<User?> GetUser(string username)
         {
-            return await _context.Users.Where(u => u.Name == username).SingleOrDefaultAsync();
+            return await _context.Users
+                .Where(u => u.Name == username)
+                .Include(u => u.Tokens)
+                .Include(u => u.Sessions)
+                .ThenInclude(s => s.Session)
+                .SingleOrDefaultAsync();
         }
         public async Task<SessionView> InsertSession(string name, string notes, User owner, string password)
         {
@@ -202,6 +208,18 @@ namespace Gamemaster.Database
         public async Task<SessionView[]> GetRecentSessions(int skip, int take)
         {
             return await _context.Sessions.Include(s => s.Owner).OrderByDescending(s => s.Id).Skip(skip).Take(take).Select(s => new SessionView(s)).ToArrayAsync();
+        }
+
+        public async Task<ChatMessage> InsertChatMessage(long context, User sender, string content)
+        {
+            var msg = new ChatMessage()
+            {
+                Sender = sender,
+                SessionContextId = context,
+                Content = content
+            };
+            await _context.ChatMessages.AddAsync(msg);
+            return msg;
         }
     }
 }
