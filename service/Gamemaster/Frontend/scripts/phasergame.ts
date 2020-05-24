@@ -25,11 +25,6 @@ export class Token extends Phaser.GameObjects.Sprite {
 }
 
 export class CombatScene extends Phaser.Scene {
-    private square: Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body };
-    private map: Phaser.Tilemaps.Tilemap;
-    private groundLayer: Phaser.Tilemaps.DynamicTilemapLayer;
-    private unitsLayer: Phaser.Tilemaps.DynamicTilemapLayer;
-    private rt: Phaser.GameObjects.RenderTexture;
     private units: Map<string, Token> = new Map();
 
     constructor() {
@@ -45,11 +40,11 @@ export class CombatScene extends Phaser.Scene {
 
     public create() {
         console.log("CombatScene.create");
-        this.map = this.make.tilemap({ key: 'map' });
-        const tiles = this.map.addTilesetImage('Desert', 'tiles');
-        this.groundLayer = this.map.createDynamicLayer('Ground', tiles, 0, 0).setVisible(false);
-        this.rt = this.add.renderTexture(0, 0, 800, 600);
-        this.rt.draw(this.groundLayer);
+        const map = this.make.tilemap({ key: 'map' });
+        const tiles = map.addTilesetImage('Desert', 'tiles');
+        const groundLayer = map.createDynamicLayer('Ground', tiles, 0, 0).setVisible(false);
+        const rt = this.add.renderTexture(0, 0, 800, 600);
+        rt.draw(groundLayer);
         SignalRContext.getInstance().setSceneUpdateHandler((s: Scene) => this.handleSceneUpdate(s));
     }
 
@@ -71,7 +66,7 @@ export class CombatScene extends Phaser.Scene {
             }
         }
         this.units.forEach((_sprite: Phaser.GameObjects.Sprite, id: string) => {
-            if (sceneUpdate.units[id] === undefined) {
+            if (sceneUpdate.units !== null && sceneUpdate.units[id] === undefined) {
                 const sprite = this.units.get(id);
                 if (sprite !== undefined) {
                     sprite.destroy();

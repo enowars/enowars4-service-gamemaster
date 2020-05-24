@@ -13,10 +13,11 @@
 </template>
 
 <script lang="ts">
+    import { defineComponent } from 'vue';
     import axios, { AxiosRequestConfig, AxiosPromise, AxiosResponse } from 'axios';
     import router from './../router';
 
-    export default {
+    export default defineComponent({
         name: 'Login',
         data() {
             return {
@@ -51,7 +52,7 @@
                 return false;
             }
         }
-    }
+    })
 </script>
 
 <style scoped>

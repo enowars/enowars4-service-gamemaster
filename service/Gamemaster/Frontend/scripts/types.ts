@@ -1,15 +1,15 @@
 export class Scene {
-    units: { [id: string]: Unit }
+    units: { [id: string]: Unit } | null = null;
 }
 
 export class ChatMessage {
-    SenderName: string;
-    SessionContextId: number;
-    Content: string;
-    date: any;
+    SenderName = "SenderName";
+    SessionContextId = 0;
+    Content = "Content";
+    date = "date";
 }
 
 export class Unit {
-    x: number;
-    y: number;
+    x = 0;
+    y = 0;
 }

@@ -15,7 +15,7 @@
         props: ['sessionId'],
         data() {
             return {
-                game: null
+                
             }
         },
         components: {
@@ -40,8 +40,8 @@
             };
             var ctx: SignalRContext = SignalRContext.getInstance();
             const game = new Phaser.Game(gameConfig);
-            this.game = game;
             var sid = Number(this.sessionId);
+
             ctx.setSessionId(sid);
         },
         beforeUnmount() {

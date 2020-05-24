@@ -4,7 +4,7 @@ import { ChatHandler } from "./chatHandler";
 
 export class SignalRContext {
     private static instance: SignalRContext | null = null;
-    public chat: ChatHandler;
+    public chat: ChatHandler | null = null;
     public connection: SignalR.HubConnection;
     private handleSceneUpdate: ((s: Scene) => void) | null = null;
     private lastSceneUpdate: Scene | null = null;
@@ -22,7 +22,7 @@ export class SignalRContext {
             .withUrl("/hubs/session")
             .configureLogging(SignalR.LogLevel.Debug)
             .build();
-        this.connection.onclose((err: Error) => {
+        this.connection.onclose((err: Error | undefined) => {
             console.log("SignalR connection closed: " + err);
             this.connection
                 .start()

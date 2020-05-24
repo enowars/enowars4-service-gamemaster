@@ -358,7 +358,7 @@ MigrationBackup/
 
 Gamemaster/wwwroot
 Gamemaster/Frontend/assets
-Gamemaster/Frontend/app.js
-Gamemaster/Frontend/app.js.map
-Gamemaster/PnPApp.db
+Gamemaster/Frontend/**/*.js
+Gamemaster/Frontend/**/*.map
+Gamemaster/Gamemaster.db
 .vscode/

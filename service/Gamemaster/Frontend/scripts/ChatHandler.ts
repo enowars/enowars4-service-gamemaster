@@ -4,7 +4,7 @@ import { ChatMessage } from "./types";
 
 
 export class ChatHandler {
-    public move: (msg: string) => void;
+    public move: ((msg: string) => void) | null = null;
     constructor() {
         
     }
