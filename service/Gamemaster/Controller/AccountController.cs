@@ -14,7 +14,7 @@ using Gamemaster.Models.Database;
 using System.IO;
 using Gamemaster.Models.View;
 
-namespace Gamemaster.Controllers
+namespace Gamemaster.CustomControllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
@@ -30,7 +30,7 @@ namespace Gamemaster.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Register([FromForm] string username, [FromForm] string email, [FromForm] string password)
+        public async Task<IActionResult> Register([FromForm] string username, [FromForm] string email, [FromForm] string password)
         {
             var user = await Db.InsertUser(username, email, password);
             var claims = new List<Claim>
@@ -43,7 +43,7 @@ namespace Gamemaster.Controllers
             return new EmptyResult();
         }
         [HttpPost]
-        public async Task<ActionResult> Info()
+        public async Task<IActionResult> Info()
         {
             var currentusername = HttpContext.User.Identity.Name;
             if (currentusername == null)
@@ -58,7 +58,7 @@ namespace Gamemaster.Controllers
             return Json(new UserView (currentuser));
         }
         [HttpPost]
-        public async Task<ActionResult> Login([FromForm] string username, [FromForm] string password)
+        public async Task<IActionResult> Login([FromForm] string username, [FromForm] string password)
         {
             var dbUser = await Db.AuthenticateUser(username, password);
             if (dbUser is User user)
@@ -75,14 +75,14 @@ namespace Gamemaster.Controllers
             return Forbid();
         }
         [HttpPost]
-        public async Task<ActionResult> Logout()
+        public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return new EmptyResult();
         }
 
         [HttpPost]
-        public async Task<ActionResult> TestLogin()
+        public async Task<IActionResult> TestLogin()
         {
             var claims = new List<Claim>
             {
@@ -124,7 +124,7 @@ namespace Gamemaster.Controllers
         }
         [HttpPost]
         [RequestSizeLimit(100_000)]
-        public async Task<ActionResult> AddToken([FromForm] string name, [FromForm] string description, [FromForm] bool isprivate, [FromForm] IFormFile icon)
+        public async Task<IActionResult> AddToken([FromForm] string name, [FromForm] string description, [FromForm] bool isprivate, [FromForm] IFormFile icon)
         {
             try
             {

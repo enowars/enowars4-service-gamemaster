@@ -28,7 +28,9 @@ namespace Gamemaster.Database
         Task<SessionView[]> GetRecentSessions(int skip, int take);
         Task AddUserToSession(long sessionId, long userId);
         Task<Token?> AddTokenToUser(long sessionId, string name, string description, bool isprivate, byte[] icon);
-        Task<Token> GetTokenByUUID(string UUID);
+        Task<TokenStrippedView> GetTokenByUUID(string UUID);
+        Task<TokenData> GetTokenDataByUUID(string UUID);
+        Task<TokenStrippedView[]> GetTokens(long userid);
     }
 
     public partial class GamemasterDb : IGamemasterDb
@@ -175,9 +177,17 @@ namespace Gamemaster.Database
             });
             await _context.SaveChangesAsync();
         }
-        public async Task<Token> GetTokenByUUID(string UUID)
+        public async Task<TokenStrippedView> GetTokenByUUID(string UUID)
         {
-            return await _context.Tokens.Where(t => t.UUID == UUID).SingleOrDefaultAsync();
+            return new TokenStrippedView (await _context.Tokens.Where(t => t.UUID == UUID).SingleOrDefaultAsync());
+        }
+        public async Task<TokenData> GetTokenDataByUUID(string UUID)
+        {
+            return new TokenData (await _context.Tokens.Where(t => t.UUID == UUID).SingleOrDefaultAsync());
+        }
+        public async Task<TokenStrippedView[]> GetTokens(long userid)
+        {
+            return await _context.Tokens.Where(t => t.OwnerId == userid).Select(t => new TokenStrippedView(t)).ToArrayAsync();
         }
         public async Task<Token?> AddTokenToUser(long userid, string name, string description, bool isprivate, byte[] icon)
         {

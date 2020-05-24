@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using Gamemaster.Database;
 using Gamemaster.Models.Database;
 
-namespace Gamemaster.Controllers
+namespace Gamemaster.CustomControllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
@@ -24,7 +24,7 @@ namespace Gamemaster.Controllers
             Db = db;
         }
         [HttpPost]
-        public async Task<ActionResult> Create([FromForm]string name, [FromForm]string notes, [FromForm]string password)
+        public async Task<IActionResult> Create([FromForm]string name, [FromForm]string notes, [FromForm]string password)
         {
             try
             {
@@ -43,7 +43,7 @@ namespace Gamemaster.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> GetInfo([FromForm]long id)
+        public async Task<IActionResult> GetInfo([FromForm]long id)
         {
             try
             {
@@ -54,12 +54,12 @@ namespace Gamemaster.Controllers
             }
             catch (Exception e)
             {
-                Logger.LogError($"{nameof(Create)} failed: {e.Message}");
+                Logger.LogError($"{nameof(GetInfo)} failed: {e.Message}");
                 return Forbid();
             }
         }
         [HttpGet]
-        public async Task<ActionResult> ListSessions()
+        public async Task<IActionResult> List()
         {
             try
             {
@@ -76,12 +76,12 @@ namespace Gamemaster.Controllers
             }
             catch (Exception e)
             {
-                Logger.LogError($"{nameof(Create)} failed: {e.Message}");
+                Logger.LogError($"{nameof(List)} failed: {e.Message}");
                 return Forbid();
             }
         }
         [HttpGet]
-        public async Task<ActionResult> ListRecentSessions(int skip, int take)
+        public async Task<IActionResult> ListRecent(int skip, int take)
         {
             try
             {
@@ -90,12 +90,12 @@ namespace Gamemaster.Controllers
             }
             catch (Exception e)
             {
-                Logger.LogError($"{nameof(Create)} failed: {e.Message}");
+                Logger.LogError($"{nameof(ListRecent)} failed: {e.Message}");
                 return Forbid();
             }
         }
         [HttpPost]
-        public async Task<ActionResult> AddUser([FromForm] int sessionid,[FromForm] string username)
+        public async Task<IActionResult> AddUser([FromForm] int sessionid,[FromForm] string username)
         {
             try
             {

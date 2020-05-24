@@ -1,16 +1,16 @@
 <template>
     <div>
-        SessionList
+        TokenList
         <table>
             <thead>
                 <tr>
-                    <th>Timestamp</th>
                     <th>Name</th>
-                    <th>Owner</th>
+                    <th>Description</th>
+                    <th>IsPrivate</th>
                 </tr>
             </thead>
             <tbody>
-                <SessionListElement v-for="d in tabledata" :data="d"></SessionListElement>
+                <AccountSettingsTokenListElement v-for="d in tabledata" :data="d"></AccountSettingsTokenListElement>
             </tbody>
         </table>
     </div>
@@ -18,10 +18,10 @@
 <script lang="ts">
     import axios, { AxiosRequestConfig, AxiosPromise, AxiosResponse } from 'axios';
     import { defineComponent, ref } from "vue";
-    import SessionListElement from "./SessionListElement.vue";
+    import AccountSettingsTokenListElement from "./AccountSettingsTokenListElement.vue";
     export default defineComponent({
         components: {
-            SessionListElement
+            AccountSettingsTokenListElement
         },
         data() {
             return { tabledata: [] };
@@ -33,7 +33,7 @@
                 method: 'GET',
                 params: {"take":100,"skip":0},
                 headers: { 'Content-Type': 'x-www-form-urlencoded' },
-                url: '/api/gamesession/Listrecent',
+                url: '/api/gamesession/Listrecentsessions',
             };
             axios(options).then(
                 response => {

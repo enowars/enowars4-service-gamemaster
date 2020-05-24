@@ -6,7 +6,7 @@
             <router-link to='/login'>Login</router-link>
             <router-link to='/register'>Register</router-link>
             <router-link to='/sessionList'>Sessions</router-link>
-            <router-link v-if="state.username != null" to='/tokenAdd'>Add Tokens </router-link>
+            <router-link v-if="state.username != null" to='/tokens'>Tokens</router-link>
             <router-link v-if="state.username != null" to='/'><span v-on:click="logout()">{{state.username}}(Logout)</span></router-link>
         </div>
         <router-view />

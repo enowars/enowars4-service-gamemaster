@@ -1,15 +1,8 @@
 <template>
-    <div id="tokenAdd">
-        <h1>Add Token</h1>
-        <form id="addtoken"
-              action=""
-              method="post">
-            <input type="text" name="name" v-model="input.name" placeholder="Name" />
-            <input type="text" name="description" v-model="input.description" placeholder="Description" />
-            <input type="checkbox" name="isPrivate" v-model="input.isPrivate" placeholder="Description" />
-            <input type="file" id="file" ref="file" v-on:change="handleFileSelection" />
-            <button type="button" v-on:click="add()">Add</button>
-        </form>
+    <div id="tokens">
+        Token Manager
+        <TokenAdd></TokenAdd>
+        <TokenList></TokenList>
     </div>
 </template>
 
@@ -19,7 +12,13 @@
     import router from './../router';
     import { METHODS } from 'http';
     import { gmState } from "../store/gmstate";
+    import TokenAdd from "./TokenAdd.vue";
+    import TokenList from "./TokenList.vue";
     export default defineComponent({
+        components: {
+            TokenAdd,
+            TokenList
+        },
         data() {
             return {
                 input: {
