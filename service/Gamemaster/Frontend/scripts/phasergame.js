@@ -14,11 +14,10 @@ class Token extends Phaser.GameObjects.Sprite {
         super(scene, x, y, 'car', 0);
         this.setInteractive();
         scene.input.setDraggable(this);
-        scene.input.on('dragend', function (pointer, gameObject) {
-            console.log(`dragend (${gameObject.x} | ${gameObject.y})`);
+        scene.input.on('dragend', function (_pointer, gameObject) {
             signalrhelper_1.SignalRContext.getInstance().dragto(gameObject.x, gameObject.y);
         });
-        scene.input.on('drag', (pointer, gameObject, dragX, dragY) => {
+        scene.input.on('drag', (_pointer, gameObject, dragX, dragY) => {
             gameObject.x = dragX;
             gameObject.y = dragY;
         });
@@ -31,56 +30,47 @@ class CombatScene extends Phaser.Scene {
         this.units = new Map();
     }
     preload() {
+        console.log("CombatScene.preload");
         this.load.image('tiles', '/assets/tilemaps/tiles/tmw_desert_spacing.png');
         this.load.tilemapTiledJSON('map', '/assets/tilemaps/maps/desert.json');
         this.load.image('car', '/assets/sprites/car.png');
     }
     create() {
+        console.log("CombatScene.create");
         this.map = this.make.tilemap({ key: 'map' });
         const tiles = this.map.addTilesetImage('Desert', 'tiles');
         this.groundLayer = this.map.createDynamicLayer('Ground', tiles, 0, 0).setVisible(false);
         this.rt = this.add.renderTexture(0, 0, 800, 600);
-        var ctx = signalrhelper_1.SignalRContext.getInstance();
-        this.move = ctx.move;
         this.rt.draw(this.groundLayer);
+        signalrhelper_1.SignalRContext.getInstance().setSceneUpdateHandler((s) => this.handleSceneUpdate(s));
     }
     handleSceneUpdate(sceneUpdate) {
+        console.log("handleSceneUpdate(" + JSON.stringify(sceneUpdate) + ")");
         for (const id in sceneUpdate.units) {
             const updatedUnit = sceneUpdate.units[id];
-            if (this.units.has(id)) {
-                const sprite = this.units.get(id);
+            const sprite = this.units.get(id);
+            if (sprite !== undefined) {
+                console.log("Updating sprite " + id);
                 sprite.x = updatedUnit.x;
                 sprite.y = updatedUnit.y;
             }
             else {
-                var t = new Token(this, updatedUnit.x, updatedUnit.y);
+                console.log("Adding sprite " + id);
+                const t = new Token(this, updatedUnit.x, updatedUnit.y);
                 this.add.existing(t);
                 this.units.set(id, t);
                 //this.units.set(id, this.add.sprite(updatedUnit.x, updatedUnit.y, 'car', 0));
             }
         }
-        this.units.forEach((sprite, id) => {
+        this.units.forEach((_sprite, id) => {
             if (sceneUpdate.units[id] === undefined) {
-                this.units.get(id).destroy();
+                const sprite = this.units.get(id);
+                if (sprite !== undefined) {
+                    sprite.destroy();
+                }
                 this.units.delete(id);
             }
         });
-    }
-    update() {
-        const cursorKeys = this.input.keyboard.createCursorKeys();
-        if (cursorKeys.up.isDown) {
-            this.move(0);
-        }
-        if (cursorKeys.right.isDown) {
-            this.move(1);
-        }
-        if (cursorKeys.down.isDown) {
-            this.move(2);
-        }
-        if (cursorKeys.left.isDown) {
-            this.move(3);
-        }
-        this.rt.draw(this.groundLayer);
     }
 }
 exports.CombatScene = CombatScene;

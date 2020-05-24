@@ -9,14 +9,13 @@
     import axios, { AxiosRequestConfig, AxiosPromise, AxiosResponse } from 'axios';
     import { CombatScene } from "./../scripts/phasergame";
     import { SignalRContext } from "./../scripts/signalrhelper";
-    import { join } from 'path';
+    import { Scene } from "./../scripts/types";
+
     export default defineComponent({
         props: ['sessionId'],
         data() {
             return {
-                input: {
-                    game: null
-                }
+                game: null
             }
         },
         components: {
@@ -40,16 +39,13 @@
                 scene: CombatScene
             };
             var ctx: SignalRContext = SignalRContext.getInstance();
+            const game = new Phaser.Game(gameConfig);
+            this.game = game;
             var sid = Number(this.sessionId);
-            ctx.tryjoin(sid);
-            //ctx.join(sid);
-            this.input.game = new Phaser.Game(gameConfig);
-            ctx.phaser = this.input.game;
+            ctx.setSessionId(sid);
         },
         beforeUnmount() {
             var ctx: SignalRContext = SignalRContext.getInstance();
         }
-
     });
-
 </script>
