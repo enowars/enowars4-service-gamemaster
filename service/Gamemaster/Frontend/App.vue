@@ -31,7 +31,7 @@
                     if (response.status == 200) {
                         var username = response.data["name"];
                         console.log("Login Successful as " + username);
-                        SignalRContext.getInstance().reconnect();
+                        SignalRContext.getInstance().ensureConnected();
                         console.log(response);
                         gmState.login(username);
                     } else {

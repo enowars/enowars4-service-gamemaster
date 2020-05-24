@@ -1,59 +1,14 @@
 ﻿import * as SignalR from "@microsoft/signalr";
 import { Scene, ChatMessage } from "./types";
-import { CombatScene } from "./phasergame";
 import { ChatHandler } from "./chatHandler";
 
-
-
-export class SignalRContext{
-    private static instance: SignalRContext = null;
-    private sessionid: number;
-    public phaser: Phaser.Game;
+export class SignalRContext {
+    private static instance: SignalRContext | null = null;
     public chat: ChatHandler;
-    public joinid: number;
     public connection: SignalR.HubConnection;
-
-    private constructor() {
-        this.connection = new SignalR.HubConnectionBuilder()
-            .withUrl("/hubs/session")
-            .configureLogging(SignalR.LogLevel.Debug)
-            .build();
-        this.connection.on("test", (data: string) => {
-            console.log("recv " + data);
-        });
-        this.connection.on("Chat", (msg: ChatMessage) => {
-            this.proxyhandleChat(msg);
-        });
-        this.connection.on("Scene", (sceneUpdate: Scene) => {
-            this.proxyhandleSceneUpdate(sceneUpdate);
-        });
-        this.connection.start().then(() => {
-            this.join(this.joinid);
-        }).catch((err:any) => {
-            return console.log(err);
-        });
-    }
-
-    public reconnect() {
-        this.connection = new SignalR.HubConnectionBuilder()
-            .withUrl("/hubs/session")
-            .configureLogging(SignalR.LogLevel.Debug)
-            .build();
-        this.connection.on("test", (data: string) => {
-            console.log("recv " + data);
-        });
-        this.connection.on("Chat", (msg: ChatMessage) => {
-            this.proxyhandleChat(msg);
-        });
-        this.connection.on("Scene", (sceneUpdate: Scene) => {
-            this.proxyhandleSceneUpdate(sceneUpdate);
-        });
-        this.connection.start().then(() => {
-            this.join(this.joinid);
-        }).catch((err: any) => {
-            return console.log(err);
-        });
-    }
+    private handleSceneUpdate: ((s: Scene) => void) | null = null;
+    private lastSceneUpdate: Scene | null = null;
+    private sessionId: number | null = null;
 
     static getInstance(): SignalRContext {
         if (!SignalRContext.instance) {
@@ -62,37 +17,93 @@ export class SignalRContext{
         return SignalRContext.instance;
     }
 
+    private constructor() {
+        this.connection = new SignalR.HubConnectionBuilder()
+            .withUrl("/hubs/session")
+            .configureLogging(SignalR.LogLevel.Debug)
+            .build();
+        this.connection.onclose((err: Error) => {
+            console.log("SignalR connection closed: " + err);
+            this.connection
+                .start()
+                .then(() => this.onConnected())
+                .catch((err: Error) => {
+                    return console.log(err);
+                });
+        });
+        this.connection.on("test", (data: string) => {
+            console.log("recv " + data);
+        });
+        this.connection.on("Chat", (msg: ChatMessage) => {
+            if (this.chat !== null) {
+                this.chat.handleChat(msg);
+            }
+        });
+        this.connection.on("Scene", (sceneUpdate: Scene) => {
+            if (this.handleSceneUpdate !== null) {
+                this.handleSceneUpdate(sceneUpdate);
+            } else {
+                console.log("Stalling scene update: this.sceneUpdateHandler is null");
+                this.lastSceneUpdate = sceneUpdate;
+            }
+        });
+        this.connection
+            .start()
+            .then(() => this.onConnected())
+            .catch((err: Error) => {
+                return console.log(err);
+            });
+    }
 
-    private proxyhandleChat(msg: ChatMessage) {
-        if (!(this.chat == null)) {
-            this.chat.handleChat(msg);
+    private onConnected() {
+        if (this.sessionId !== null) {
+            this.join();
         }
     }
-    private proxyhandleSceneUpdate(sceneUpdate: Scene) {
-        if (!(this.phaser == null)) {
-            var scene = this.phaser.scene.scenes[0];
-            (scene as CombatScene).handleSceneUpdate(sceneUpdate);
+
+    public setSceneUpdateHandler(handler: (s: Scene) => void) {
+        console.log("setSceneUpdateHandler(" + handler + ")");
+        this.handleSceneUpdate = handler;
+        if (this.lastSceneUpdate !== null) {
+            handler(this.lastSceneUpdate);
         }
     }
 
-    public move(dir: number) {
-        SignalRContext.getInstance().connection.send("Move", dir);
-    }
     public dragto(dx: number, dy: number) {
-        console.log("sendDrag");
-        console.log(dx);
-        console.log(dy);
+        console.log("Drag("+ dx + ", " + dy + ")");
         SignalRContext.getInstance().connection.send("Drag", dx, dy);
     }
-    private join(sid: number) {
-        console.log("Method: Joining...");
-        console.log(this.joinid);
-        this.connection.send("Join", sid).then(function () { console.log("after joining..."); });
+
+    public join() {
+        if (this.connection.state === SignalR.HubConnectionState.Connected) {
+            console.log("Join(" + this.sessionId + ")");
+            this.connection
+                .send("Join", this.sessionId)
+                .then(function () {
+                    console.log("after joining...");
+                });
+        } else {
+            console.log("join() aborting: HubConnection is not connected")
+        }
     }
-    public tryjoin(sid: number) {
-        console.log("Try Joining...");
-        console.log(sid);
-        this.joinid = sid;
-        this.connection.send("Join", sid).then(function () { console.log("after joining..."); });
+
+    public setSessionId(sessionId: number) {
+        if (this.sessionId !== sessionId) {
+            this.sessionId = sessionId;
+            this.join();
+        }
+    }
+
+    public ensureConnected() {
+        if (this.connection.state !== SignalR.HubConnectionState.Connected
+            && this.connection.state !== SignalR.HubConnectionState.Connecting
+            && this.connection.state !== SignalR.HubConnectionState.Reconnecting) {
+            this.connection
+                .start()
+                .then(() => this.onConnected())
+                .catch((err: Error) => {
+                    return console.log(err);
+                });
+        }
     }
 }

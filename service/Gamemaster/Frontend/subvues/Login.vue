@@ -46,7 +46,7 @@
                             console.log("Login Successful");
                             alert("Login Successful");
                             gmState.login(this.input.username);
-                            SignalRContext.getInstance().reconnect();
+                            SignalRContext.getInstance().ensureConnected();
                             router.push("/");
                         } else {
                             console.log("this should not happen...");
