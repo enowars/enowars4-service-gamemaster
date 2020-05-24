@@ -7,7 +7,7 @@
             <input type="text" name="name" v-model="input.name" placeholder="Name" />
             <input type="text" name="description" v-model="input.description" placeholder="Description" />
             <input type="checkbox" name="isPrivate" v-model="input.isPrivate" placeholder="Description" />
-            <input type="file" id="file" v-bind="input.file" />
+            <input type="file" id="file" ref="file" v-on:change="handleFileSelection" />
             <button type="button" v-on:click="add()">Add</button>
         </form>
     </div>
@@ -27,17 +27,22 @@
                     name: "",
                     description: "",
                     isPrivate: true,
-                    file: ""
+                    file: { type: File }
                 }
             }
         },
         methods: {
+            handleFileSelection(event: InputEvent) {
+                console.log(event);
+                const foo = this as any;
+                this.input.file = foo.$refs.file.files[0];
+            },
             add() {
                 var bodyFormData = new FormData();
                 bodyFormData.set('name', this.input.name);
                 bodyFormData.set('description', this.input.description);
                 bodyFormData.set('isPrivate', String(this.input.isPrivate));
-                bodyFormData.append("icon", this.input.file);
+                bodyFormData.append("icon", this.input.file as any as Blob);
                 console.log("Adding Token...");
                 const options: AxiosRequestConfig = {
                     method: 'POST',
