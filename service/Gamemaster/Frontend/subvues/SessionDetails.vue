@@ -1,13 +1,13 @@
 <template>
     <div>
         <h1>Session Details for Session {{$route.params.id}}</h1>
-        <SessionDetailsDenied v-if="!input.access"> no access </SessionDetailsDenied>
-        <SessionDetailsVue v-if="input.access" :session-id="input.id">access</SessionDetailsVue>
+        <SessionDetailsDenied v-if="!input.access" />
+        <SessionDetailsVue v-if="input.access" :session-id="input.id" />
     </div>
 </template>
 
 <script lang="ts">
-    import { defineComponent, ref, reactive, readonly } from 'vue';
+    import { defineComponent } from 'vue';
     import { gmState } from './../store/gmstate';
     import router from './../router';
     import axios, { AxiosRequestConfig, AxiosPromise, AxiosResponse } from 'axios';
@@ -31,8 +31,9 @@
         },
         mounted() {
             var bodyFormData = new FormData();
-            bodyFormData.set('id', this.$route.params.id);
-            this.input.id = this.$route.params.id;
+            const foo = this as any;
+            bodyFormData.set('id', foo.$route.params.id);
+            this.input.id = foo.$route.params.id;
             const options: AxiosRequestConfig = {
                 method: 'POST',
                 data: bodyFormData,

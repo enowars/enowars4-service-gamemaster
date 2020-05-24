@@ -7,18 +7,19 @@
             <input type="text" name="name" v-model="input.name" placeholder="Name" />
             <input type="text" name="description" v-model="input.description" placeholder="Description" />
             <input type="checkbox" name="isPrivate" v-model="input.isPrivate" placeholder="Description" />
-            <input type="file" ref="file" id="file" v-on:change="handleFileUpload()"/>
+            <input type="file" id="file" v-bind="input.file" />
             <button type="button" v-on:click="add()">Add</button>
         </form>
     </div>
 </template>
 
 <script lang="ts">
+    import { defineComponent } from 'vue';
     import axios, { AxiosRequestConfig, AxiosPromise, AxiosResponse } from 'axios';
     import router from './../router';
     import { METHODS } from 'http';
     import { gmState } from "../store/gmstate";
-    export default {
+    export default defineComponent({
         name: 'Add',
         data() {
             return {
@@ -31,14 +32,11 @@
             }
         },
         methods: {
-            handleFileUpload() {
-                this.input.file = this.$refs.file.files[0];
-            },
             add() {
                 var bodyFormData = new FormData();
                 bodyFormData.set('name', this.input.name);
                 bodyFormData.set('description', this.input.description);
-                bodyFormData.set('isPrivate', this.input.isPrivate);
+                bodyFormData.set('isPrivate', String(this.input.isPrivate));
                 bodyFormData.append("icon", this.input.file);
                 console.log("Adding Token...");
                 const options: AxiosRequestConfig = {
@@ -65,7 +63,7 @@
                 return false;
             }
         }
-    }
+    })
 </script>
 
 <style scoped>

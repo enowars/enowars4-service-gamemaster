@@ -29,7 +29,7 @@
         },
         mounted() {
             var bodyFormData = new FormData();
-            bodyFormData.set('id', this.$route.params.id);
+            bodyFormData.set('id', this.$props.sessionId);
             const options: AxiosRequestConfig = {
                 method: 'POST',
                 data: bodyFormData,

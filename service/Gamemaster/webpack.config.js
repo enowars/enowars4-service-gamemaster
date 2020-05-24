@@ -6,6 +6,7 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const { VueLoaderPlugin } = require('vue-loader')
 
 module.exports = {
+    devtool: "source-map",
     entry: "./Frontend/app.ts",
     output: {
         path: path.resolve(__dirname, "wwwroot"),

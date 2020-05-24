@@ -12,12 +12,13 @@
 </template>
 
 <script lang="ts">
+    import { defineComponent } from 'vue';
     import axios, { AxiosRequestConfig, AxiosPromise, AxiosResponse } from 'axios';
     import router from './../router';
     import { METHODS } from 'http';
     import { gmState } from "../store/gmstate";
     import { SignalRContext } from "./../scripts/signalrhelper";
-    export default {
+    export default defineComponent({
         name: 'Login',
         data() {
             return {
@@ -59,7 +60,7 @@
                 return false;
             }
         }
-    }
+    })
 </script>
 
 <style scoped>
