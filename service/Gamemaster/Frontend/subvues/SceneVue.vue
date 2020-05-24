@@ -8,8 +8,8 @@
     import router from '../router';
     import axios, { AxiosRequestConfig, AxiosPromise, AxiosResponse } from 'axios';
     import { CombatScene } from "./../scripts/phasergame";
-    import { SignalRContext } from "./../scripts/SignalRHelper";
-import { join } from 'path';
+    import { SignalRContext } from "./../scripts/signalrhelper";
+    import { join } from 'path';
     export default defineComponent({
         props: ['sessionId'],
         data() {
@@ -40,9 +40,8 @@ import { join } from 'path';
                 scene: CombatScene
             };
             var ctx: SignalRContext = SignalRContext.getInstance();
-            console.log("Trying to join");
-            var sid = this.sessionId;
-            ctx.join(sid);
+            var sid = Number(this.sessionId);
+            ctx.tryjoin(sid);
             //ctx.join(sid);
             this.input.game = new Phaser.Game(gameConfig);
             ctx.phaser = this.input.game;

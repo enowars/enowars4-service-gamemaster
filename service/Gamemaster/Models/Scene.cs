@@ -13,7 +13,11 @@ namespace Gamemaster.Models
         {
             Units.Add(id, unit);
         }
-
+        internal void Drag(string id, int x, int y)
+        {
+            Units[id].X = x;
+            Units[id].Y = y;
+        }
         internal void Move(string id, Direction d)
         {
             switch (d)

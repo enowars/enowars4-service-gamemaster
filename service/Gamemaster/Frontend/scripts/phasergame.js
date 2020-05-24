@@ -1,13 +1,30 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CombatScene = void 0;
+exports.CombatScene = exports.Token = void 0;
 const Phaser = require("phaser");
-const SignalRhelper_1 = require("./SignalRhelper");
+const signalrhelper_1 = require("./signalrhelper");
 const sceneConfig = {
     active: false,
     visible: false,
     key: 'Game'
 };
+class Token extends Phaser.GameObjects.Sprite {
+    constructor(scene, x, y) {
+        console.log("Token Created");
+        super(scene, x, y, 'car', 0);
+        this.setInteractive();
+        scene.input.setDraggable(this);
+        scene.input.on('dragend', function (pointer, gameObject) {
+            console.log(`dragend (${gameObject.x} | ${gameObject.y})`);
+            signalrhelper_1.SignalRContext.getInstance().dragto(gameObject.x, gameObject.y);
+        });
+        scene.input.on('drag', (pointer, gameObject, dragX, dragY) => {
+            gameObject.x = dragX;
+            gameObject.y = dragY;
+        });
+    }
+}
+exports.Token = Token;
 class CombatScene extends Phaser.Scene {
     constructor() {
         super(sceneConfig);
@@ -20,21 +37,11 @@ class CombatScene extends Phaser.Scene {
     }
     create() {
         this.map = this.make.tilemap({ key: 'map' });
-        console.log(this.map);
         const tiles = this.map.addTilesetImage('Desert', 'tiles');
         this.groundLayer = this.map.createDynamicLayer('Ground', tiles, 0, 0).setVisible(false);
         this.rt = this.add.renderTexture(0, 0, 800, 600);
-        this.move = SignalRhelper_1.SignalRContext.getInstance().move;
-        /*
-        connection.on("test", (data: string) => {
-            console.log("recv " + data);
-        });
-        connection.on("Chat", (msg: ChatMessage) => {
-            this.handleChat(msg);
-        });
-        connection.on("Scene", (data: Scene) => {
-            this.handleSceneUpdate(data);
-        });  */
+        var ctx = signalrhelper_1.SignalRContext.getInstance();
+        this.move = ctx.move;
         this.rt.draw(this.groundLayer);
     }
     handleSceneUpdate(sceneUpdate) {
@@ -46,7 +53,10 @@ class CombatScene extends Phaser.Scene {
                 sprite.y = updatedUnit.y;
             }
             else {
-                this.units.set(id, this.add.sprite(updatedUnit.x, updatedUnit.y, 'car', 0));
+                var t = new Token(this, updatedUnit.x, updatedUnit.y);
+                this.add.existing(t);
+                this.units.set(id, t);
+                //this.units.set(id, this.add.sprite(updatedUnit.x, updatedUnit.y, 'car', 0));
             }
         }
         this.units.forEach((sprite, id) => {

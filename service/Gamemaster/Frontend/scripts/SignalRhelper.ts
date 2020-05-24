@@ -1,38 +1,63 @@
-﻿import * as signalR from "@microsoft/signalr";
+﻿import * as SignalR from "@microsoft/signalr";
 import { Scene, ChatMessage } from "./types";
 import { CombatScene } from "./phasergame";
 import { ChatHandler } from "./chatHandler";
 
-const connection = new signalR.HubConnectionBuilder()
-    .withUrl("/hubs/session")
-    .configureLogging(signalR.LogLevel.Debug)
-    .build();
+
 
 export class SignalRContext{
-    private static instance: SignalRContext;
+    private static instance: SignalRContext = null;
     private sessionid: number;
     public phaser: Phaser.Game;
     public chat: ChatHandler;
+    public joinid: number;
+    public connection: SignalR.HubConnection;
 
-
-    private create() { }
-    public setup() {
-        connection.on("test", (data: string) => {
+    private constructor() {
+        this.connection = new SignalR.HubConnectionBuilder()
+            .withUrl("/hubs/session")
+            .configureLogging(SignalR.LogLevel.Debug)
+            .build();
+        this.connection.on("test", (data: string) => {
             console.log("recv " + data);
         });
-        connection.on("Chat", (msg: ChatMessage) => {
+        this.connection.on("Chat", (msg: ChatMessage) => {
             this.proxyhandleChat(msg);
         });
-        connection.on("Scene", (sceneUpdate: Scene) => {
+        this.connection.on("Scene", (sceneUpdate: Scene) => {
             this.proxyhandleSceneUpdate(sceneUpdate);
         });
-        connection.start().catch(err => console.log(err));
+        this.connection.start().then(() => {
+            this.join(this.joinid);
+        }).catch((err:any) => {
+            return console.log(err);
+        });
+    }
+
+    public reconnect() {
+        this.connection = new SignalR.HubConnectionBuilder()
+            .withUrl("/hubs/session")
+            .configureLogging(SignalR.LogLevel.Debug)
+            .build();
+        this.connection.on("test", (data: string) => {
+            console.log("recv " + data);
+        });
+        this.connection.on("Chat", (msg: ChatMessage) => {
+            this.proxyhandleChat(msg);
+        });
+        this.connection.on("Scene", (sceneUpdate: Scene) => {
+            this.proxyhandleSceneUpdate(sceneUpdate);
+        });
+        this.connection.start().then(() => {
+            this.join(this.joinid);
+        }).catch((err: any) => {
+            return console.log(err);
+        });
     }
 
     static getInstance(): SignalRContext {
         if (!SignalRContext.instance) {
             SignalRContext.instance = new SignalRContext();
-            SignalRContext.instance.setup();
         }
         return SignalRContext.instance;
     }
@@ -44,24 +69,30 @@ export class SignalRContext{
         }
     }
     private proxyhandleSceneUpdate(sceneUpdate: Scene) {
-        console.log("proxyhandleSceneUpdate")
-        console.log(sceneUpdate);
-        console.log(this);
         if (!(this.phaser == null)) {
-            var phasercontext = this.phaser.scene.getScene('CombatScene') as CombatScene;
-            phasercontext.handleSceneUpdate(sceneUpdate);
+            var scene = this.phaser.scene.scenes[0];
+            (scene as CombatScene).handleSceneUpdate(sceneUpdate);
         }
     }
 
-    public move(dir:number) {
-        connection.send("Move", dir);
+    public move(dir: number) {
+        SignalRContext.getInstance().connection.send("Move", dir);
     }
-    public join(sid: number) {
-        console.log("Joining...");
-        console.log(connection);
-        connection.connectionState.then(function () {
-            connection.send("Join", sid).then(function () { console.log("after joining..."); });
-        });
+    public dragto(dx: number, dy: number) {
+        console.log("sendDrag");
+        console.log(dx);
+        console.log(dy);
+        SignalRContext.getInstance().connection.send("Drag", dx, dy);
+    }
+    private join(sid: number) {
+        console.log("Method: Joining...");
+        console.log(this.joinid);
+        this.connection.send("Join", sid).then(function () { console.log("after joining..."); });
+    }
+    public tryjoin(sid: number) {
+        console.log("Try Joining...");
+        console.log(sid);
+        this.joinid = sid;
+        this.connection.send("Join", sid).then(function () { console.log("after joining..."); });
     }
 }
-

@@ -1,7 +1,7 @@
 ﻿import * as signalR from "@microsoft/signalr";
 import * as Phaser from 'phaser';
 import { Scene, Unit } from "./types";
-import { SignalRContext } from "./SignalRhelper";
+import { SignalRContext } from "./signalrhelper";
 
 const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
     active: false,
@@ -9,13 +9,31 @@ const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
     key: 'Game'
 };
 
+export class Token extends Phaser.GameObjects.Sprite {
+    constructor(scene: Phaser.Scene, x: number, y: number) {
+        console.log("Token Created");
+        super(scene, x, y, 'car', 0);
+        this.setInteractive();
+        scene.input.setDraggable(this);
+        scene.input.on('dragend', function (pointer: any, gameObject: Token) {
+            console.log(`dragend (${gameObject.x} | ${gameObject.y})`);
+            SignalRContext.getInstance().dragto(gameObject.x, gameObject.y);
+        });
+        scene.input.on('drag', (pointer: any, gameObject: Token, dragX: number, dragY: number) => {
+            gameObject.x = dragX
+            gameObject.y = dragY
+        });
+    }
+}
+
+
 export class CombatScene extends Phaser.Scene {
     private square: Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body };
     private map: Phaser.Tilemaps.Tilemap;
     private groundLayer: Phaser.Tilemaps.DynamicTilemapLayer;
     private unitsLayer: Phaser.Tilemaps.DynamicTilemapLayer;
     private rt: Phaser.GameObjects.RenderTexture;
-    private units: Map<string, Phaser.GameObjects.Sprite> = new Map();
+    private units: Map<string, Token> = new Map();
     private sessionid: number;
     public move: (dir: number) => void;
     constructor() {
@@ -31,22 +49,11 @@ export class CombatScene extends Phaser.Scene {
     public create() {
         
         this.map = this.make.tilemap({ key: 'map' });
-        console.log(this.map);
         const tiles = this.map.addTilesetImage('Desert', 'tiles');
         this.groundLayer = this.map.createDynamicLayer('Ground', tiles, 0, 0).setVisible(false);
         this.rt = this.add.renderTexture(0, 0, 800, 600);
-        this.move = SignalRContext.getInstance().move;
-        /*
-        connection.on("test", (data: string) => {
-            console.log("recv " + data);
-        });
-        connection.on("Chat", (msg: ChatMessage) => {
-            this.handleChat(msg);
-        });
-        connection.on("Scene", (data: Scene) => {
-            this.handleSceneUpdate(data);
-        });  */
-
+        var ctx: SignalRContext = SignalRContext.getInstance();
+        this.move = ctx.move;
         this.rt.draw(this.groundLayer);
     }
 
@@ -59,7 +66,10 @@ export class CombatScene extends Phaser.Scene {
                 sprite.x = updatedUnit.x;
                 sprite.y = updatedUnit.y;
             } else {
-                this.units.set(id, this.add.sprite(updatedUnit.x, updatedUnit.y, 'car', 0));
+                var t = new Token(this, updatedUnit.x, updatedUnit.y);
+                this.add.existing(t);
+                this.units.set(id, t);
+                //this.units.set(id, this.add.sprite(updatedUnit.x, updatedUnit.y, 'car', 0));
             }
         }
         this.units.forEach((sprite: Phaser.GameObjects.Sprite, id: string) => {

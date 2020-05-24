@@ -17,6 +17,7 @@
     import { gmState } from "./store/gmstate";
     import router from './router';
     import axios, { AxiosRequestConfig, AxiosPromise, AxiosResponse } from 'axios';
+    import { SignalRContext } from "./scripts/signalrhelper";
     export default defineComponent({
         setup() {
             const options: AxiosRequestConfig = {
@@ -30,6 +31,7 @@
                     if (response.status == 200) {
                         var username = response.data["name"];
                         console.log("Login Successful as " + username);
+                        SignalRContext.getInstance().reconnect();
                         console.log(response);
                         gmState.login(username);
                     } else {

@@ -32,7 +32,7 @@ namespace Gamemaster.Hubs
         public override async Task OnConnectedAsync()
         {
             string id = Context.ConnectionId;
-            Logger.LogDebug($"OnConnectedAsync {Context.User.FindFirst(ClaimTypes.NameIdentifier).Value}");
+            Logger.LogError($"OnConnectedAsync {Context.User.FindFirst(ClaimTypes.NameIdentifier).Value}  ||  {id}");
             await Task.CompletedTask;
         }
 
@@ -61,8 +61,9 @@ namespace Gamemaster.Hubs
             var msg = await Db.InsertChatMessage(session.Id, currentUser, Message);
             await Clients.Group(sid.ToString()).SendAsync("Chat", new ChatMessageView(msg), CancellationToken.None);
         }
-        public async Task Join(int sid)
+        public async Task Join(long sid)
         {
+            //int.TryParse(ssid, out var sid);
             var currentUsername = Context.User.Identity.Name;
             if (currentUsername == null) return;
             var currentUser = (await Db.GetUser(currentUsername));
@@ -80,6 +81,7 @@ namespace Gamemaster.Hubs
             };
             lock (ConIdtoSessionId)
             {
+                Logger.LogError($"Join, ID:::{Context.ConnectionId}");
                 ConIdtoSessionId.Add(Context.ConnectionId, sid);
             }
             Scenes[sid].AddUnit("unit"+ Context.ConnectionId, new Unit());
@@ -92,10 +94,25 @@ namespace Gamemaster.Hubs
             var currentUser = await Db.GetUser(currentUsername);
             if (currentUser == null) return;
             var currentUserId = currentUser.Id;
+            Logger.LogError($"Move, ID:::{Context.ConnectionId}");
             var sid = ConIdtoSessionId[Context.ConnectionId];
             var session = await Db.GetSession(sid, currentUserId);
             if (session == null) return;
-            Scenes[sid].Move(Context.ConnectionId, d);
+            Scenes[sid].Move("unit" + Context.ConnectionId, d);
+            await Clients.Group(sid.ToString()).SendAsync("Scene", Scenes[sid], CancellationToken.None);
+        }
+        public async Task Drag(int x, int y)
+        {
+            var currentUsername = Context.User.Identity.Name;
+            if (currentUsername == null) return;
+            var currentUser = await Db.GetUser(currentUsername);
+            if (currentUser == null) return;
+            var currentUserId = currentUser.Id;
+            Logger.LogError($"Move, ID:::{Context.ConnectionId}");
+            var sid = ConIdtoSessionId[Context.ConnectionId];
+            var session = await Db.GetSession(sid, currentUserId);
+            if (session == null) return;
+            Scenes[sid].Drag("unit" + Context.ConnectionId, x, y);
             await Clients.Group(sid.ToString()).SendAsync("Scene", Scenes[sid], CancellationToken.None);
         }
     }

@@ -16,6 +16,7 @@
     import router from './../router';
     import { METHODS } from 'http';
     import { gmState } from "../store/gmstate";
+    import { SignalRContext } from "./../scripts/signalrhelper";
     export default {
         name: 'Login',
         data() {
@@ -44,7 +45,8 @@
                         if (response.status == 200) {
                             console.log("Login Successful");
                             alert("Login Successful");
-                            gmState.login(this.input.username)
+                            gmState.login(this.input.username);
+                            SignalRContext.getInstance().reconnect();
                             router.push("/");
                         } else {
                             console.log("this should not happen...");
