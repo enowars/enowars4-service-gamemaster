@@ -45,18 +45,16 @@ namespace Gamemaster.CustomControllers
         [HttpPost]
         public async Task<IActionResult> GetInfo([FromForm]long id)
         {
-            try
-            {
-                var username = HttpContext.User.Identity.Name;
-                var user = await Db.GetUser(username);
-                var session = await Db.GetSession(id, user.Id);
-                return Json(session);
-            }
-            catch (Exception e)
-            {
-                Logger.LogError($"{nameof(GetInfo)} failed: {e.Message} (likely not logged in)");
-                return Forbid();
-            }
+            var username = HttpContext.User.Identity.Name;
+            if (username == null)
+                return Unauthorized();
+            var user = await Db.GetUser(username);
+            if (user == null)
+                throw new Exception("User of session not found");
+            var session = await Db.GetSession(id, user.Id);
+            if (session == null)
+                return NotFound();
+            return Json(session);
         }
         [HttpGet]
         public async Task<IActionResult> List()
