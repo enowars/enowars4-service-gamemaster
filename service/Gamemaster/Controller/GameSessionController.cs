@@ -54,7 +54,7 @@ namespace Gamemaster.CustomControllers
             }
             catch (Exception e)
             {
-                Logger.LogError($"{nameof(GetInfo)} failed: {e.Message}");
+                Logger.LogError($"{nameof(GetInfo)} failed: {e.Message} (likely not logged in)");
                 return Forbid();
             }
         }

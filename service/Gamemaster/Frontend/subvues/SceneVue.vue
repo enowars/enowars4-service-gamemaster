@@ -1,5 +1,5 @@
 <template>
-    <div id="scene" class="scene">
+    <div id="scene" class="scene rightexpanded">
     </div>
 </template>
 <script lang="ts">
@@ -58,6 +58,9 @@
         overflow-x: hidden;
         margin-left:20%;
         transition: 0.5s;
+    }
+    .rightexpanded {
+        margin-right: 20%;
     }
 
     @media screen and (max-height: 450px) {

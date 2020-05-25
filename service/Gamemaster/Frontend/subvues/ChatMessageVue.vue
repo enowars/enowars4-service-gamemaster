@@ -1,10 +1,9 @@
 <template>
-    <router-link :to="{name: 'SessionDetails', params: {id:data.id} }">
         <tr>
-            <td>{{data.id}}</td>
-            <td>{{data.name}}</td>
-            <td>{{data.ownerName}}</td>
-        </tr></router-link>
+            <td>{{data.senderName}}</td>
+            <td>{{data.timestamp}}</td>
+            <td>{{data.content}}</td>
+        </tr>
 </template>
 
 <script lang="ts">

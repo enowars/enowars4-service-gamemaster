@@ -19,6 +19,7 @@ namespace Gamemaster.Database
         Task<SessionView[]> GetRecentSessions(int skip, int take);
         Task<SessionView> InsertSession(string name, string notes, User owner, string password);
         Task<SessionView?> GetSession(long sessionId, long userId);
+        Task<Session?> GetFullSession(long sessionId, long userId);
         Task<Session?> GetSession(long sessionId);
         Task AddUserToSession(long sessionId, long userId);
     }
@@ -68,6 +69,21 @@ namespace Gamemaster.Database
             {
                 if (u.UserId == userId)
                     return new SessionView(session);
+            }
+            return null;
+        }
+        public async Task<Session?> GetFullSession(long sessionId, long userId)
+        {
+            var session = await _context.Sessions
+                .Where(s => s.Id == sessionId)
+                .Include(s => s.Players)
+                .SingleOrDefaultAsync();
+
+            if (session.OwnerId == userId) return session;
+            foreach (var u in session.Players)
+            {
+                if (u.UserId == userId)
+                    return session;
             }
             return null;
         }

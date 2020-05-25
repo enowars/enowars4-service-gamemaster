@@ -1,6 +1,17 @@
 <template>
     <div id="sidebar" class="sidebar">
-        <ChatMessageVue v-for="msg in chatdata" :data="msg"></ChatMessageVue>
+        <div id="chatcontainer">
+            <div id="chatbody">
+                <h2>Chat History:</h2>
+                <ChatMessageVue v-for="msg in chatdata" :data="msg"></ChatMessageVue>
+            </div>
+            <div id="chatfooter">
+                <form>
+                    <input type="text" name="Message" v-model="input.msg" placeholder="Description" />
+                    <button type="button" v-on:click="send()">Add</button>
+                </form>
+            </div>
+        </div>
     </div>
 </template>
 <script lang="ts">
@@ -9,16 +20,43 @@
     import router from '../router';
     import axios, { AxiosRequestConfig, AxiosPromise, AxiosResponse } from 'axios';
     import ChatMessageVue from "./ChatMessageVue.vue";
+    import { SignalRContext } from "./../scripts/signalrhelper";
     export default defineComponent({
         props: ['sessionId'],
         components: {
             ChatMessageVue
         },
         data() {
-            return { chatdata: [] };
+            return {
+                chatdata: [],
+                input: {
+                    msg: ""
+                }
+            };
         },
         mounted() {
-
+            console.log("SidebarVue Mounted Called");
+            console.log(this.$props.sessionId);
+            var bodyFormData = new FormData();
+            bodyFormData.set('id', this.$props.sessionId);
+            const options: AxiosRequestConfig = {
+                method: 'POST',
+                data: bodyFormData,
+                headers: { 'Content-Type': 'x-www-form-urlencoded' },
+                url: '/api/chat/Getrecent',
+            };
+            axios(options).then(
+                response => {
+                    console.log("ChatMessages");
+                    this.chatdata = response.data;
+                });
+            return;
+        },
+        methods: {
+            send() {
+                var ctx: SignalRContext = SignalRContext.getInstance();
+                ctx.sendmsg(this.input.msg);
+            }
         }
 
     });
@@ -28,7 +66,7 @@
 <style scoped>
     .sidebar{
         height: 100%;
-        width:20%;
+        width:19%;
         z-index:1;
         overflow-x: hidden;
         padding: 60px 0px 60px 0px;
@@ -38,9 +76,8 @@
         .sidebar {
             padding-top: 5px;
         }
-
-            .sidenav a {
-                font-size: 18px;
-            }
+        .sidebar a {
+            font-size: 18px;
+        }
     }
 </style>

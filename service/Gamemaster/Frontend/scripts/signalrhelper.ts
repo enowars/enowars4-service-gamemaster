@@ -18,6 +18,7 @@ export class SignalRContext {
     }
 
     private constructor() {
+        this.chat = new ChatHandler();
         this.connection = new SignalR.HubConnectionBuilder()
             .withUrl("/hubs/session")
             .configureLogging(SignalR.LogLevel.Debug)
@@ -86,6 +87,18 @@ export class SignalRContext {
             console.log("join() aborting: HubConnection is not connected")
         }
     }
+    public sendmsg(msg: string) {
+        if (this.connection.state === SignalR.HubConnectionState.Connected) {
+            console.log("sendmsg To " + this.sessionId + "("+msg+")");
+            this.connection
+                .send("Chat", msg)
+                .then(function () {
+                    console.log("after sendmsg...");
+                });
+        } else {
+            console.log("sendmsg() aborting: HubConnection is not connected")
+        }
+    }
 
     public setSessionId(sessionId: number) {
         if (this.sessionId !== sessionId) {
@@ -95,9 +108,12 @@ export class SignalRContext {
     }
 
     public ensureConnected() {
+        console.log("##########################");
+        console.log(this.connection.state);
         if (this.connection.state !== SignalR.HubConnectionState.Connected
             && this.connection.state !== SignalR.HubConnectionState.Connecting
             && this.connection.state !== SignalR.HubConnectionState.Reconnecting) {
+
             this.connection
                 .start()
                 .then(() => this.onConnected())

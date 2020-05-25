@@ -1,8 +1,9 @@
 <template>
   <div>
-    <h1>More Session Details for Session {{ sessionId}}:</h1>
+    <h1>Session Details for Session {{ sessionId}}:</h1>
       <SceneVue :session-id="sessionId"></SceneVue>
-      <SidebarVue></SidebarVue>
+      <SidebarVue :session-id="sessionId"></SidebarVue>
+      <RightbarVue></RightbarVue>
   </div>
 </template>
 
@@ -19,7 +20,7 @@
         data() {
             return {
                 input: {
-                    access: false
+                    ownername: ""
                 }
             }
         },
@@ -38,13 +39,13 @@
             };
             axios(options).then(
                 response => {
-                    //console.log(response);
+                    console.log(response);
                     if (response.status == 200) {
+                        this.input.ownername = response.data.ownerName;
                     } else {
                         console.log("this should not happen...");
                     }
                 }).catch(error => {
-                    router.push 
                     console.log(error);
                 })
             return {

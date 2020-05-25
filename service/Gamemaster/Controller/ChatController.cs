@@ -25,7 +25,7 @@ namespace Gamemaster.CustomControllers
             Db = db;
         }
         [HttpPost]
-        public async Task<IActionResult> GetRecent([FromForm]long sessionid)
+        public async Task<IActionResult> GetRecent([FromForm]long id)
         {
             var currentusername = HttpContext.User.Identity.Name;
             if (currentusername == null)
@@ -37,12 +37,12 @@ namespace Gamemaster.CustomControllers
             {
                 throw new System.Exception($"No user called {currentusername} found");
             }
-            var session = await Db.GetSession(sessionid, currentuser.Id);
+            var session = await Db.GetSession(id, currentuser.Id);
             if (!(session is SessionView _))
             {
                 throw new System.ArgumentException("SessionId not valid or User not in Session");
             }
-            ChatMessageView[] messages = await Db.GetChatMessages(sessionid);
+            ChatMessageView[] messages = await Db.GetChatMessages(id);
             return Json(messages);
         }
     }

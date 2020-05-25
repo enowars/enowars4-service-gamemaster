@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h1>Session Details for Session {{$route.params.id}}</h1>
+        <!-- <h1>Session Details for Session {{$route.params.id}}</h1> -->
         <SessionDetailsDenied v-if="!input.access" />
         <SessionDetailsVue v-if="input.access" :session-id="input.id" />
     </div>

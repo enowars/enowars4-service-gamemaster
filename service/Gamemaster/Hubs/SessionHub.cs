@@ -56,11 +56,12 @@ namespace Gamemaster.Hubs
             if (currentUser == null) return;
             var currentUserId = currentUser.Id;
             var sid = ConIdtoSessionId[Context.ConnectionId];
-            var session = await Db.GetSession(sid, currentUserId);
+            var session = await Db.GetFullSession(sid, currentUserId);
             if (session == null) return;
-            var msg = await Db.InsertChatMessage(session.Id, currentUser, Message);
+            var msg = await Db.InsertChatMessage(session, currentUser, Message);
             await Clients.Group(sid.ToString()).SendAsync("Chat", new ChatMessageView(msg), CancellationToken.None);
         }
+
         public async Task Join(long sid)
         {
             var currentUsername = Context.User.Identity.Name;

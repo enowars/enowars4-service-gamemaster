@@ -15,20 +15,23 @@ namespace Gamemaster.Database
 {
     public partial interface IGamemasterDb
     {
-        Task<ChatMessage> InsertChatMessage(long context, User sender, string content);
+        Task<ChatMessage> InsertChatMessage(Session context, User sender, string content);
         Task<ChatMessageView[]> GetChatMessages(long context);
     }
     public partial class GamemasterDb : IGamemasterDb
     {
-        public async Task<ChatMessage> InsertChatMessage(long context, User sender, string content)
+        public async Task<ChatMessage> InsertChatMessage(Session context, User sender, string content)
         {
             var msg = new ChatMessage()
             {
                 Sender = sender,
-                SessionContextId = context,
-                Content = content
+                SessionContext = context,
+                Content = content,
+                Timestamp = DateTime.UtcNow,
+
             };
-            await _context.ChatMessages.AddAsync(msg);
+            _context.ChatMessages.Add(msg);
+            await _context.SaveChangesAsync();
             return msg;
         }
         public async Task<ChatMessageView[]> GetChatMessages(long context)
