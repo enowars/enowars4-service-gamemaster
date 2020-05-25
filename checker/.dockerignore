@@ -3,3 +3,4 @@ Dockerfile
 docker-compose.yml
 README.MD
 nginx.conf
+*.pyc
