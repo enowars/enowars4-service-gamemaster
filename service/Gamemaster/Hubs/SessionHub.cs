@@ -15,7 +15,7 @@ using Gamemaster.Models.View;
 
 namespace Gamemaster.Hubs
 {
-    //[Authorize]
+    [Authorize]
     public class SessionHub : Hub
     {
         public static Dictionary<long, Scene> Scenes = new Dictionary<long, Scene>();
@@ -29,23 +29,21 @@ namespace Gamemaster.Hubs
             Db = db;
         }
 
-        public override async Task OnConnectedAsync()
+        public override Task OnConnectedAsync()
         {
-            string id = Context.ConnectionId;
-            Logger.LogError($"OnConnectedAsync {Context.User.FindFirst(ClaimTypes.NameIdentifier).Value}  ||  {id}");
-            await Task.CompletedTask;
+            Logger.LogInformation($"OnConnectedAsync NameIdentifier={Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value}, ConnectionId={Context.ConnectionId}");
+            return Task.CompletedTask;
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            string id = Context.ConnectionId;
-            var sceneId = ConIdtoSessionId[id];
-            var scene = Scenes[sceneId];
+            Logger.LogInformation($"OnDisconnectedAsync NameIdentifier={Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value}, ConnectionId={Context.ConnectionId}");
+            var sceneId = ConIdtoSessionId[Context.ConnectionId];
+            Scenes.TryGetValue(sceneId, out var scene);
             if (scene != null)
             {
                 scene.RemoveUnit("unit"+Context.ConnectionId);
                 await Clients.All.SendAsync(nameof(scene), scene, CancellationToken.None);
-
             }
         }
         public async Task Chat(string Message)
@@ -81,7 +79,7 @@ namespace Gamemaster.Hubs
             };
             lock (ConIdtoSessionId)
             {
-                Logger.LogError($"Join, ID:::{Context.ConnectionId}");
+                Logger.LogInformation($"Join, ID:::{Context.ConnectionId}");
                 ConIdtoSessionId.Add(Context.ConnectionId, sid);
             }
             Scenes[sid].AddUnit("unit"+ Context.ConnectionId, new Unit());
@@ -94,7 +92,7 @@ namespace Gamemaster.Hubs
             var currentUser = await Db.GetUser(currentUsername);
             if (currentUser == null) return;
             var currentUserId = currentUser.Id;
-            Logger.LogError($"Move, ID:::{Context.ConnectionId}");
+            Logger.LogInformation($"Move, ID:::{Context.ConnectionId}");
             var sid = ConIdtoSessionId[Context.ConnectionId];
             var session = await Db.GetSession(sid, currentUserId);
             if (session == null) return;
@@ -108,7 +106,7 @@ namespace Gamemaster.Hubs
             var currentUser = await Db.GetUser(currentUsername);
             if (currentUser == null) return;
             var currentUserId = currentUser.Id;
-            Logger.LogError($"Move, ID:::{Context.ConnectionId}");
+            Logger.LogInformation($"Move, ID:::{Context.ConnectionId}");
             var sid = ConIdtoSessionId[Context.ConnectionId];
             var session = await Db.GetSession(sid, currentUserId);
             if (session == null) return;
