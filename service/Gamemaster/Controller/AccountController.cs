@@ -50,7 +50,7 @@ namespace Gamemaster.CustomControllers
             {
                 return Forbid();
             }
-            var currentuser = await Db.GetUser(currentusername);
+            var currentuser = await Db.GetUserInfo(currentusername);
             if (!(currentuser is User _))
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, $"User {currentusername} not found");

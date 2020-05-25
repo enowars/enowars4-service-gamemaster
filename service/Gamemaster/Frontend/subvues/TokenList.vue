@@ -1,6 +1,6 @@
 <template>
     <div>
-        SessionList
+        Tokens:
         <table>
             <thead>
                 <tr>
@@ -27,17 +27,14 @@
             return { tabledata: [] };
         },
         mounted() {
-            console.log("Setup");
-            console.log(this);
             const options: AxiosRequestConfig = {
-                method: 'GET',
-                params: { "take": 100, "skip": 0 },
+                method: 'POST',
                 headers: { 'Content-Type': 'x-www-form-urlencoded' },
                 url: '/api/token/list',
             };
             axios(options).then(
                 response => {
-                    console.log(response);
+                    console.log("TokenList");
                     console.log(this);
                     this.tabledata = response.data;
                 });

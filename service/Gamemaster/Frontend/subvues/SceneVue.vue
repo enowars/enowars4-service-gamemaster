@@ -49,3 +49,24 @@
         }
     });
 </script>
+
+<style scoped>
+    .scene {
+        height: 100%;
+        width: 100%;
+        z-index: 1;
+        overflow-x: hidden;
+        margin-left:20%;
+        transition: 0.5s;
+    }
+
+    @media screen and (max-height: 450px) {
+        .sidebar {
+            padding-top: 5px;
+        }
+
+        .sidenav a {
+            font-size: 18px;
+        }
+    }
+</style>

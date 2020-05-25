@@ -63,7 +63,6 @@ namespace Gamemaster.Hubs
         }
         public async Task Join(long sid)
         {
-            //int.TryParse(ssid, out var sid);
             var currentUsername = Context.User.Identity.Name;
             if (currentUsername == null) return;
             var currentUser = (await Db.GetUser(currentUsername));

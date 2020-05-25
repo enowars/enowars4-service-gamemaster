@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Gamemaster.CustomControllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     public class TokenController : Controller
     {
@@ -24,7 +24,7 @@ namespace Gamemaster.CustomControllers
             Logger = logger;
             Db = db;
         }
-        [HttpGet]
+        [HttpPost]
         public async Task<IActionResult> List()
         {
             try
@@ -41,16 +41,17 @@ namespace Gamemaster.CustomControllers
             }
         }
         [HttpPost]
-        public async Task<IActionResult> GetToken([FromForm] string UUID)
+        public async Task<IActionResult> Info([FromForm] string UUID)
         {
             TokenStrippedView t = await Db.GetTokenByUUID(UUID);
             return Json(t);
         }
-        public async Task<IActionResult> GetTokenIcon([FromForm] string UUID)
+        [HttpGet]
+        public async Task<IActionResult> GetIcon([FromQuery]string UUID)
         {
             TokenData d = await Db.GetTokenDataByUUID(UUID);
             MemoryStream stream = new MemoryStream(d.Icon);
-            return new FileStreamResult(stream, "image");
+            return new FileStreamResult(stream, "image/png");
         }
     }
 }

@@ -360,5 +360,5 @@ Gamemaster/wwwroot
 Gamemaster/Frontend/assets
 Gamemaster/Frontend/**/*.js
 Gamemaster/Frontend/**/*.map
-Gamemaster/Gamemaster.db
+Gamemaster/Gamemaster.db*
 .vscode/

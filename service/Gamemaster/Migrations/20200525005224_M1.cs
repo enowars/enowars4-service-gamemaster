@@ -24,27 +24,6 @@ namespace Gamemaster.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Characters",
-                columns: table => new
-                {
-                    Id = table.Column<long>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    OwnerId = table.Column<long>(nullable: false),
-                    Name = table.Column<string>(nullable: false),
-                    Description = table.Column<string>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Characters", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Characters_Users_OwnerId",
-                        column: x => x.OwnerId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Sessions",
                 columns: table => new
                 {
@@ -93,6 +72,34 @@ namespace Gamemaster.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ChatMessages",
+                columns: table => new
+                {
+                    Id = table.Column<long>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    SenderId = table.Column<long>(nullable: false),
+                    SessionContextId = table.Column<long>(nullable: false),
+                    Content = table.Column<string>(nullable: false),
+                    Timestamp = table.Column<DateTime>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ChatMessages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ChatMessages_Users_SenderId",
+                        column: x => x.SenderId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ChatMessages_Sessions_SessionContextId",
+                        column: x => x.SessionContextId,
+                        principalTable: "Sessions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SessionUserLinks",
                 columns: table => new
                 {
@@ -117,9 +124,14 @@ namespace Gamemaster.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Characters_OwnerId",
-                table: "Characters",
-                column: "OwnerId");
+                name: "IX_ChatMessages_SenderId",
+                table: "ChatMessages",
+                column: "SenderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ChatMessages_SessionContextId",
+                table: "ChatMessages",
+                column: "SessionContextId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Sessions_OwnerId",
@@ -146,7 +158,7 @@ namespace Gamemaster.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Characters");
+                name: "ChatMessages");
 
             migrationBuilder.DropTable(
                 name: "SessionUserLinks");

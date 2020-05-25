@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Gamemaster.Migrations
 {
     [DbContext(typeof(GamemasterDbContext))]
-    [Migration("20200523133055_M1")]
+    [Migration("20200525005224_M1")]
     partial class M1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -18,28 +18,32 @@ namespace Gamemaster.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "3.1.4");
 
-            modelBuilder.Entity("Gamemaster.Models.Database.Character", b =>
+            modelBuilder.Entity("Gamemaster.Models.Database.ChatMessage", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Description")
+                    b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<long>("OwnerId")
+                    b.Property<long>("SenderId")
                         .HasColumnType("INTEGER");
+
+                    b.Property<long>("SessionContextId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OwnerId");
+                    b.HasIndex("SenderId");
 
-                    b.ToTable("Characters");
+                    b.HasIndex("SessionContextId");
+
+                    b.ToTable("ChatMessages");
                 });
 
             modelBuilder.Entity("Gamemaster.Models.Database.Session", b =>
@@ -161,11 +165,17 @@ namespace Gamemaster.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Gamemaster.Models.Database.Character", b =>
+            modelBuilder.Entity("Gamemaster.Models.Database.ChatMessage", b =>
                 {
-                    b.HasOne("Gamemaster.Models.Database.User", "Owner")
-                        .WithMany("Characters")
-                        .HasForeignKey("OwnerId")
+                    b.HasOne("Gamemaster.Models.Database.User", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Gamemaster.Models.Database.Session", "SessionContext")
+                        .WithMany()
+                        .HasForeignKey("SessionContextId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

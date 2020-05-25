@@ -24,3 +24,23 @@
     });
 
 </script>
+
+<style scoped>
+    .sidebar{
+        height: 100%;
+        width:20%;
+        z-index:1;
+        overflow-x: hidden;
+        padding: 60px 0px 60px 0px;
+        transition: 0.5s;
+    }
+    @media screen and (max-height: 450px) {
+        .sidebar {
+            padding-top: 5px;
+        }
+
+            .sidenav a {
+                font-size: 18px;
+            }
+    }
+</style>
