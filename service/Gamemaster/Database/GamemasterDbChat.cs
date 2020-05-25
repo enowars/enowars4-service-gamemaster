@@ -16,6 +16,7 @@ namespace Gamemaster.Database
     public partial interface IGamemasterDb
     {
         Task<ChatMessage> InsertChatMessage(long context, User sender, string content);
+        Task<ChatMessageView[]> GetChatMessages(long context);
     }
     public partial class GamemasterDb : IGamemasterDb
     {
@@ -29,6 +30,10 @@ namespace Gamemaster.Database
             };
             await _context.ChatMessages.AddAsync(msg);
             return msg;
+        }
+        public async Task<ChatMessageView[]> GetChatMessages(long context)
+        {
+            return await _context.ChatMessages.Where(msg => msg.SessionContextId == context).OrderByDescending(msg => msg.Timestamp).Take(100).Select(m => new ChatMessageView(m)).ToArrayAsync();
         }
     }
 }
