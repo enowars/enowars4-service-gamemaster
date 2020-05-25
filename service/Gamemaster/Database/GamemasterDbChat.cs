@@ -13,6 +13,10 @@ using Gamemaster.Models.View;
 
 namespace Gamemaster.Database
 {
+    public partial interface IGamemasterDb
+    {
+        Task<ChatMessage> InsertChatMessage(long context, User sender, string content);
+    }
     public partial class GamemasterDb : IGamemasterDb
     {
         public async Task<ChatMessage> InsertChatMessage(long context, User sender, string content)

@@ -13,6 +13,14 @@ using Gamemaster.Models.View;
 
 namespace Gamemaster.Database
 {
+    public partial interface IGamemasterDb
+    {
+        Task<User> InsertUser(string name, string email, string password);
+        Task<User?> AuthenticateUser(string name, string password);
+        Task<User?> GetUser(int userid);
+        Task<User?> GetUser(string username);
+        Task<User?> GetUserInfo(string username);
+    }
     public partial class GamemasterDb : IGamemasterDb
     {
         public async Task<User> InsertUser(string name, string email, string password)

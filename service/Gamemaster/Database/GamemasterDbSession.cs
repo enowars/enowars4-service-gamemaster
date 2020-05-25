@@ -13,6 +13,15 @@ using Gamemaster.Models.View;
 
 namespace Gamemaster.Database
 {
+    public partial interface IGamemasterDb
+    {
+        Task<Session[]> GetSessions(long userId);
+        Task<SessionView[]> GetRecentSessions(int skip, int take);
+        Task<SessionView> InsertSession(string name, string notes, User owner, string password);
+        Task<SessionView?> GetSession(long sessionId, long userId);
+        Task<Session?> GetSession(long sessionId);
+        Task AddUserToSession(long sessionId, long userId);
+    }
     public partial class GamemasterDb : IGamemasterDb
     {
         public async Task<Session[]> GetSessions(long userId)

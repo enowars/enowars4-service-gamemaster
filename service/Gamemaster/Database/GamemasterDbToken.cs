@@ -13,6 +13,13 @@ using Gamemaster.Models.View;
 
 namespace Gamemaster.Database
 {
+    public partial interface IGamemasterDb
+    {
+        Task<TokenStrippedView> GetTokenByUUID(string UUID);
+        Task<TokenData> GetTokenDataByUUID(string UUID);
+        Task<TokenStrippedView[]> GetTokens(long userid);
+        Task<Token?> AddTokenToUser(long sessionId, string name, string description, bool isprivate, byte[] icon);
+    }
     public partial class GamemasterDb : IGamemasterDb
     {
         public async Task<TokenStrippedView> GetTokenByUUID(string UUID)
