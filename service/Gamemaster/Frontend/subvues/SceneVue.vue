@@ -52,15 +52,14 @@
 
 <style scoped>
     .scene {
+        display:inline-block;
         height: 100%;
-        width: 100%;
+        width: 60%;
         z-index: 1;
         overflow-x: hidden;
-        margin-left:20%;
         transition: 0.5s;
     }
     .rightexpanded {
-        margin-right: 20%;
     }
 
     @media screen and (max-height: 450px) {

@@ -1,6 +1,6 @@
 <template>
     <div id="rightbar" class="rightbar">
-
+        Tokens to Add:
     </div>
 </template>
 <script lang="ts">
@@ -25,11 +25,11 @@
 
 <style scoped>
     .rightbar {
+        float:right;
         height: 100%;
         width: 20%;
         z-index: -1;
         overflow-x: hidden;
-        margin-left: 80%;
         padding: 60px 0px 60px 0px;
         transition: 0.5s;
     }

@@ -1,14 +1,13 @@
 ﻿import * as SignalR from "@microsoft/signalr";
 import { Scene, ChatMessage } from "./types";
-import { ChatHandler } from "./chatHandler";
 
 export class SignalRContext {
     private static instance: SignalRContext | null = null;
-    public chat: ChatHandler | null = null;
     public connection: SignalR.HubConnection;
     private handleSceneUpdate: ((s: Scene) => void) | null = null;
     private lastSceneUpdate: Scene | null = null;
     private sessionId: number | null = null;
+    private handleChatMessage: ((msg: ChatMessage) => void) | null = null;
 
     static getInstance(): SignalRContext {
         if (!SignalRContext.instance) {
@@ -18,7 +17,6 @@ export class SignalRContext {
     }
 
     private constructor() {
-        this.chat = new ChatHandler();
         this.connection = new SignalR.HubConnectionBuilder()
             .withUrl("/hubs/session")
             .configureLogging(SignalR.LogLevel.Debug)
@@ -36,8 +34,8 @@ export class SignalRContext {
             console.log("recv " + data);
         });
         this.connection.on("Chat", (msg: ChatMessage) => {
-            if (this.chat !== null) {
-                this.chat.handleChat(msg);
+            if (this.handleChatMessage !== null) {
+                this.handleChatMessage(msg);
             }
         });
         this.connection.on("Scene", (sceneUpdate: Scene) => {
@@ -68,6 +66,10 @@ export class SignalRContext {
         if (this.lastSceneUpdate !== null) {
             handler(this.lastSceneUpdate);
         }
+    }
+    public setChatMessageHandler(handler: (s: ChatMessage) => void) {
+        console.log("setChatMessageHandler(" + handler + ")");
+        this.handleChatMessage = handler;
     }
 
     public dragto(dx: number, dy: number) {

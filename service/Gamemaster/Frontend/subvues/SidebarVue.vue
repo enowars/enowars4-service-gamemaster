@@ -67,6 +67,7 @@
     .sidebar{
         height: 100%;
         width:19%;
+        float:left;
         z-index:1;
         overflow-x: hidden;
         padding: 60px 0px 60px 0px;

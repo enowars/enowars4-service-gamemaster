@@ -32,6 +32,8 @@
     "vue": "^3.0.0-beta.12",
     "vue-router": "4.0.0-alpha.12",
     "vuex": "4.0.0-beta.2",
-    "axios": "0.19.2"
+    "axios": "0.19.2",
+    "framevuerk": "3.0.0-beta28",
+    "framevuerk-builder": "2.0.7"
   }
 }

@@ -1,10 +1,10 @@
 <template>
-  <div>
-    <h1>Session Details for Session {{ sessionId}}:</h1>
-      <SceneVue :session-id="sessionId"></SceneVue>
-      <SidebarVue :session-id="sessionId"></SidebarVue>
-      <RightbarVue></RightbarVue>
-  </div>
+    <div class=" inline">
+        <h1>Session Details for Session {{ sessionId}}:</h1>
+        <SidebarVue :session-id="sessionId"></SidebarVue>
+        <RightbarVue></RightbarVue>
+        <SceneVue :session-id="sessionId"></SceneVue>
+    </div>
 </template>
 
 <script lang="ts">
@@ -14,6 +14,7 @@
     import axios, { AxiosRequestConfig, AxiosPromise, AxiosResponse } from 'axios';
     import SidebarVue from "./SidebarVue.vue";
     import SceneVue from "./SceneVue.vue";
+    import RightbarVue from "./RightBarVue.vue";
     import SessionListElement from "./SessionListElement.vue";
     export default defineComponent({
         props: ['sessionId'],
@@ -26,7 +27,8 @@
         },
         components: {
             SidebarVue,
-            SceneVue
+            SceneVue,
+            RightbarVue
         },
         mounted() {
             var bodyFormData = new FormData();
@@ -53,3 +55,12 @@
         }
     });
 </script>
+
+<style scoped>
+    .inline {
+        display: inline;
+        text-align:center;
+        height: 100%;
+        width: 100%;
+    }
+</style>
