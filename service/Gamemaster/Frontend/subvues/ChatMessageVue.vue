@@ -1,9 +1,11 @@
 <template>
-        <tr>
-            <td>{{data.senderName}}</td>
-            <td>{{data.timestamp}}</td>
-            <td>{{data.content}}</td>
-        </tr>
+    <tr>
+        <td>{{data.senderName}}</td>
+        <td>{{data.timestamp}}</td>
+    </tr>
+    <tr>
+        <td>{{data.content}}</td>
+    </tr>
 </template>
 
 <script lang="ts">

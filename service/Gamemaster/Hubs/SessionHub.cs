@@ -22,7 +22,6 @@ namespace Gamemaster.Hubs
         private readonly ILogger Logger;
         private readonly IGamemasterDb Db;
         public static Dictionary<string, long> ConIdtoSessionId = new Dictionary<string, long>();
-
         public SessionHub(ILogger<SessionHub> logger, IGamemasterDb db)
         {
             Logger = logger;
