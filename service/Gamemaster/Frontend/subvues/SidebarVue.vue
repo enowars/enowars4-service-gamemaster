@@ -1,8 +1,8 @@
 <template>
     <div id="sidebar" class="sidebar">
-        <div id="chatcontainer">
+        <div id="chatcontainer" class="chatcontainer">
             <div id="chatbody">
-                <h2>Chat History:</h2>
+                <h2>Chat History::</h2>
                 <ChatMessageVue v-for="msg in chatdata" :data="msg"></ChatMessageVue>
             </div>
             <div id="chatfooter">
@@ -66,12 +66,17 @@
 <style scoped>
     .sidebar{
         height: 100%;
-        width:19%;
-        float:left;
-        z-index:1;
+        width: 19%;
+        float: left;
+        z-index: 1;
         overflow-x: hidden;
         padding: 60px 0px 60px 0px;
         transition: 0.5s;
+    }
+    .chatcontainer {
+        background-color: coral;
+        border: 1px solid blue;
+        text-align: initial;
     }
     @media screen and (max-height: 450px) {
         .sidebar {
@@ -81,4 +86,5 @@
             font-size: 18px;
         }
     }
+
 </style>

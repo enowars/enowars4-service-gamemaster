@@ -14,7 +14,7 @@
     import axios, { AxiosRequestConfig, AxiosPromise, AxiosResponse } from 'axios';
     import SidebarVue from "./SidebarVue.vue";
     import SceneVue from "./SceneVue.vue";
-    import RightbarVue from "./RightBarVue.vue";
+    import RightbarVue from "./RightbarVue.vue";
     import SessionListElement from "./SessionListElement.vue";
     export default defineComponent({
         props: ['sessionId'],

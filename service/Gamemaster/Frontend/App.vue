@@ -74,7 +74,9 @@
         }
     });
 </script>
-
+<style>
+    @import './assets/style.css';
+</style>
 <style scoped>
 
     #root {
