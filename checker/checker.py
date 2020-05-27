@@ -61,19 +61,19 @@ class GamemasterChecker(BaseChecker):
         await asyncio.gather(*[interface.add_to_session(sessionid, k) for k in clients.keys()])
         await interface.close()
 
-    async def clienttodb(self, logger:LoggerAdapter, round:int, collection:MotorCollection, clients:dict):
+    async def clienttodb(self, logger:LoggerAdapter, round:int, team:int, collection:MotorCollection, clients:dict):
         for k, v in clients.items():
-            await collection.insert_one({ 'username' : k, 'password': v, 'round': round })
+            await collection.insert_one({ 'username' : k, 'password': v, 'round': round, 'team': team})
 
-    async def dbtoclient(self, logger:LoggerAdapter, round:int, collection:MotorCollection) -> dict:
-        cursor = collection.find({ 'round': round-1 })
+    async def dbtoclient(self, logger:LoggerAdapter, round:int, team:int, collection:MotorCollection) -> dict:
+        cursor = collection.find({ 'round': round-1, 'team': team})
         result = {}
         for document in await cursor.to_list(length=100):
             result[document['username']] = document['password']
         return result
 
     async def putflag(self, logger: LoggerAdapter, task: CheckerTaskMessage, collection: MotorCollection) -> None:
-        clients = await self.dbtoclient (logger, task.round, collection)
+        clients = await self.dbtoclient (logger, task.round, task.teamId, collection)
         for k in list(clients.keys()):
             if bool(random.getrandbits(1)):
                 del clients[k]
