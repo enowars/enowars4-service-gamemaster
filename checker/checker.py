@@ -96,7 +96,7 @@ class GamemasterChecker(BaseChecker):
         logger.debug(f"{users_to_create} Users added for round {task.round}, now {len(clients)} users total")
         await self.useraddsession(logger, task.address, clients, Sessionid, mastername, collection)
         logger.debug (f"Saving back Clientdb..")
-        await self.clienttodb(logger, task.round, collection, clients)
+        await self.clienttodb(logger, task.round, task.teamId, collection, clients)
         logger.debug (f"Putflag finished")
 
     async def getflag(self, logger: LoggerAdapter, task: CheckerTaskMessage, collection: MotorCollection) -> None:
@@ -121,7 +121,7 @@ class GamemasterChecker(BaseChecker):
 
 logger = logging.getLogger()
 handler = logging.StreamHandler(sys.stdout)
-#handler.setFormatter(ELKFormatter("%(message)s")) #ELK-ready output
+handler.setFormatter(ELKFormatter("%(message)s")) #ELK-ready output
 logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 app = create_app(GamemasterChecker()) # mongodb://mongodb:27017
