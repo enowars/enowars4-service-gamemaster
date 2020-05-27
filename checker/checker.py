@@ -46,16 +46,18 @@ class GamemasterChecker(BaseChecker):
 
     async def createuser(self, logger: LoggerAdapter, address: str, collection: MotorCollection, clients:dict) -> str:
         username = self.getusername()
+        logger.debug (f"Creating user {username}")
         password = self.getpassword (username)
         email = self.getemail(username)
         interface : HttpInterface = await HttpInterface.setup(address, GamemasterChecker.port, logger)
         await interface.register(username, email, password)
-        logger.debug (f"Inserted {username}")
         clients[username] = password
+        logger.debug (f"Inserted {username}")
         await interface.close()
         return username
 
     async def useraddsession(self, logger: LoggerAdapter, address:str, clients:dict, sessionid:int,mastername:str, collection: MotorCollection) -> None:
+        logger.debug(f"trying to add users to session...")
         interface : HttpInterface = await HttpInterface.setup(address, GamemasterChecker.port, logger)
         await interface.login(mastername, self.getpassword(mastername))
         await asyncio.gather(*[interface.add_to_session(sessionid, k) for k in clients.keys()])
@@ -73,21 +75,29 @@ class GamemasterChecker(BaseChecker):
         return result
 
     async def putflag(self, logger: LoggerAdapter, task: CheckerTaskMessage, collection: MotorCollection) -> None:
+        logger.debug (f"Putflag started")
         clients = await self.dbtoclient (logger, task.round, task.teamId, collection)
+        logger.debug (f"Clientdb fetched")
+        logger.debug (f"Before Random: len:{len(clients)}")
         for k in list(clients.keys()):
             if bool(random.getrandbits(1)):
                 del clients[k]
+                logger.debug (f"Deleted Client")
+        logger.debug (f"After Random: len:{len(clients)}")
         mastername, Sessionid = await self.createmasterandput(logger, task.flag, task.address, collection, clients)
+        logger.debug (f"Master Created")
         newsize = random.randrange(4, 8, 1)
-        logger.debug (f"After Random: len:{len(clients)}, lenkeys:{len(clients.keys())}")
+        logger.debug (f"Newsize determined: {newsize}")
         users_to_create = max(newsize - len(clients), 0)
         if users_to_create > 0:
             await asyncio.gather(
                 *[self.createuser(logger, task.address, collection, clients) for i in range(users_to_create)]
                 )
-        logger.debug(f"{users_to_create} Users added for round {task.round}")
+        logger.debug(f"{users_to_create} Users added for round {task.round}, now {len(clients)} users total")
         await self.useraddsession(logger, task.address, clients, Sessionid, mastername, collection)
+        logger.debug (f"Saving back Clientdb..")
         await self.clienttodb(logger, task.round, collection, clients)
+        logger.debug (f"Putflag finished")
 
     async def getflag(self, logger: LoggerAdapter, task: CheckerTaskMessage, collection: MotorCollection) -> None:
         try:
