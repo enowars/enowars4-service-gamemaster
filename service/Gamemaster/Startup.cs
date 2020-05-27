@@ -30,7 +30,7 @@ namespace Gamemaster
                 });
             services.AddSignalR();
             services.AddControllers();
-            services.AddDbContextPool<GamemasterDbContext>(options => options.UseSqlite(GamemasterDbContextFactory.CONNECTION_STRING));
+            services.AddDbContextPool<GamemasterDbContext>(options => options.UseNpgsql(GamemasterDbContextFactory.PostgresConnectionString));
             services.AddScoped<IGamemasterDb, GamemasterDb>();
         }
 

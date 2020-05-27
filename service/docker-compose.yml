@@ -5,5 +5,12 @@ services:
     build:
       context: Gamemaster
       dockerfile: Dockerfile
+    environment:
+      - DATABASE_DOMAIN=postgres
     ports:
       - "8001:80"
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: docker
+      POSTGRES_PASSWORD: docker

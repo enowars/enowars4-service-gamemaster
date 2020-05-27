@@ -1,0 +1,19 @@
+version: '3.4'
+
+services:
+#  enolauncher:
+#    environment:
+#      - DATABASE_DOMAIN=enopostgres
+#    build:
+#      context: .
+#      dockerfile: EnoLauncher/Dockerfile
+#    volumes:
+#      - ./ctf.json:/app/ctf.json
+  enopostgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: docker
+      POSTGRES_PASSWORD: docker
+    ports:
+      - "127.0.0.1:5432:5432"
+    shm_size: 256MB

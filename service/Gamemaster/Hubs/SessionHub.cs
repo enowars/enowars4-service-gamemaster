@@ -10,7 +10,6 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Gamemaster.Models.Database;
-using SQLitePCL;
 using Gamemaster.Models.View;
 
 namespace Gamemaster.Hubs
