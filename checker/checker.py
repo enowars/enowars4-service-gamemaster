@@ -127,8 +127,12 @@ class GamemasterChecker(BaseChecker):
         pass
 
 async def createindex(collection: MotorCollection) -> None:
+    logger.debug("Create Flag Index...")
     await collection.create_index(["Flag"])
+    logger.debug("Flag Index created")
+    logger.debug("Create Round/Team Index...")
     await collection.create_index(["round"],["team"])
+    logger.debug("Round/Team Index created.")
 
 logger = logging.getLogger()
 handler = logging.StreamHandler(sys.stdout)
