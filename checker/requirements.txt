@@ -5,3 +5,4 @@ Faker
 tornado>=6.0
 motor>=2.1
 jsons>=1.1
+enochecker_core>=0.3
