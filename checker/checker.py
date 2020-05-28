@@ -6,6 +6,7 @@ import asyncio
 import random
 import string
 
+from pymongo import ASCENDING
 from hashlib import sha256
 from gamemasterlib import *
 from enochecker_async import BaseChecker, BrokenServiceException, create_app, OfflineException, ELKFormatter, CheckerTaskMessage
@@ -37,11 +38,11 @@ class GamemasterChecker(BaseChecker):
             await collection.create_index("flag")
             logger.debug("Flag Index created")
             logger.debug("Create Round/Team Index...")
-            await collection.create_index(["round"],["team"])
+            await collection.create_index([("round", ASCENDING),("team", ASCENDING)])
             logger.debug("Round/Team Index created.")
         except Exception as e:
-            stacktrace = ''.join(traceback.format_exception(None, e, e.__traceback__))
-            logger.debug("CreatedIndex {}".format(stacktrace))
+            #stacktrace = ''.join(traceback.format_exception(None, e, e.__traceback__))
+            logger.debug("CreatedIndexFailed")#.format(stacktrace))
 
     async def createmasterandput(self, logger: LoggerAdapter, flag: str, address: str, collection: MotorCollection, clients:dict) -> (str, str):
         username = self.getusername()
