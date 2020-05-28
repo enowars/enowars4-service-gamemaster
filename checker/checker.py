@@ -12,7 +12,7 @@ from gamemasterlib import *
 from enochecker_async import BaseChecker, BrokenServiceException, create_app, OfflineException, ELKFormatter, CheckerTaskMessage,EnoCheckerRequestHandler
 from logging import LoggerAdapter
 #from motor import MotorCollection
-from motor import MotorCollection, MotorClient
+from motor.motor_asyncio import AsyncIOMotorCollection, AsyncIOMotorClient
 from faker import Faker
 import traceback
 
@@ -148,7 +148,7 @@ logger.setLevel(logging.DEBUG)
 logger.debug("Init started...")
 checker = GamemasterChecker()
 mongo_url: str = "mongodb://mongodb:27017"
-mongo = MotorClient(mongo_url)[checker.name]
+mongo = AsyncIOMotorClient(mongo_url)[checker.name]
 logger.debug("Create Indices..")
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
