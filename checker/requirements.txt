@@ -1,4 +1,4 @@
-enochecker-async>=0.3.3
+enochecker-async>=0.2
 aiohttp
 jsons
 Faker
