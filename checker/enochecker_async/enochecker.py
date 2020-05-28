@@ -14,6 +14,7 @@ from enochecker_core import CheckerInfoMessage
 LOGGING_PREFIX = "##ENOLOGMESSAGE "
 
 class BaseChecker():
+    BaseChecker = "BaseChecker"
     def __init__(self, service_name: str, checker_port: int, flags_per_round: int, noises_per_round: int, havocs_per_round: int) -> None:
         self.service_name = service_name
         self.name = service_name + "Checker"
@@ -21,6 +22,7 @@ class BaseChecker():
         self.flags_per_round = flags_per_round
         self.noises_per_round = noises_per_round
         self.havocs_per_round = havocs_per_round
+        BaseChecker.name = self.name # Logs outside this scope need the name too!
 
 class ELKFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
@@ -28,7 +30,7 @@ class ELKFormatter(logging.Formatter):
         return LOGGING_PREFIX + jsons.dumps(self.create_message(record))
 
     def create_message(self, record: logging.LogRecord):
-        return EnoLogMessage(record.checker.name if hasattr(record, "checker") else None,
+        return EnoLogMessage(BaseChecker.name,
             "infrastructure",
             record.levelname,
             datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
@@ -42,8 +44,7 @@ class ELKFormatter(logging.Formatter):
             record.checker_task.teamId if hasattr(record, "checker_task") else None,
             record.checker_task.team if hasattr(record, "checker_task") else None,
             record.checker_task.serviceId if hasattr(record, "checker_task") else None,
-            record.checker.service_name if hasattr(record, "checker") else None,
-            record.checker_task.method if hasattr(record, "checker_task") else None)
+            record.checker.service_name if hasattr(record, "checker") else None)
 
 class EnoCheckerRequestHandler(tornado.web.RequestHandler):
     async def get(self):
@@ -51,6 +52,7 @@ class EnoCheckerRequestHandler(tornado.web.RequestHandler):
         checker = self.settings['checker']
         self.write(jsons.dumps(CheckerInfoMessage(checker.service_name, checker.flags_per_round,
             checker.noises_per_round, checker.havocs_per_round)))
+    
     async def post(self):
         checker = self.settings['checker']
         scoped_logger = self.settings['logger']
