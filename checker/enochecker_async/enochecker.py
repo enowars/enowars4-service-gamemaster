@@ -102,11 +102,11 @@ def create_app(checker: BaseChecker, mongo_url: str = "mongodb://mongodb:27017")
     mongo = MotorClient(mongo_url)[checker.name]
     app = tornado.web.Application([
         (r"/", EnoCheckerRequestHandler),
-        (r"/service", EnoCheckerRequestHandler)
-    ], logger=logger, checker=checker, mongo=mongo)
+        (r"/service", EnoCheckerRequestHandler)],
+        debug=True
+    , logger=logger, checker=checker, mongo=mongo)
     #app.listen(checker.checker_port)
     server = tornado.httpserver.HTTPServer(app)
     server.bind(checker.checker_port)
-
     server.start(4) # Specify number of subprocesses
     tornado.ioloop.IOLoop.current().start()
