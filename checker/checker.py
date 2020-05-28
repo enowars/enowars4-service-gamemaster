@@ -126,6 +126,10 @@ class GamemasterChecker(BaseChecker):
     async def havoc(self, logger: LoggerAdapter, task: CheckerTaskMessage, collection: MotorCollection) -> None:
         pass
 
+async def createindex(collection: MotorCollection) -> None:
+    await collection.create_index(["Flag"])
+    await collection.create_index(["round"],["team"])
+
 logger = logging.getLogger()
 handler = logging.StreamHandler(sys.stdout)
 handler.setFormatter(ELKFormatter("%(message)s")) #ELK-ready output
@@ -137,6 +141,9 @@ checker = GamemasterChecker()
 logger = logging.getLogger(__name__)
 mongo_url: str = "mongodb://mongodb:27017"
 mongo = MotorClient(mongo_url)[checker.name]
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
+result = loop.run_until_complete(createindex(mongo['checker_storage']))
 #mongo = None
 app = tornado.web.Application([
     (r"/", EnoCheckerRequestHandler),
