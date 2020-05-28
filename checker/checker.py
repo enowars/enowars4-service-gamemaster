@@ -64,14 +64,18 @@ class GamemasterChecker(BaseChecker):
         await interface.close()
 
     async def clienttodb(self, logger:LoggerAdapter, round:int, team:int, collection:MotorCollection, clients:dict):
+        logger.debug(f"clienttodb startet")
         for k, v in clients.items():
             await collection.insert_one({ 'username' : k, 'password': v, 'round': round, 'team': team})
+        logger.debug(f"clienttodb finished")
 
     async def dbtoclient(self, logger:LoggerAdapter, round:int, team:int, collection:MotorCollection) -> dict:
+        logger.debug(f"dbtoclient startet")
         cursor = collection.find({ 'round': round-1, 'team': team})
         result = {}
         for document in await cursor.to_list(length=100):
             result[document['username']] = document['password']
+        logger.debug(f"dbtoclient finished")
         return result
 
     async def putflag(self, logger: LoggerAdapter, task: CheckerTaskMessage, collection: MotorCollection) -> None:

@@ -1,4 +1,7 @@
-enochecker-async>=0.2
+#enochecker-async>=0.2
 aiohttp
-jsons
+#jsons
 Faker
+tornado>=6.0
+motor>=2.1
+jsons>=1.1
