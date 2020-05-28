@@ -11,8 +11,7 @@ from hashlib import sha256
 from gamemasterlib import *
 from enochecker_async import BaseChecker, BrokenServiceException, create_app, OfflineException, ELKFormatter, CheckerTaskMessage,EnoCheckerRequestHandler
 from logging import LoggerAdapter
-#from motor import MotorCollection
-from motor.motor_asyncio import AsyncIOMotorCollection, AsyncIOMotorClient
+from motor import MotorCollection
 from faker import Faker
 import traceback
 
@@ -22,6 +21,7 @@ class GamemasterChecker(BaseChecker):
     def __init__(self):
         super(GamemasterChecker, self).__init__("Gamemaster", 8080, 2, 1, 1)
         self.german_faker = Faker('de_DE')
+        self.indexCreated = False
     
     def getusername(self):
         return self.german_faker.first_name() + self.german_faker.last_name() + ''.join(random.choice(string.digits) for _ in range(10))
@@ -30,6 +30,19 @@ class GamemasterChecker(BaseChecker):
         return "password"
     def getemail(self, username:str)->str:
         return self.german_faker.free_email()
+
+
+    async def createindex(self, logger: LoggerAdapter, collection: MotorCollection) -> None:
+        logger.debug("Create Flag Index...")
+        try:
+            await collection.create_index(["flag"])
+            logger.debug("Flag Index created")
+            logger.debug("Create Round/Team Index...")
+            await collection.create_index(["round"],["team"])
+            logger.debug("Round/Team Index created.")
+        except Exception as e:
+            stacktrace = ''.join(traceback.format_exception(None, e, e.__traceback__))
+            logger.warn("Task finished DOWN: {}".format(stacktrace))
 
     async def createmasterandput(self, logger: LoggerAdapter, flag: str, address: str, collection: MotorCollection, clients:dict) -> (str, str):
         username = self.getusername()
@@ -74,6 +87,9 @@ class GamemasterChecker(BaseChecker):
         logger.debug(f"clienttodb finished")
 
     async def dbtoclient(self, logger:LoggerAdapter, round:int, team:int, collection:MotorCollection) -> dict:
+        if not self.indexCreated:
+            await self.createindex(logger,collection)
+            self.indexCreated = True
         logger.debug(f"dbtoclient startet")
         cursor = collection.find({ 'round': round-1, 'team': team})
         result = {}
@@ -127,43 +143,11 @@ class GamemasterChecker(BaseChecker):
     async def havoc(self, logger: LoggerAdapter, task: CheckerTaskMessage, collection: MotorCollection) -> None:
         pass
 
-async def createindex(collection: MotorCollection) -> None:
-    logger.debug("Create Flag Index...")
-    try:
-        await collection.create_index(["Flag"])
-        logger.debug("Flag Index created")
-        logger.debug("Create Round/Team Index...")
-        await collection.create_index(["round"],["team"])
-        logger.debug("Round/Team Index created.")
-    except Exception as e:
-        stacktrace = ''.join(traceback.format_exception(None, e, e.__traceback__))
-        logger.warn("Task finished DOWN: {}".format(stacktrace))
+
 
 logger = logging.getLogger()
 handler = logging.StreamHandler(sys.stdout)
 handler.setFormatter(ELKFormatter("%(message)s")) #ELK-ready output
 logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
-#app = create_app(GamemasterChecker()) # mongodb://mongodb:27017
-logger.debug("Init started...")
-checker = GamemasterChecker()
-mongo_url: str = "mongodb://mongodb:27017"
-mongo = AsyncIOMotorClient(mongo_url)[checker.name]
-logger.debug("Create Indices..")
-loop = asyncio.new_event_loop()
-asyncio.set_event_loop(loop)
-result = loop.run_until_complete(createindex(mongo['checker_storage']))
-logger.debug("Indices Created")
-app = tornado.web.Application([
-    (r"/", EnoCheckerRequestHandler),
-    (r"/service", EnoCheckerRequestHandler)],
-    debug=False,autoreload=False,
-logger=logger, checker=checker, mongo=mongo)
-logger.debug("App Created")
-app.listen(checker.checker_port)
-logger.debug("Listening now")
-#server = tornado.httpserver.HTTPServer(app)
-#server.bind(checker.checker_port)
-#server.start(4) # Specify number of subprocesses
-tornado.ioloop.IOLoop.current().start()
-logger.debug("Started Event loop")
+app = create_app(GamemasterChecker()) # mongodb://mongodb:27017
