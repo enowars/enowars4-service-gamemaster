@@ -41,8 +41,8 @@ namespace Gamemaster.Database
         {
             byte[] hash = new byte[64];
             byte[] salt = new byte[16];
-            using var rng = new RNGCryptoServiceProvider();
-            rng.GetBytes(salt);
+            //using var rng = new RNGCryptoServiceProvider();
+            //rng.GetBytes(salt);
             Hash(password, salt, hash);
             var session = new Session()
             {
