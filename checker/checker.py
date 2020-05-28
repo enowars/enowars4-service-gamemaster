@@ -18,7 +18,7 @@ class GamemasterChecker(BaseChecker):
     port = 8001
 
     def __init__(self):
-        super(GamemasterChecker, self).__init__("Gamemaster", 8080, 2, 1, 1)
+        super(GamemasterChecker, self).__init__("Gamemaster", 8000, 2, 1, 1)
         self.german_faker = Faker('de_DE')
         self.indexCreated = False
     
