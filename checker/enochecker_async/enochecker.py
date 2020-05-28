@@ -103,8 +103,8 @@ def create_app(checker: BaseChecker, mongo_url: str = "mongodb://mongodb:27017")
     app = tornado.web.Application([
         (r"/", EnoCheckerRequestHandler),
         (r"/service", EnoCheckerRequestHandler)],
-        debug=True
-    , logger=logger, checker=checker, mongo=mongo)
+        debug=False,autoreload=False,
+    logger=logger, checker=checker, mongo=mongo)
     #app.listen(checker.checker_port)
     server = tornado.httpserver.HTTPServer(app)
     server.bind(checker.checker_port)
