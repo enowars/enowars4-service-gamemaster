@@ -14,6 +14,7 @@ from logging import LoggerAdapter
 #from motor import MotorCollection
 from motor import MotorCollection, MotorClient
 from faker import Faker
+import traceback
 
 class GamemasterChecker(BaseChecker):
     port = 8001
@@ -128,11 +129,15 @@ class GamemasterChecker(BaseChecker):
 
 async def createindex(collection: MotorCollection) -> None:
     logger.debug("Create Flag Index...")
-    await collection.create_index(["Flag"])
-    logger.debug("Flag Index created")
-    logger.debug("Create Round/Team Index...")
-    await collection.create_index(["round"],["team"])
-    logger.debug("Round/Team Index created.")
+    try:
+        await collection.create_index(["Flag"])
+        logger.debug("Flag Index created")
+        logger.debug("Create Round/Team Index...")
+        await collection.create_index(["round"],["team"])
+        logger.debug("Round/Team Index created.")
+    except Exception as e:
+        stacktrace = ''.join(traceback.format_exception(None, e, e.__traceback__))
+        logger.warn("Task finished DOWN: {}".format(stacktrace))
 
 logger = logging.getLogger()
 handler = logging.StreamHandler(sys.stdout)
