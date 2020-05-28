@@ -76,8 +76,11 @@ class GamemasterChecker(BaseChecker):
     async def useraddsession(self, logger: LoggerAdapter, address:str, clients:dict, sessionid:int,mastername:str, collection: MotorCollection) -> None:
         logger.debug(f"trying to add users to session...")
         interface : HttpInterface = await HttpInterface.setup(address, GamemasterChecker.port, logger)
+        logger.debug(f"logging in...")
         await interface.login(mastername, self.getpassword(mastername))
+        logger.debug(f"Login Successful")
         await asyncio.gather(*[interface.add_to_session(sessionid, k) for k in clients.keys()])
+        logger.debug(f"AddToSession Successful")
         await interface.close()
 
     async def clienttodb(self, logger:LoggerAdapter, round:int, team:int, collection:MotorCollection, clients:dict):
