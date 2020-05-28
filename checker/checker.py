@@ -82,6 +82,7 @@ class GamemasterChecker(BaseChecker):
     async def clienttodb(self, logger:LoggerAdapter, round:int, team:int, collection:MotorCollection, clients:dict):
         logger.debug(f"clienttodb startet")
         for k, v in clients.items():
+            logger.debug(f"Inserting Client...")
             await collection.insert_one({ 'username' : k, 'password': v, 'round': round, 'team': team})
         logger.debug(f"clienttodb finished")
 
