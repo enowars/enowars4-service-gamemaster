@@ -136,22 +136,25 @@ handler.setFormatter(ELKFormatter("%(message)s")) #ELK-ready output
 logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 #app = create_app(GamemasterChecker()) # mongodb://mongodb:27017
-
+logger.debug("Init started...")
 checker = GamemasterChecker()
-logger = logging.getLogger(__name__)
 mongo_url: str = "mongodb://mongodb:27017"
 mongo = MotorClient(mongo_url)[checker.name]
+logger.debug("Create Indices..")
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
 result = loop.run_until_complete(createindex(mongo['checker_storage']))
-#mongo = None
+logger.debug("Indices Created")
 app = tornado.web.Application([
     (r"/", EnoCheckerRequestHandler),
     (r"/service", EnoCheckerRequestHandler)],
     debug=False,autoreload=False,
 logger=logger, checker=checker, mongo=mongo)
+logger.debug("App Created")
 app.listen(checker.checker_port)
+logger.debug("Listening now")
 #server = tornado.httpserver.HTTPServer(app)
 #server.bind(checker.checker_port)
 #server.start(4) # Specify number of subprocesses
 tornado.ioloop.IOLoop.current().start()
+logger.debug("Started Event loop")
