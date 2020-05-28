@@ -5,11 +5,14 @@ import aiohttp
 import asyncio
 import random
 import string
+import tornado.ioloop
+import tornado.web
 from hashlib import sha256
 from gamemasterlib import *
-from enochecker_async import BaseChecker, BrokenServiceException, create_app, OfflineException, ELKFormatter, CheckerTaskMessage
+from enochecker_async import BaseChecker, BrokenServiceException, create_app, OfflineException, ELKFormatter, CheckerTaskMessage,EnoCheckerRequestHandler
 from logging import LoggerAdapter
-from motor import MotorCollection
+#from motor import MotorCollection
+from motor import MotorCollection, MotorClient
 from faker import Faker
 
 class GamemasterChecker(BaseChecker):
@@ -128,4 +131,20 @@ handler = logging.StreamHandler(sys.stdout)
 handler.setFormatter(ELKFormatter("%(message)s")) #ELK-ready output
 logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
-app = create_app(GamemasterChecker()) # mongodb://mongodb:27017
+#app = create_app(GamemasterChecker()) # mongodb://mongodb:27017
+
+checker = GamemasterChecker()
+logger = logging.getLogger(__name__)
+mongo_url: str = "mongodb://mongodb:27017"
+mongo = MotorClient(mongo_url)[checker.name]
+#mongo = None
+app = tornado.web.Application([
+    (r"/", EnoCheckerRequestHandler),
+    (r"/service", EnoCheckerRequestHandler)],
+    debug=False,autoreload=False,
+logger=logger, checker=checker, mongo=mongo)
+app.listen(checker.checker_port)
+#server = tornado.httpserver.HTTPServer(app)
+#server.bind(checker.checker_port)
+#server.start(4) # Specify number of subprocesses
+tornado.ioloop.IOLoop.current().start()
