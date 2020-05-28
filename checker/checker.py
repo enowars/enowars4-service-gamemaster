@@ -5,11 +5,10 @@ import aiohttp
 import asyncio
 import random
 import string
-import tornado.ioloop
-import tornado.web
+
 from hashlib import sha256
 from gamemasterlib import *
-from enochecker_async import BaseChecker, BrokenServiceException, create_app, OfflineException, ELKFormatter, CheckerTaskMessage,EnoCheckerRequestHandler
+from enochecker_async import BaseChecker, BrokenServiceException, create_app, OfflineException, ELKFormatter, CheckerTaskMessage
 from logging import LoggerAdapter
 from motor import MotorCollection
 from faker import Faker
