@@ -32,16 +32,16 @@ class GamemasterChecker(BaseChecker):
 
 
     async def createindex(self, logger: LoggerAdapter, collection: MotorCollection) -> None:
-        logger.debug("Create Flag Index...")
+        logger.debug("CreateFlagIndex")
         try:
-            await collection.create_index(["flag"])
+            await collection.create_index("flag")
             logger.debug("Flag Index created")
             logger.debug("Create Round/Team Index...")
             await collection.create_index(["round"],["team"])
             logger.debug("Round/Team Index created.")
         except Exception as e:
             stacktrace = ''.join(traceback.format_exception(None, e, e.__traceback__))
-            logger.warn("Task finished DOWN: {}".format(stacktrace))
+            logger.debug("CreatedIndex {}".format(stacktrace))
 
     async def createmasterandput(self, logger: LoggerAdapter, flag: str, address: str, collection: MotorCollection, clients:dict) -> (str, str):
         username = self.getusername()
