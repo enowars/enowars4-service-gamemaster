@@ -100,6 +100,7 @@ class EnoCheckerRequestHandler(tornado.web.RequestHandler):
 def create_app(checker: BaseChecker, mongo_url: str = "mongodb://mongodb:27017") -> None:
     logger = logging.getLogger(__name__)
     #mongo = MotorClient(mongo_url)[checker.name]
+    mongo = None
     app = tornado.web.Application([
         (r"/", EnoCheckerRequestHandler),
         (r"/service", EnoCheckerRequestHandler)],
