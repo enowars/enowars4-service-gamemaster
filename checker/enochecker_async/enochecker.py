@@ -22,7 +22,7 @@ class BaseChecker():
         self.flags_per_round = flags_per_round
         self.noises_per_round = noises_per_round
         self.havocs_per_round = havocs_per_round
-        #BaseChecker.name = self.name # Logs outside this scope need the name too!
+        BaseChecker.name = self.name # Logs outside this scope need the name too!
 
 class ELKFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
