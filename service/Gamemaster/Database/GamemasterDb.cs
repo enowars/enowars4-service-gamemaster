@@ -51,6 +51,7 @@ namespace Gamemaster.Database
                     else
                     {
                         Logger.LogDebug($"No pending migrations");
+                        return;
                     }
                 }
                 catch (PostgresException e)
