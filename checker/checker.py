@@ -50,15 +50,21 @@ class GamemasterChecker(BaseChecker):
         email = self.getemail(username)
         logger.debug("Putting Flag...")
         interface : HttpInterface = await HttpInterface.setup(address, GamemasterChecker.port, logger)
+        logger.debug("Interface Created")
         await interface.register(username, email, password)
+        logger.debug("Registered")
         clients[username] = password
         sessionname = self.german_faker.pystr()
         notes = flag
         password = self.getpassword(sessionname)
         await collection.insert_one({ 'flag' : flag, 'username': username, 'session': sessionname })
+        logger.debug("DB Inserted....")
         response : aiohttp.ClientResponse = await interface.create_session(sessionname, notes, password)
+        logger.debug("Session Created....")
         sessionid = (await response.json())['id']
+        logger.debug("Response Fetched....")
         await interface.close()
+        logger.debug("Interface closed")
         return username, sessionid
 
     async def createuser(self, logger: LoggerAdapter, address: str, collection: MotorCollection, clients:dict) -> str:
