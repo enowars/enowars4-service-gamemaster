@@ -56,11 +56,15 @@ namespace Gamemaster.Database
                 }
                 catch (PostgresException e)
                 {
-                    Console.WriteLine($"Database migration failed: {e.MessageText}");
+                    Console.WriteLine($"Database migration failed: {e.Message}");
                 }
-                catch (SocketException)
+                catch (SocketException e)
                 {
-                    Console.WriteLine("Database connection failed");
+                    Console.WriteLine($"Database connection failed: {e.Message}");
+                }
+                catch (NpgsqlException e)
+                {
+                    Console.WriteLine($"Database something failed: {e.Message}");
                 }
                 Task.Delay(1000).Wait();
             }
