@@ -61,9 +61,9 @@ class HttpInterface:
             raise BrokenServiceException(f"add_to_session Failed: {response}")
     async def test(self) -> None:
         try:
-            response:aiohttp.ClientResponse = await self.http_session.post(self.scheme + "://" + self.address + ":" + str(self.port) + "/api/debug/test")
+            response:aiohttp.ClientResponse = await self.http_session.get(self.scheme + "://" + self.address + ":" + str(self.port) + "/api/debug/test")
         except:
             raise OfflineException()
         if response.status!=200:
-            raise BrokenServiceException(f"add_to_session Failed: {response}")
+            raise BrokenServiceException(f"test Failed: {response}")
         return response.content

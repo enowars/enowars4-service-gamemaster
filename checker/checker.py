@@ -140,19 +140,14 @@ class GamemasterChecker(BaseChecker):
         await interface.close()
 
     async def putnoise(self, logger: LoggerAdapter, task: CheckerTaskMessage, collection: MotorCollection) -> None:
-        logger.debug (f"TestLogging started")
-        interface : HttpInterface = await HttpInterface.setup(task.address, GamemasterChecker.port, logger)
-        resp = await interface.test()
-        logger.debug (f"TestLogging finished, returned {resp}")
-
-    async def getnoise(self, logger: LoggerAdapter, task: CheckerTaskMessage, collection: MotorCollection) -> None:
-        logger.debug (f"TestLogging started")
-        interface : HttpInterface = await HttpInterface.setup(task.address, GamemasterChecker.port, logger)
-        resp = await interface.test()
-        logger.debug (f"TestLogging finished, returned {resp}")
-
-    async def havoc(self, logger: LoggerAdapter, task: CheckerTaskMessage, collection: MotorCollection) -> None:
         pass
+    async def getnoise(self, logger: LoggerAdapter, task: CheckerTaskMessage, collection: MotorCollection) -> None:
+        pass
+    async def havoc(self, logger: LoggerAdapter, task: CheckerTaskMessage, collection: MotorCollection) -> None:
+        logger.debug (f"TestLogging started")
+        interface : HttpInterface = await HttpInterface.setup(task.address, GamemasterChecker.port, logger)
+        resp = await interface.test()
+        logger.debug (f"TestLogging finished, returned {resp}")
 
 
 
