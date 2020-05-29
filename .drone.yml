@@ -1,0 +1,30 @@
+kind: pipeline
+type: docker
+name: Gamemaster
+
+steps:
+- name: publish-docker
+  image: plugins/docker
+  network_mode: registry-network
+  settings:
+    dockerfile: service/Gamemaster/Dockerfile
+    context: service/Gamemaster
+    repo: registry:5000/Gamemaster
+    registry: registry:5000
+    insecure: true
+
+- name: trigger-vm-image-creation
+  image: plugins/downstream
+  settings:
+    server: https://droneci.sect.tu-berlin.de
+    token:
+      from_secret: trigger_token
+    fork: true
+    repositories:
+      - enowars/Enowars4DevOps@master
+
+trigger:
+  branch:
+  - master
+  event:
+  - push
