@@ -11,6 +11,8 @@ services:
       - "8001:80"
   postgres:
     image: postgres
+    volumes:
+      - ./postgresql.conf:/etc/postgresql/postgresql.conf
     environment:
       POSTGRES_USER: docker
       POSTGRES_PASSWORD: docker

@@ -10,7 +10,7 @@ namespace Gamemaster.Database
     public class GamemasterDbContextFactory : IDesignTimeDbContextFactory<GamemasterDbContext>
     {
         public static string PostgresDomain => Environment.GetEnvironmentVariable("DATABASE_DOMAIN") ?? "localhost";
-        public static string PostgresConnectionString => $@"Server={PostgresDomain};Port=5432;Database=GamemasterDatabase;User Id=docker;Password=docker;Timeout=15;SslMode=Disable;";
+        public static string PostgresConnectionString => $@"Server={PostgresDomain};Port=5432;Database=GamemasterDatabase;User Id=docker;Password=docker;Timeout=15;SslMode=Disable";
         public GamemasterDbContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<GamemasterDbContext>();
