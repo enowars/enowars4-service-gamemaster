@@ -8,8 +8,10 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using Npgsql;
 using System.Threading.Tasks;
 using Gamemaster.Models.View;
+using System.Net.Sockets;
 
 namespace Gamemaster.Database
 {
@@ -25,6 +27,7 @@ namespace Gamemaster.Database
         private readonly ILogger Logger;
         private readonly GamemasterDbContext _context;
         private readonly byte[] pepper = Encoding.UTF8.GetBytes("topsecretpepper!");
+        const int MIGRATION_ATTEMPTS = 100;
         public GamemasterDb(GamemasterDbContext context, ILogger<GamemasterDb> logger)
         {
             _context = context;
@@ -33,18 +36,34 @@ namespace Gamemaster.Database
         }
         public void Migrate()
         {
-            var pendingMigrations = _context.Database.GetPendingMigrations().Count();
-            if (pendingMigrations > 0)
+            for (int i = 0; i < MIGRATION_ATTEMPTS; i++)
             {
-                Logger.LogInformation($"Applying {pendingMigrations} migration(s)");
-                _context.Database.Migrate();
-                _context.SaveChanges();
-                Logger.LogDebug($"Database migration complete");
+                try
+                {
+                    var pendingMigrations = _context.Database.GetPendingMigrations().Count();
+                    if (pendingMigrations > 0)
+                    {
+                        Logger.LogInformation($"Applying {pendingMigrations} migration(s)");
+                        _context.Database.Migrate();
+                        _context.SaveChanges();
+                        Logger.LogDebug($"Database migration complete");
+                    }
+                    else
+                    {
+                        Logger.LogDebug($"No pending migrations");
+                    }
+                }
+                catch (PostgresException e)
+                {
+                    Console.WriteLine($"Database migration failed: {e.MessageText}");
+                }
+                catch (SocketException)
+                {
+                    Console.WriteLine("Database connection failed");
+                }
+                Task.Delay(1000).Wait();
             }
-            else
-            {
-                Logger.LogDebug($"No pending migrations");
-            }
+            throw new Exception("Database unavailable!");
         }
         private void Hash(string password, ReadOnlySpan<byte> salt, Span<byte> output)
         {
