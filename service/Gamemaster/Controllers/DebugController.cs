@@ -23,7 +23,7 @@ namespace Gamemaster.Controllers
             Db = db;
         }
         [HttpGet]
-        public async Task<IActionResult> Test([FromForm]string name, [FromForm]string notes, [FromForm]string password)
+        public async Task<IActionResult> Test()
         {
             try
             {
