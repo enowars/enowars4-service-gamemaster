@@ -1,5 +1,6 @@
 ﻿using EnoCore.Models;
 using EnoCore.Models.Database;
+using GamemasterChecker.Models.Json;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -10,10 +11,10 @@ namespace GamemasterChecker
 {
     public interface IChecker
     {
-        Task<CheckerResultMessage> HandlePutFlag(CheckerTask task);
-        Task<CheckerResultMessage> HandleGetFlag(CheckerTask task);
-        Task<CheckerResultMessage> HandlePutNoise(CheckerTask task);
-        Task<CheckerResultMessage> HandleGetNoise(CheckerTask task);
-        Task<CheckerResultMessage> HandleHavok(CheckerTask task);
+        Task<CheckerResultMessage> HandlePutFlag(CheckerTaskMessage task);
+        Task<CheckerResultMessage> HandleGetFlag(CheckerTaskMessage task);
+        Task<CheckerResultMessage> HandlePutNoise(CheckerTaskMessage task);
+        Task<CheckerResultMessage> HandleGetNoise(CheckerTaskMessage task);
+        Task<CheckerResultMessage> HandleHavok(CheckerTaskMessage task);
     }
 }

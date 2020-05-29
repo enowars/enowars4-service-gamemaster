@@ -1,5 +1,6 @@
 ﻿using EnoCore.Models;
 using EnoCore.Models.Database;
+using GamemasterChecker.Models.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,28 +19,28 @@ namespace GamemasterChecker
         {
             _context = context;
         }
-        public Task<CheckerResultMessage> HandleGetFlag(CheckerTask task)
+        public Task<CheckerResultMessage> HandleGetFlag(CheckerTaskMessage task)
         {
             var url = $"{Scheme}://{task.Address}:{Port}/api/account/login";
-            var client = _context.CreateClient();
-            var request = new HttpRequestMessage(HttpMethod.POST,url);
+            using var client = _context.CreateClient();
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
             request.Headers.Add("Accept", "application/vnd.github.v3+json");
             request.Headers.Add("User-Agent", "HttpClientFactory-Sample");
             throw new NotImplementedException();
         }
-        public Task<CheckerResultMessage> HandlePutFlag(CheckerTask task)
+        public Task<CheckerResultMessage> HandlePutFlag(CheckerTaskMessage task)
         {
             throw new NotImplementedException();
         }
-        public Task<CheckerResultMessage> HandleGetNoise(CheckerTask task)
+        public Task<CheckerResultMessage> HandleGetNoise(CheckerTaskMessage task)
         {
             throw new NotImplementedException();
         }
-        public Task<CheckerResultMessage> HandlePutNoise(CheckerTask task)
+        public Task<CheckerResultMessage> HandlePutNoise(CheckerTaskMessage task)
         {
             throw new NotImplementedException();
         }
-        public Task<CheckerResultMessage> HandleHavok(CheckerTask task)
+        public Task<CheckerResultMessage> HandleHavok(CheckerTaskMessage task)
         {
             throw new NotImplementedException();
         }

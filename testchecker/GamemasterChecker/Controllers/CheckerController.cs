@@ -9,6 +9,8 @@ using EnoCore.Models;
 using EnoCore.Models.Database;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using EnoCore;
+using GamemasterChecker.Models.Json;
 
 namespace GamemasterChecker.Controllers
 {
@@ -28,30 +30,30 @@ namespace GamemasterChecker.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] string content)
         {
-            
-            CheckerTask t = (CheckerTask)JsonConvert.DeserializeObject(content);
+            var taskMessage = JsonSerializer.Deserialize<CheckerTaskMessage>(content);
             try
             {
+                using var scope = Logger.BeginEnoScope(taskMessage);
                 CheckerResultMessage result = CheckerResultMessage.InternalError;
-                switch (t.TaskType)
+                switch (taskMessage.Method)
                 {
                     case "putflag":
-                        result = await Checker.HandlePutFlag(t);
+                        result = await Checker.HandlePutFlag(taskMessage);
                         break;
                     case "getflag":
-                        await Checker.HandleGetFlag(t);
+                        await Checker.HandleGetFlag(taskMessage);
                         break;
                     case "putnoise":
-                        await Checker.HandlePutNoise(t);
+                        await Checker.HandlePutNoise(taskMessage);
                         break;
                     case "getnoise":
-                        await Checker.HandlePutNoise(t);
+                        await Checker.HandlePutNoise(taskMessage);
                         break;
                     case "havok":
-                        await Checker.HandleHavok(t);
+                        await Checker.HandleHavok(taskMessage);
                         break;
                     default:
-                        throw new InvalidOperationException($"Invalid method {t.TaskType}");
+                        throw new InvalidOperationException($"Invalid method {taskMessage.Method}");
                 }
                 return Ok(JsonSerializer.Serialize(result));
             }
