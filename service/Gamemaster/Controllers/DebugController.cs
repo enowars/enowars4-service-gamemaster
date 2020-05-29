@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Gamemaster.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     public class DebugController : Controller
     {
