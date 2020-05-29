@@ -13,6 +13,8 @@ using Gamemaster.Database;
 using Gamemaster.Models.Database;
 using System.IO;
 using Gamemaster.Models.View;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System.Diagnostics;
 
 namespace Gamemaster.Controllers
 {
@@ -32,7 +34,12 @@ namespace Gamemaster.Controllers
         [HttpPost]
         public async Task<IActionResult> Register([FromForm] string username, [FromForm] string email, [FromForm] string password)
         {
+            var foo = new Stopwatch();
+            foo.Start();
             var user = await Db.InsertUser(username, email, password);
+            foo.Stop();
+            var time1 = foo.ElapsedMilliseconds;
+            foo.Restart();
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, username),
@@ -40,7 +47,10 @@ namespace Gamemaster.Controllers
             };
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             await HttpContext.SignInAsync(new ClaimsPrincipal(claimsIdentity));
-            return new EmptyResult();
+            foo.Stop();
+            var time2 = foo.ElapsedMilliseconds;
+            return Json(new { t1 = time1, t2 = time2 });
+            //return new EmptyResult();
         }
         [HttpPost]
         public async Task<IActionResult> Info()

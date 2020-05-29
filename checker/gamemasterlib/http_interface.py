@@ -26,10 +26,12 @@ class HttpInterface:
         http_session = aiohttp.ClientSession(headers={"user-agent": random_useragent()}, cookie_jar=jar)   #, 'Content-Type': 'multipart/form-data;'
         return HttpInterface(address, port, logger, http_session)
 
-    async def register(self, username: str, email: str, password: str) ->aiohttp.ClientResponse:
+    async def register(self, username: str, email: str, password: str) ->str:
         try:
             params = {'username': username, 'email':email, 'password': password}
             response:aiohttp.ClientResponse = await self.http_session.post(self.scheme + "://" + self.address + ":" + str(self.port) + "/api/account/register", data=params)
+            text = await response.text()
+            Logger.debug(text)
         except:
             raise OfflineException()
         if response.status!=200:
