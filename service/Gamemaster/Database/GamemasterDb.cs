@@ -24,6 +24,7 @@ namespace Gamemaster.Database
         private const int MAX_PASSWORD_LENGTH = 128;
         private readonly ILogger Logger;
         private readonly GamemasterDbContext _context;
+        private readonly byte[] pepper = Encoding.UTF8.GetBytes("topsecretpepper!");
         public GamemasterDb(GamemasterDbContext context, ILogger<GamemasterDb> logger)
         {
             _context = context;
@@ -48,9 +49,10 @@ namespace Gamemaster.Database
         private void Hash(string password, ReadOnlySpan<byte> salt, Span<byte> output)
         {
             if (password.Length > MAX_PASSWORD_LENGTH) return;
-            Span<byte> input = stackalloc byte[salt.Length + MAX_PASSWORD_LENGTH];
+            Span<byte> input = stackalloc byte[salt.Length + MAX_PASSWORD_LENGTH+pepper.Length];
             salt.CopyTo(input);
             Encoding.UTF8.GetBytes(password, input.Slice(salt.Length));
+            pepper.CopyTo(input.Slice(salt.Length + password.Length));
             using var sha512 = new SHA512Managed();
             sha512.TryComputeHash(input, output, out var _);
         }
