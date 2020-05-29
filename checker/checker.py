@@ -114,7 +114,8 @@ class GamemasterChecker(BaseChecker):
         logger.debug (f"After Random: len:{len(clients)}")
         mastername, Sessionid = await self.createmasterandput(logger, task.flag, task.address, collection, clients)
         logger.debug (f"Master Created")
-        newsize = random.randrange(8, 15, 1)
+        #newsize = random.randrange(8, 15, 1)
+        newsize = random.randrange(4, 8, 1)
         logger.debug (f"Newsize determined: {newsize}")
         users_to_create = max(newsize - len(clients), 0)
         if users_to_create > 0:
