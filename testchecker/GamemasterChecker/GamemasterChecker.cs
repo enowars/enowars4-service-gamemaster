@@ -11,13 +11,20 @@ namespace GamemasterChecker
 {
     public class GamemasterChecker : IChecker
     {
-        public GamemasterChecker()
+        private readonly string Scheme = "http";
+        private readonly int Port = 8001;
+        private IHttpClientFactory _context;
+        public GamemasterChecker(IHttpClientFactory context)
         {
-
+            _context = context;
         }
         public Task<CheckerResultMessage> HandleGetFlag(CheckerTask task)
         {
-            HttpClient context = HttpClientFactory.Create();
+            var url = $"{Scheme}://{task.Address}:{Port}/api/account/login";
+            var client = _context.CreateClient();
+            var request = new HttpRequestMessage(HttpMethod.POST,url);
+            request.Headers.Add("Accept", "application/vnd.github.v3+json");
+            request.Headers.Add("User-Agent", "HttpClientFactory-Sample");
             throw new NotImplementedException();
         }
         public Task<CheckerResultMessage> HandlePutFlag(CheckerTask task)
