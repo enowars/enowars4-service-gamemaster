@@ -147,7 +147,7 @@ class GamemasterChecker(BaseChecker):
         logger.debug (f"TestLogging started")
         interface : HttpInterface = await HttpInterface.setup(task.address, GamemasterChecker.port, logger)
         resp = await interface.test()
-        interface.close()
+        await interface.close()
         logger.debug (f"TestLogging finished, returned {resp}")
 
 
