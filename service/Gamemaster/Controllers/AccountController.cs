@@ -14,7 +14,7 @@ using Gamemaster.Models.Database;
 using System.IO;
 using Gamemaster.Models.View;
 
-namespace Gamemaster.CustomControllers
+namespace Gamemaster.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]

@@ -54,7 +54,7 @@ namespace Gamemaster.Database
             Encoding.UTF8.GetBytes(password, input.Slice(salt.Length));
             pepper.CopyTo(input.Slice(salt.Length + password.Length));
             using var sha512 = new SHA512Managed();
-            sha512.TryComputeHash(input, output, out var _);
+            sha512.TryComputeHash(input.Slice(0, salt.Length + password.Length+pepper.Length), output, out var _);
         }
     }
 }

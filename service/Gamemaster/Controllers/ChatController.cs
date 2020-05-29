@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace Gamemaster.CustomControllers
+namespace Gamemaster.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]

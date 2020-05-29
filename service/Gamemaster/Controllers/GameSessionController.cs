@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using Gamemaster.Database;
 using Gamemaster.Models.Database;
 
-namespace Gamemaster.CustomControllers
+namespace Gamemaster.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]

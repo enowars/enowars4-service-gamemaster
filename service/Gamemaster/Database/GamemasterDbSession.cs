@@ -35,12 +35,17 @@ namespace Gamemaster.Database
         }
         public async Task<SessionView[]> GetRecentSessions(int skip, int take)
         {
-            return await _context.Sessions.Include(s => s.Owner).OrderByDescending(s => s.Id).Skip(skip).Take(take).Select(s => new SessionView(s)).ToArrayAsync();
+            return await _context.Sessions
+                .Include(s => s.Owner)
+                .OrderByDescending(s => s.Id)
+                .Skip(skip).Take(take)
+                .Select(s => new SessionView(s))
+                .ToArrayAsync();
         }
         public async Task<SessionView> InsertSession(string name, string notes, User owner, string password)
         {
             byte[] hash = new byte[64];
-            byte[] salt = new byte[16];
+            byte[] salt = new byte[64];
             //using var rng = new RNGCryptoServiceProvider();
             //rng.GetBytes(salt);
             Hash(password, salt, hash);
