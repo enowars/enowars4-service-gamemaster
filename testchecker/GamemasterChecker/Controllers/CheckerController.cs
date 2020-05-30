@@ -42,7 +42,6 @@ namespace GamemasterChecker.Controllers
             try
             {
                 using var scope = Logger.BeginEnoScope(taskMessage);
-                Logger.LogInformation("foo");
                 result = taskMessage.Method switch
                 {
                     "putflag" => await Checker.HandlePutFlag(taskMessage, HttpContext.RequestAborted),

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,10 +32,17 @@ namespace GamemasterChecker
         {
             services.AddLogging(loggingBuilder =>
             {
-                loggingBuilder.ClearProviders();
-                loggingBuilder.AddProvider(new EnoLogMessageConsoleLoggerProvider("GamemasterChecker", CancellationToken.None));
+                //loggingBuilder.ClearProviders();
+                //loggingBuilder.AddProvider(new EnoLogMessageConsoleLoggerProvider("GamemasterChecker", CancellationToken.None));
             });
-            services.AddHttpClient();
+            services.AddHttpClient("default")
+                .ConfigurePrimaryHttpMessageHandler(() =>
+                {
+                    return new HttpClientHandler()
+                    {
+                        UseDefaultCredentials = false
+                    };
+                });
             services.AddControllers(options => { options.InputFormatters.Insert(0, new RawJsonBodyInputFormatter()); })
                 .AddJsonOptions(options =>
                 {
