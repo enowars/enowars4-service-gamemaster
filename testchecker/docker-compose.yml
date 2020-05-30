@@ -5,6 +5,6 @@ services:
       context: GamemasterChecker
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "8000:80"
   mongodb:
     image: mongo
