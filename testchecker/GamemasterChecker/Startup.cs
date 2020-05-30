@@ -30,10 +30,11 @@ namespace GamemasterChecker
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton(new GamemasterDatabase());
             services.AddLogging(loggingBuilder =>
             {
-                //loggingBuilder.ClearProviders();
-                //loggingBuilder.AddProvider(new EnoLogMessageConsoleLoggerProvider("GamemasterChecker", CancellationToken.None));
+                loggingBuilder.ClearProviders();
+                loggingBuilder.AddProvider(new EnoLogMessageConsoleLoggerProvider("GamemasterChecker", CancellationToken.None));
             });
             services.AddHttpClient("default")
                 .ConfigurePrimaryHttpMessageHandler(() =>
