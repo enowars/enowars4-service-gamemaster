@@ -18,8 +18,8 @@ namespace EnoCore.Models.Json
         public string? Flag { get; set; }
         public long? FlagIndex { get; set; }
         public long? RunId { get; set; }
-        public long? RoundId { get; set; }
-        public long? RelatedRoundId { get; set; }
+        public long? Round { get; set; }
+        public long? RelatedRound { get; set; }
         public string? Message { get; set; }
         public string? TeamName { get; set; }
         public string? ServiceName { get; set; }
@@ -29,8 +29,8 @@ namespace EnoCore.Models.Json
         public void FromCheckerTask(CheckerTask task)
         {
             Flag = task.Payload;
-            RoundId = task.CurrentRoundId;
-            RelatedRoundId = task.RelatedRoundId;
+            Round = task.CurrentRoundId;
+            RelatedRound = task.RelatedRoundId;
             TeamName = task.TeamName;
             RunId = task.Id;
             FlagIndex = task.TaskIndex;
@@ -41,8 +41,8 @@ namespace EnoCore.Models.Json
         public void FromCheckerTask(CheckerTaskMessage task)
         {
             Flag = task.Flag;
-            RoundId = task.Round;
-            RelatedRoundId = task.RelatedRoundId;
+            Round = task.Round;
+            RelatedRound = task.RelatedRoundId;
             TeamName = task.Team;
             RunId = task.RunId;
             FlagIndex = task.FlagIndex;
@@ -53,8 +53,8 @@ namespace EnoCore.Models.Json
         public void FromCheckerTaskMessage(CheckerTaskMessage taskMessage)
         {
             Flag = taskMessage.Flag;
-            RoundId = taskMessage.Round;
-            RelatedRoundId = taskMessage.RelatedRoundId;
+            Round = taskMessage.Round;
+            RelatedRound = taskMessage.RelatedRoundId;
             TeamName = taskMessage.Team;
             RunId = taskMessage.RunId;
             FlagIndex = taskMessage.FlagIndex;
