@@ -2,17 +2,18 @@
 using EnoCore.Models.Json;
 using GamemasterChecker.Models.Json;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Text.Json;
 
 namespace EnoCore.Logging
 {
     public class EnoLogMessageLogger : ILogger
     {
+        private readonly JsonSerializerOptions JsonOptions;
         public IEnoLogMessageProvider Provider { get; }
         public string CategoryName { get;  }
 
@@ -20,6 +21,10 @@ namespace EnoCore.Logging
         {
             Provider = provider;
             CategoryName = categoryName;
+            JsonOptions = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
         }
 
         public IDisposable? BeginScope<TState>(TState state)
@@ -61,7 +66,7 @@ namespace EnoCore.Logging
                     },
                     state);
                 }
-                Provider.Log($"##ENOLOGMESSAGE {JsonConvert.SerializeObject(message)}\n");
+                Provider.Log($"##ENOLOGMESSAGE {JsonSerializer.Serialize(message, JsonOptions)}\n");
             }
         }
     }
