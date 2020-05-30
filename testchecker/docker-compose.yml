@@ -1,7 +1,9 @@
 version: '3'
 services:
   gamemaster-checker:
-    build: .
+    build:
+      context: GamemasterChecker
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
   mongodb:
