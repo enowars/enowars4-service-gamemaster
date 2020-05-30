@@ -43,6 +43,7 @@ namespace EnoCore.Json
 
         public override void Write(Utf8JsonWriter writer, CheckerResult value, JsonSerializerOptions options)
         {
+            writer.WriteStartObject();
             if (value == CheckerResult.InternalError)
             {
                 writer.WriteString("result", InternalErrorBytes);
@@ -63,6 +64,7 @@ namespace EnoCore.Json
             {
                 throw new JsonException();
             }
+            writer.WriteEndObject();
         }
     }
 }

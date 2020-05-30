@@ -52,8 +52,7 @@ namespace GamemasterChecker.Controllers
                     "havok" => await Checker.HandleHavok(taskMessage),
                     _ => throw new InvalidOperationException($"Invalid method {taskMessage.Method}"),
                 };
-                var str = JsonSerializer.Serialize(result);
-                return Ok(str);
+                return Ok(JsonSerializer.Serialize(result, JsonOptions));
             }
             catch (Exception)
             {
