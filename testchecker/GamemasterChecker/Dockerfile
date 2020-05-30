@@ -9,4 +9,4 @@ FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
 WORKDIR /app
 COPY --from=build /app .
 COPY appsettings.json .
-ENTRYPOINT ["dotnet", "Gamemaster.dll"]
+ENTRYPOINT ["dotnet", "GamemasterChecker.dll"]
