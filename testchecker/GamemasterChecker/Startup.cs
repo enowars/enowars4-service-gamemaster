@@ -28,7 +28,7 @@ namespace GamemasterChecker
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpClient();
-            services.AddControllers()
+            services.AddControllers(options => { options.InputFormatters.Insert(0, new RawJsonBodyInputFormatter()); })
                 .AddJsonOptions(options =>
                 {
                     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
