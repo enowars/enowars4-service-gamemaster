@@ -54,13 +54,7 @@ namespace GamemasterChecker
             }
 
             app.UseRouting();
-
             app.UseAuthorization();
-
-            var rewrite = new RewriteOptions()
-                .AddRewrite(@".*", "/api/checker/flag", true);
-            app.UseRewriter(rewrite);
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

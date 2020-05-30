@@ -16,7 +16,7 @@ using EnoCore.Json;
 namespace GamemasterChecker.Controllers
 {
     [ApiController]
-    [Route("api/[controller]/[action]")]
+    [Route("/")]
     public class CheckerController : Controller
     {
         private readonly JsonSerializerOptions JsonOptions;
