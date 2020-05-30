@@ -20,4 +20,4 @@ WORKDIR /app
 COPY --from=build /app .
 COPY --from=frontend /src/wwwroot ./wwwroot
 COPY appsettings.json .
-ENTRYPOINT ["dotnet", "Gamemaster.dll"]
+ENTRYPOINT ["dotnet", "GamemasterChecker.dll"]
