@@ -1,5 +1,6 @@
 ﻿using EnoCore.Models.Database;
 using EnoCore.Models.Json;
+using GamemasterChecker.Models.Json;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -12,10 +13,10 @@ namespace EnoCore.Logging
 {
     public class EnoLogMessageLogger : ILogger
     {
-        public EnoLogMessageLoggerProvider Provider { get; }
+        public IEnoLogMessageProvider Provider { get; }
         public string CategoryName { get;  }
 
-        public EnoLogMessageLogger(EnoLogMessageLoggerProvider provider, string categoryName)
+        public EnoLogMessageLogger(IEnoLogMessageProvider provider, string categoryName)
         {
             Provider = provider;
             CategoryName = categoryName;
@@ -53,6 +54,8 @@ namespace EnoCore.Logging
                             {
                                 if (pair.Value is CheckerTask task)
                                     message.FromCheckerTask(task);
+                                else if (pair.Value is CheckerTaskMessage taskMessage)
+                                    message.FromCheckerTaskMessage(taskMessage);
                             }
                         }
                     },

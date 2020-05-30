@@ -37,12 +37,12 @@ namespace GamemasterChecker.Controllers
         [HttpPost]
         public async Task<IActionResult> Flag([FromBody] string content)
         {
-            Logger.LogInformation(content);
+            var result = CheckerResult.InternalError;
             var taskMessage = JsonSerializer.Deserialize<CheckerTaskMessage>(content, JsonOptions);
             try
             {
                 using var scope = Logger.BeginEnoScope(taskMessage);
-                var result = CheckerResult.InternalError;
+                Logger.LogInformation("foo");
                 result = taskMessage.Method switch
                 {
                     "putflag" => await Checker.HandlePutFlag(taskMessage),
@@ -56,7 +56,7 @@ namespace GamemasterChecker.Controllers
             }
             catch (Exception)
             {
-                return Json(new { result = "INTERNAL_ERROR" });
+                return Ok(JsonSerializer.Serialize(result, JsonOptions));
             }
         }
     }

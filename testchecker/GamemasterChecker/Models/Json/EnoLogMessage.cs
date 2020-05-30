@@ -49,5 +49,17 @@ namespace EnoCore.Models.Json
             ServiceName = task.ServiceName;
             Method = task.Method;
         }
+
+        public void FromCheckerTaskMessage(CheckerTaskMessage taskMessage)
+        {
+            Flag = taskMessage.Flag;
+            RoundId = taskMessage.Round;
+            RelatedRoundId = taskMessage.RelatedRoundId;
+            TeamName = taskMessage.Team;
+            RunId = taskMessage.RunId;
+            FlagIndex = taskMessage.FlagIndex;
+            ServiceName = taskMessage.ServiceName;
+            Method = taskMessage.Method;
+        }
     }
 }

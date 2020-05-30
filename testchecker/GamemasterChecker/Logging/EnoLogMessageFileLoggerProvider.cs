@@ -6,13 +6,13 @@ using System.Threading;
 
 namespace EnoCore.Logging
 {
-    public class EnoLogMessageLoggerProvider : ILoggerProvider, ISupportExternalScope
+    public class EnoLogMessageFileLoggerProvider : ILoggerProvider, ISupportExternalScope, IEnoLogMessageProvider
     {
         public IExternalScopeProvider? ScopeProvider { get; internal set; }
         public string Tool { get; }
         private readonly FileQueue Queue;
 
-        public EnoLogMessageLoggerProvider(string tool, CancellationToken token)
+        public EnoLogMessageFileLoggerProvider(string tool, CancellationToken token)
         {
             Tool = tool;
             Queue = new FileQueue($"../data/{tool}.log", token);
