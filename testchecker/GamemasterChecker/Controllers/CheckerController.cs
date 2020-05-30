@@ -39,9 +39,9 @@ namespace GamemasterChecker.Controllers
         {
             var result = CheckerResult.InternalError;
             var taskMessage = JsonSerializer.Deserialize<CheckerTaskMessage>(content, JsonOptions);
+            using var scope = Logger.BeginEnoScope(taskMessage);
             try
             {
-                using var scope = Logger.BeginEnoScope(taskMessage);
                 result = taskMessage.Method switch
                 {
                     "putflag" => await Checker.HandlePutFlag(taskMessage, HttpContext.RequestAborted),
