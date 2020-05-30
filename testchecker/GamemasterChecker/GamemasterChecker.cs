@@ -108,28 +108,28 @@ namespace GamemasterChecker
         {
             _context = context;
         }
-        public Task<CheckerResultMessage> HandleGetFlag(CheckerTaskMessage task)
+        public async Task<CheckerResult> HandleGetFlag(CheckerTaskMessage task)
         {
             var url = $"{Scheme}://{task.Address}:{Port}/api/account/login";
             using var client = _context.CreateClient();
             var request = new HttpRequestMessage(HttpMethod.Get, url);
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("User-Agent", "HttpClientFactory-Sample");
-            throw new NotImplementedException();
+            return CheckerResult.Ok; 
         }
-        public Task<CheckerResultMessage> HandlePutFlag(CheckerTaskMessage task)
+        public Task<CheckerResult> HandlePutFlag(CheckerTaskMessage task)
         {
             throw new NotImplementedException();
         }
-        public Task<CheckerResultMessage> HandleGetNoise(CheckerTaskMessage task)
+        public Task<CheckerResult> HandleGetNoise(CheckerTaskMessage task)
         {
             throw new NotImplementedException();
         }
-        public Task<CheckerResultMessage> HandlePutNoise(CheckerTaskMessage task)
+        public Task<CheckerResult> HandlePutNoise(CheckerTaskMessage task)
         {
             throw new NotImplementedException();
         }
-        public Task<CheckerResultMessage> HandleHavok(CheckerTaskMessage task)
+        public Task<CheckerResult> HandleHavok(CheckerTaskMessage task)
         {
             throw new NotImplementedException();
         }

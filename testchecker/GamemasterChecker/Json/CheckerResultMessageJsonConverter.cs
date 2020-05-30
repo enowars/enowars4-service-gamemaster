@@ -9,53 +9,53 @@ using System.Text.Json.Serialization;
 
 namespace EnoCore.Json
 {
-    public class CheckerResultMessageJsonConverter : JsonConverter<CheckerResultMessage>
+    public class CheckerResultMessageJsonConverter : JsonConverter<CheckerResult>
     {
         private static readonly byte[] ResultBytes = Encoding.ASCII.GetBytes("result");
         private static readonly byte[] InternalErrorBytes = Encoding.ASCII.GetBytes("INTERNAL_ERROR");
         private static readonly byte[] OkBytes = Encoding.ASCII.GetBytes("OK");
         private static readonly byte[] MumbleBytes = Encoding.ASCII.GetBytes("MUMBLE");
         private static readonly byte[] OfflineBytes = Encoding.ASCII.GetBytes("OFFLINE");
-        public override CheckerResultMessage Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override CheckerResult Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.ValueSpan.SequenceEqual(InternalErrorBytes))
             {
                 reader.Read();
                 if(reader.ValueSpan.SequenceEqual(InternalErrorBytes))
                 {
-                    return CheckerResultMessage.InternalError;
+                    return CheckerResult.InternalError;
                 }
                 else if (reader.ValueSpan.SequenceEqual(OkBytes))
                 {
-                    return CheckerResultMessage.Ok;
+                    return CheckerResult.Ok;
                 }
                 else if (reader.ValueSpan.SequenceEqual(MumbleBytes))
                 {
-                    return CheckerResultMessage.Mumble;
+                    return CheckerResult.Mumble;
                 }
                 else if (reader.ValueSpan.SequenceEqual(OfflineBytes))
                 {
-                    return CheckerResultMessage.Offline;
+                    return CheckerResult.Offline;
                 }
             }
             throw new JsonException();
         }
 
-        public override void Write(Utf8JsonWriter writer, CheckerResultMessage value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, CheckerResult value, JsonSerializerOptions options)
         {
-            if (value == CheckerResultMessage.InternalError)
+            if (value == CheckerResult.InternalError)
             {
                 writer.WriteString("result", InternalErrorBytes);
             }
-            else if (value == CheckerResultMessage.Ok)
+            else if (value == CheckerResult.Ok)
             {
                 writer.WriteString("result", OkBytes);
             }
-            else if (value == CheckerResultMessage.Mumble)
+            else if (value == CheckerResult.Mumble)
             {
                 writer.WriteString("result", MumbleBytes);
             }
-            else if (value == CheckerResultMessage.Offline)
+            else if (value == CheckerResult.Offline)
             {
                 writer.WriteString("result", OfflineBytes);
             }

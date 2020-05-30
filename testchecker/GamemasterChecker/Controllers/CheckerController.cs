@@ -11,13 +11,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using EnoCore;
 using GamemasterChecker.Models.Json;
+using EnoCore.Json;
 
 namespace GamemasterChecker.Controllers
 {
     [ApiController]
     [Route("api/[controller]/[action]")]
-    public class CheckerController : ControllerBase
+    public class CheckerController : Controller
     {
+        private readonly JsonSerializerOptions JsonOptions;
         private readonly ILogger<CheckerController> Logger;
         private readonly IChecker Checker;
 
@@ -25,39 +27,31 @@ namespace GamemasterChecker.Controllers
         {
             Logger = logger;
             Checker = checker;
+            JsonOptions = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+            JsonOptions.Converters.Add(new CheckerResultMessageJsonConverter());
         }
 
         [HttpPost]
         public async Task<IActionResult> Flag([FromBody] string content)
         {
-            Logger.LogInformation("###");
-            return Ok();
-            /*
-            var taskMessage = JsonSerializer.Deserialize<CheckerTaskMessage>(content);
+            Logger.LogInformation(content);
+            var taskMessage = JsonSerializer.Deserialize<CheckerTaskMessage>(content, JsonOptions);
             try
             {
                 using var scope = Logger.BeginEnoScope(taskMessage);
-                CheckerResultMessage result = CheckerResultMessage.InternalError;
-                switch (taskMessage.Method)
+                var result = CheckerResult.InternalError;
+                result = taskMessage.Method switch
                 {
-                    case "putflag":
-                        result = await Checker.HandlePutFlag(taskMessage);
-                        break;
-                    case "getflag":
-                        await Checker.HandleGetFlag(taskMessage);
-                        break;
-                    case "putnoise":
-                        await Checker.HandlePutNoise(taskMessage);
-                        break;
-                    case "getnoise":
-                        await Checker.HandlePutNoise(taskMessage);
-                        break;
-                    case "havok":
-                        await Checker.HandleHavok(taskMessage);
-                        break;
-                    default:
-                        throw new InvalidOperationException($"Invalid method {taskMessage.Method}");
-                }
+                    "putflag" => await Checker.HandlePutFlag(taskMessage),
+                    "getflag" => await Checker.HandleGetFlag(taskMessage),
+                    "putnoise" => await Checker.HandlePutNoise(taskMessage),
+                    "getnoise" => await Checker.HandlePutNoise(taskMessage),
+                    "havok" => await Checker.HandleHavok(taskMessage),
+                    _ => throw new InvalidOperationException($"Invalid method {taskMessage.Method}"),
+                };
                 var str = JsonSerializer.Serialize(result);
                 return Ok(str);
             }
@@ -65,7 +59,6 @@ namespace GamemasterChecker.Controllers
             {
                 return Json(new { result = "INTERNAL_ERROR" });
             }
-            */
         }
     }
 }
