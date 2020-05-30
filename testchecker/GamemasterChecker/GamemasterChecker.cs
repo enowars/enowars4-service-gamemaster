@@ -121,8 +121,6 @@ namespace GamemasterChecker
                 new KeyValuePair<string, string>("username" , username ),
                 new KeyValuePair<string, string>("email" , email ),
                 new KeyValuePair<string, string>("password" , password ),
-
-
             });
             request.Headers.Add("Accept", "application/x-www-form-urlencoded");
             request.Headers.Add("User-Agent", useragents[r.Next(0, useragents.Length - 1)]);
@@ -130,24 +128,24 @@ namespace GamemasterChecker
         }
         public async Task<CheckerResult> HandleGetFlag(CheckerTaskMessage task, CancellationToken Token)
         {
+            return CheckerResult.Ok;
+        }
+        public async Task<CheckerResult> HandlePutFlag(CheckerTaskMessage task, CancellationToken Token)
+        {
             using var client = _context.CreateClient();
             var result = await Register(client, task, "test", "test", "test", Token);
 
             return CheckerResult.Ok;
         }
-        public Task<CheckerResult> HandlePutFlag(CheckerTaskMessage task, CancellationToken Token)
+        public async Task<CheckerResult> HandleGetNoise(CheckerTaskMessage task, CancellationToken Token)
         {
             throw new NotImplementedException();
         }
-        public Task<CheckerResult> HandleGetNoise(CheckerTaskMessage task, CancellationToken Token)
+        public async Task<CheckerResult> HandlePutNoise(CheckerTaskMessage task, CancellationToken Token)
         {
             throw new NotImplementedException();
         }
-        public Task<CheckerResult> HandlePutNoise(CheckerTaskMessage task, CancellationToken Token)
-        {
-            throw new NotImplementedException();
-        }
-        public Task<CheckerResult> HandleHavok(CheckerTaskMessage task, CancellationToken Token)
+        public async Task<CheckerResult> HandleHavok(CheckerTaskMessage task, CancellationToken Token)
         {
             throw new NotImplementedException();
         }
