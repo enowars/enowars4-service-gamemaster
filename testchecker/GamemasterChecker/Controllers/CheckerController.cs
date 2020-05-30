@@ -45,11 +45,11 @@ namespace GamemasterChecker.Controllers
                 Logger.LogInformation("foo");
                 result = taskMessage.Method switch
                 {
-                    "putflag" => await Checker.HandlePutFlag(taskMessage),
-                    "getflag" => await Checker.HandleGetFlag(taskMessage),
-                    "putnoise" => await Checker.HandlePutNoise(taskMessage),
-                    "getnoise" => await Checker.HandlePutNoise(taskMessage),
-                    "havok" => await Checker.HandleHavok(taskMessage),
+                    "putflag" => await Checker.HandlePutFlag(taskMessage, HttpContext.RequestAborted),
+                    "getflag" => await Checker.HandleGetFlag(taskMessage, HttpContext.RequestAborted),
+                    "putnoise" => await Checker.HandlePutNoise(taskMessage, HttpContext.RequestAborted),
+                    "getnoise" => await Checker.HandlePutNoise(taskMessage, HttpContext.RequestAborted),
+                    "havok" => await Checker.HandleHavok(taskMessage, HttpContext.RequestAborted),
                     _ => throw new InvalidOperationException($"Invalid method {taskMessage.Method}"),
                 };
                 return Ok(JsonSerializer.Serialize(result, JsonOptions));

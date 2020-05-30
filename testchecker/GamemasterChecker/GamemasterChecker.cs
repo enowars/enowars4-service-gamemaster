@@ -5,6 +5,7 @@ using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -113,11 +114,19 @@ namespace GamemasterChecker
         }
         private async Task<HttpResponseMessage>Register(HttpClient _c,CheckerTaskMessage task, string username, string email, string password, CancellationToken Token)
         {
-            var url = $"{Scheme}://{task.Address}:{Port}/api/account/login";
+            var url = $"{Scheme}://{task.Address}:{Port}/api/account/register";
             var request = new HttpRequestMessage(HttpMethod.Post, url);
-            //request.Headers.Add("Accept", "application/x-www-form-urlencoded");
+            var content = new FormUrlEncodedContent(new List<KeyValuePair<string, string>>()
+            {
+                new KeyValuePair<string, string>("username" , username ),
+                new KeyValuePair<string, string>("email" , email ),
+                new KeyValuePair<string, string>("password" , password ),
+
+
+            });
+            request.Headers.Add("Accept", "application/x-www-form-urlencoded");
             request.Headers.Add("User-Agent", useragents[r.Next(0, useragents.Length - 1)]);
-            var result = await _c.SendAsync(request)
+            return await _c.SendAsync(request);
         }
         public async Task<CheckerResult> HandleGetFlag(CheckerTaskMessage task, CancellationToken Token)
         {
