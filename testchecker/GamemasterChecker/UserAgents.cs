@@ -99,9 +99,7 @@ namespace GamemasterChecker
 
         public static string GetRandomUserAgent()
         {
-            if (Utils.Random.Value != null)
-                return Useragents[Utils.Random.Value.Next(0, Useragents.Length)];
-            return "fuckyou";
+            return Useragents[Utils.Random.Next(0, Useragents.Length)];
         }
     }
 }
