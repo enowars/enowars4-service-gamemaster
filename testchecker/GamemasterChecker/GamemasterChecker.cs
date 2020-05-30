@@ -15,7 +15,7 @@ namespace GamemasterChecker
 {
     public class GamemasterChecker : IChecker
     {
-        private readonly string[] useragents = new string[]
+        private readonly string[] Useragents = new string[]
         {
             "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36",
             "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36",
@@ -107,7 +107,15 @@ namespace GamemasterChecker
         private readonly string Scheme = "http";
         private readonly int Port = 8001;
         private IHttpClientFactory _context;
-        private Random r = new Random();
+        static int seed = Environment.TickCount;
+        static readonly ThreadLocal<Random> r =
+        new ThreadLocal<Random>(() => new Random(Interlocked.Increment(ref seed)));   // THis is a threadsafe random, see https://stackoverflow.com/questions/19270507/correct-way-to-use-random-in-multithread-application
+        private string UserAgent()
+        {
+            if (r.Value != null)
+                return Useragents[r.Value.Next(0, Useragents.Length)];
+            return "fuckyou";
+        }
         public GamemasterChecker(IHttpClientFactory context)
         {
             _context = context;
@@ -116,14 +124,15 @@ namespace GamemasterChecker
         {
             var url = $"{Scheme}://{task.Address}:{Port}/api/account/register";
             var request = new HttpRequestMessage(HttpMethod.Post, url);
-            var content = new FormUrlEncodedContent(new List<KeyValuePair<string, string>>()
+            request.Content = new FormUrlEncodedContent(new List<KeyValuePair<string, string>>()
             {
                 new KeyValuePair<string, string>("username" , username ),
                 new KeyValuePair<string, string>("email" , email ),
                 new KeyValuePair<string, string>("password" , password ),
             });
             request.Headers.Add("Accept", "application/x-www-form-urlencoded");
-            request.Headers.Add("User-Agent", useragents[r.Next(0, useragents.Length - 1)]);
+            request.Headers.Add("User-Agent", UserAgent());
+             
             return await _c.SendAsync(request);
         }
         public async Task<CheckerResult> HandleGetFlag(CheckerTaskMessage task, CancellationToken Token)
