@@ -48,13 +48,16 @@ namespace GamemasterChecker.Controllers
                     "getflag" => await Checker.HandleGetFlag(taskMessage, HttpContext.RequestAborted),
                     "putnoise" => await Checker.HandlePutNoise(taskMessage, HttpContext.RequestAborted),
                     "getnoise" => await Checker.HandlePutNoise(taskMessage, HttpContext.RequestAborted),
-                    "havok" => await Checker.HandleHavok(taskMessage, HttpContext.RequestAborted),
+                    "havoc" => await Checker.HandleHavok(taskMessage, HttpContext.RequestAborted),
                     _ => throw new InvalidOperationException($"Invalid method {taskMessage.Method}"),
                 };
+                Logger.LogInformation($"Checker succeeded");
                 return Ok(JsonSerializer.Serialize(result, JsonOptions));
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Logger.LogError($"Checker failed");
+                Logger.LogError($"{e.Message}\n{e.StackTrace}");
                 return Ok(JsonSerializer.Serialize(result, JsonOptions));
             }
         }
