@@ -37,6 +37,11 @@ namespace GamemasterChecker
             {
                 BypassDocumentValidation = false
             };
+            var notificationLogBuilder = Builders<GamemasterUser>.IndexKeys;
+            var indexModel = new CreateIndexModel<GamemasterUser>(notificationLogBuilder
+                .Ascending(gu => gu.RoundId)
+                .Ascending(gu => gu.TeamId));
+            Users.Indexes.CreateOne(indexModel);
         }
 
         public async Task<List<GamemasterUser>> GetUsersAsync(long roundId, long teamId, CancellationToken token)
