@@ -15,8 +15,8 @@ using GamemasterChecker.Models.Json;
 namespace GamemasterChecker.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
-    public class CheckerController : Controller
+    [Route("api/[controller]/[action]")]
+    public class CheckerController : ControllerBase
     {
         private readonly ILogger<CheckerController> Logger;
         private readonly IChecker Checker;
@@ -28,8 +28,11 @@ namespace GamemasterChecker.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] string content)
+        public async Task<IActionResult> Flag([FromBody] string content)
         {
+            Logger.LogInformation("###");
+            return Ok();
+            /*
             var taskMessage = JsonSerializer.Deserialize<CheckerTaskMessage>(content);
             try
             {
@@ -55,12 +58,14 @@ namespace GamemasterChecker.Controllers
                     default:
                         throw new InvalidOperationException($"Invalid method {taskMessage.Method}");
                 }
-                return Ok(JsonSerializer.Serialize(result));
+                var str = JsonSerializer.Serialize(result);
+                return Ok(str);
             }
             catch (Exception)
             {
                 return Json(new { result = "INTERNAL_ERROR" });
             }
+            */
         }
     }
 }

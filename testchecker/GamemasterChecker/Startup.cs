@@ -7,6 +7,7 @@ using EnoCore.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -34,6 +35,7 @@ namespace GamemasterChecker
                     options.JsonSerializerOptions.WriteIndented = true;
                     options.JsonSerializerOptions.Converters.Add(new CheckerResultMessageJsonConverter());
                 });
+            services.AddSingleton(typeof(IChecker), typeof(GamemasterChecker));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,6 +49,10 @@ namespace GamemasterChecker
             app.UseRouting();
 
             app.UseAuthorization();
+
+            var rewrite = new RewriteOptions()
+                .AddRewrite(@".*", "/api/checker/flag", true);
+            app.UseRewriter(rewrite);
 
             app.UseEndpoints(endpoints =>
             {
