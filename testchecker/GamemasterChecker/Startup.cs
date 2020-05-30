@@ -37,12 +37,12 @@ namespace GamemasterChecker
                 loggingBuilder.AddProvider(new EnoLogMessageConsoleLoggerProvider("GamemasterChecker", CancellationToken.None));
             });
             services.AddHttpClient("default")
-                .ConfigurePrimaryHttpMessageHandler(() =>
+                .ConfigureHttpMessageHandlerBuilder(builder =>
                 {
-                    return new HttpClientHandler()
+                    if (builder.PrimaryHandler is HttpClientHandler handler)
                     {
-                        UseDefaultCredentials = false
-                    };
+                        handler.UseCookies = false;
+                    }
                 });
             services.AddControllers(options => { options.InputFormatters.Insert(0, new RawJsonBodyInputFormatter()); })
                 .AddJsonOptions(options =>

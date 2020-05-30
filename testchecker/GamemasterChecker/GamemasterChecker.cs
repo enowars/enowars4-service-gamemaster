@@ -35,16 +35,16 @@ namespace GamemasterChecker
                 throw new InvalidOperationException("Flag must not be null in putflag");
 
             // Get random user subset from last round
-            var users = await Db.GetUsersAsync(task.Round - 1, task.TeamId, token);
+            var users = new List<GamemasterUser>(); // await Db.GetUsersAsync(task.Round - 1, task.TeamId, token);
             users = users.Where(u => Utils.Random.Next() % 2 == 0).ToList();
 
             // Register a new master
             var master = CreateUser();
-            using var masterClient = new GamemasterClient(HttpFactory.CreateClient("default"), task.Address);
+            using var masterClient = new GamemasterClient(HttpFactory.CreateClient("default"), task.Address, master, Logger);
             bool result;
             try
             {
-                result = await masterClient.RegisterAsync(master, token);
+                result = await masterClient.RegisterAsync(token);
             }
             catch (Exception)
             {
@@ -75,8 +75,8 @@ namespace GamemasterChecker
                 users.Add(user);
                 registerTasks.Add(Task.Run(async () =>
                 {
-                    using var client = new GamemasterClient(HttpFactory.CreateClient("default"), task.Address);
-                    return await client.RegisterAsync(user, token);
+                    using var client = new GamemasterClient(HttpFactory.CreateClient("default"), task.Address, user, Logger);
+                    return await client.RegisterAsync(token);
                 }));
             }
             try
@@ -95,7 +95,9 @@ namespace GamemasterChecker
             // Have master add all users to session
             foreach (var user in users)
             {
-                await masterClient.AddUserToSession(session.Id, user.Username, token);
+                var success = await masterClient.AddUserToSession(session.Id, user.Username, token);
+                if (!success)
+                    return CheckerResult.Mumble;
             }
 
             // Save all users to db
