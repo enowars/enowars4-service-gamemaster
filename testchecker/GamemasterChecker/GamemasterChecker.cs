@@ -1,11 +1,13 @@
 ﻿using EnoCore.Models;
 using EnoCore.Models.Database;
 using GamemasterChecker.Models.Json;
+using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GamemasterChecker
@@ -104,32 +106,39 @@ namespace GamemasterChecker
         private readonly string Scheme = "http";
         private readonly int Port = 8001;
         private IHttpClientFactory _context;
+        private Random r = new Random();
         public GamemasterChecker(IHttpClientFactory context)
         {
             _context = context;
         }
-        public async Task<CheckerResult> HandleGetFlag(CheckerTaskMessage task)
+        private async Task<HttpResponseMessage>Register(HttpClient _c,CheckerTaskMessage task, string username, string email, string password, CancellationToken Token)
         {
             var url = $"{Scheme}://{task.Address}:{Port}/api/account/login";
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
+            //request.Headers.Add("Accept", "application/x-www-form-urlencoded");
+            request.Headers.Add("User-Agent", useragents[r.Next(0, useragents.Length - 1)]);
+            var result = await _c.SendAsync(request)
+        }
+        public async Task<CheckerResult> HandleGetFlag(CheckerTaskMessage task, CancellationToken Token)
+        {
             using var client = _context.CreateClient();
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-            request.Headers.Add("Accept", "application/json");
-            request.Headers.Add("User-Agent", "HttpClientFactory-Sample");
-            return CheckerResult.Ok; 
+            var result = await Register(client, task, "test", "test", "test", Token);
+
+            return CheckerResult.Ok;
         }
-        public Task<CheckerResult> HandlePutFlag(CheckerTaskMessage task)
+        public Task<CheckerResult> HandlePutFlag(CheckerTaskMessage task, CancellationToken Token)
         {
             throw new NotImplementedException();
         }
-        public Task<CheckerResult> HandleGetNoise(CheckerTaskMessage task)
+        public Task<CheckerResult> HandleGetNoise(CheckerTaskMessage task, CancellationToken Token)
         {
             throw new NotImplementedException();
         }
-        public Task<CheckerResult> HandlePutNoise(CheckerTaskMessage task)
+        public Task<CheckerResult> HandlePutNoise(CheckerTaskMessage task, CancellationToken Token)
         {
             throw new NotImplementedException();
         }
-        public Task<CheckerResult> HandleHavok(CheckerTaskMessage task)
+        public Task<CheckerResult> HandleHavok(CheckerTaskMessage task, CancellationToken Token)
         {
             throw new NotImplementedException();
         }
