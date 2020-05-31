@@ -70,7 +70,7 @@ namespace GamemasterChecker
             // Create new users
             var usersToCreate = Utils.Random.Next(4, 8);
             var newUsers = usersToCreate - users.Count;
-            Logger.LogDebug($"Target User Count: {usersToCreate}");
+            Logger.LogInformation($"Target User Count: {usersToCreate}");
             var registerTasks = new List<Task<bool>>();
             for (int i = 0; i < newUsers; i++)
             {
@@ -105,14 +105,17 @@ namespace GamemasterChecker
                     return CheckerResult.Mumble;
             }
 
-    */ 
+    */
+            Logger.LogInformation($"Adding {users.Count} users to session");
             var addSessionTasks = new List<Task<bool>>();
             foreach (var user in users)
             {
                 addSessionTasks.Add(masterClient.AddUserToSession(session.Id, user.Username, token));
 ;
             }
+
             // Save all users to db
+            Logger.LogInformation($"Saving {users.Count} users to db");
             foreach (var user in users)
             {
                 await Db.AddUserAsync(user, token);
