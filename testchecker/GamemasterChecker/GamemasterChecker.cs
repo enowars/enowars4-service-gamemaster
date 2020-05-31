@@ -36,8 +36,9 @@ namespace GamemasterChecker
 
             // Get random user subset from last round
             var users = new List<GamemasterUser>(); // await Db.GetUsersAsync(task.Round - 1, task.TeamId, token);
+            Logger.LogDebug($"Users from Last Round: {users.Count()}");
             users = users.Where(u => Utils.Random.Next() % 2 == 0).ToList();
-
+            Logger.LogDebug($"Users after pruning: {users.Count()}");
             // Register a new master
             var master = CreateUser();
             using var masterClient = new GamemasterClient(HttpFactory.CreateClient("default"), task.Address, master, Logger);
@@ -67,7 +68,9 @@ namespace GamemasterChecker
                 return CheckerResult.Mumble;
 
             // Create new users
-            var newUsers = Utils.Random.Next(4, 8) - users.Count;
+            var usersToCreate = Utils.Random.Next(4, 8);
+            var newUsers = usersToCreate - users.Count;
+            Logger.LogDebug($"Target User Count: {usersToCreate}");
             var registerTasks = new List<Task<bool>>();
             for (int i = 0; i < newUsers; i++)
             {
@@ -93,6 +96,8 @@ namespace GamemasterChecker
             }
 
             // Have master add all users to session
+
+            /*
             foreach (var user in users)
             {
                 var success = await masterClient.AddUserToSession(session.Id, user.Username, token);
@@ -100,6 +105,15 @@ namespace GamemasterChecker
                     return CheckerResult.Mumble;
             }
 
+    */ 
+            var addSessionTasks = new List<Task<bool>>();
+            foreach (var user in users)
+            {
+                addSessionTasks.Add(Task.Run(async () =>
+                {
+                    return await masterClient.AddUserToSession(session.Id, user.Username, token);
+                }));
+            }
             // Save all users to db
             foreach (var user in users)
             {
