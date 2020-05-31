@@ -153,7 +153,7 @@ namespace GamemasterChecker
             {
                 Email = "Test",
                 Password = "Test",
-                Username = $"Herbert{Utils.Random.Next()}"
+                Username = $"Herbert{Utils.Random.Next()}{Utils.Random.Next()}{Utils.Random.Next()}{Utils.Random.Next()}{Utils.Random.Next()}{Utils.Random.Next()}{Utils.Random.Next()}{Utils.Random.Next()}{Utils.Random.Next()}{Utils.Random.Next()}"
             };
         }
     }
