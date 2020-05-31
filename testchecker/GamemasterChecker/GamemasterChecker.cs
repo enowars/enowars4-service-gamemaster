@@ -111,7 +111,18 @@ namespace GamemasterChecker
             foreach (var user in users)
             {
                 addSessionTasks.Add(masterClient.AddUserToSession(session.Id, user.Username, token));
-;
+            }
+            try
+            {
+                foreach (var addSessionTask in addSessionTasks)
+                {
+                    if (!await addSessionTask)
+                        return CheckerResult.Mumble;
+                }
+            }
+            catch (Exception)
+            {
+                return CheckerResult.Offline;
             }
 
             // Save all users to db
