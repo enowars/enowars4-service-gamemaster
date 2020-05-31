@@ -45,7 +45,7 @@ namespace GamemasterChecker
             bool result;
             try
             {
-                result = await masterClient.RegisterAsync(token);
+                result = await masterClient.RegisterAsync(token).ConfigureAwait(false);
             }
             catch (Exception)
             {
@@ -109,10 +109,8 @@ namespace GamemasterChecker
             var addSessionTasks = new List<Task<bool>>();
             foreach (var user in users)
             {
-                addSessionTasks.Add(Task.Run(async () =>
-                {
-                    return await masterClient.AddUserToSession(session.Id, user.Username, token);
-                }));
+                addSessionTasks.Add(masterClient.AddUserToSession(session.Id, user.Username, token));
+;
             }
             // Save all users to db
             foreach (var user in users)
