@@ -4,6 +4,8 @@ services:
     build:
       context: GamemasterChecker
       dockerfile: Dockerfile
+    environment:
+      - DATABASE_DOMAIN=mongodb
     ports:
       - "8000:80"
   mongodb:

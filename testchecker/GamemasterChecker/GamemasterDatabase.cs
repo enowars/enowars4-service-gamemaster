@@ -25,6 +25,8 @@ namespace GamemasterChecker
 
     public class GamemasterDatabase
     {
+        public static string MongoDomain=> Environment.GetEnvironmentVariable("DATABASE_DOMAIN") ?? "localhost";
+        public static string MongoConnection => "mongodb://" + MongoDomain + ":27017";
         private readonly IMongoCollection<GamemasterUser> Users;
         private readonly InsertOneOptions InsertOneOptions = new InsertOneOptions() { BypassDocumentValidation = false };
         private readonly InsertManyOptions InsertManyOptions = new InsertManyOptions() { IsOrdered = false };
