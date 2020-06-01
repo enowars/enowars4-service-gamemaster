@@ -25,8 +25,9 @@
 
 <style scoped>
     .rightbar {
-        float:right;
+        float: right;
         height: 100%;
+        min-height: 100vh;
         width: 20%;
         z-index: -1;
         overflow-x: hidden;

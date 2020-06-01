@@ -5,12 +5,12 @@
                 <h2>Chat History::</h2>
                 <ChatMessageVue v-for="msg in chatdata" :data="msg"></ChatMessageVue>
             </div>
-            <div id="chatfooter">
+            <footer id="chatfooter" class="chatfooter">
                 <form>
                     <input type="text" name="Message" v-model="input.msg" placeholder="Description" />
                     <button type="button" v-on:click="send()">Add</button>
                 </form>
-            </div>
+            </footer>
         </div>
     </div>
 </template>
@@ -64,19 +64,27 @@
 </script>
 
 <style scoped>
-    .sidebar{
+    .sidebar {
         height: 100%;
+        min-height: 100vh;
         width: 19%;
         float: left;
         z-index: 1;
         overflow-x: hidden;
-        padding: 60px 0px 60px 0px;
+        
         transition: 0.5s;
     }
     .chatcontainer {
-        background-color: coral;
+        background-color: var(--bg-green);
         border: 1px solid blue;
         text-align: initial;
+        height: 100%;
+        min-height: 100vh;
+        padding: 5px;
+    }
+    .chatfooter {
+        left: 0;
+        bottom: 0;
     }
     @media screen and (max-height: 450px) {
         .sidebar {

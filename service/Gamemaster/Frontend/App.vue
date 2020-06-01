@@ -86,7 +86,7 @@
 </style>
 <style scoped>
     .container {
-        
+        padding: 20px 20px 20px 20px;
     }
     :root {
 

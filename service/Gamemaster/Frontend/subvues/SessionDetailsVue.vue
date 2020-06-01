@@ -1,7 +1,7 @@
 <template>
     <div class=" inline">
         <h1>Session Details for Session {{ sessionId}}:</h1>
-        <SidebarVue :session-id="sessionId"></SidebarVue>
+        <ChatbarVue :session-id="sessionId"></ChatbarVue>
         <RightbarVue></RightbarVue>
         <SceneVue :session-id="sessionId"></SceneVue>
     </div>
@@ -12,7 +12,7 @@
     import { gmState } from "../store/gmstate";
     import router from '../router';
     import axios, { AxiosRequestConfig, AxiosPromise, AxiosResponse } from 'axios';
-    import SidebarVue from "./SidebarVue.vue";
+    import ChatbarVue from "./ChatbarVue.vue";
     import SceneVue from "./SceneVue.vue";
     import RightbarVue from "./RightbarVue.vue";
     import SessionListElement from "./SessionListElement.vue";
@@ -26,7 +26,7 @@
             }
         },
         components: {
-            SidebarVue,
+            ChatbarVue,
             SceneVue,
             RightbarVue
         },
@@ -58,9 +58,10 @@
 
 <style scoped>
     .inline {
-        display: inline;
-        text-align:center;
-        height: 100%;
+        display: inline-block;
+        text-align: center;
+        /*height: 100%;*/
         width: 100%;
+        min-height: 100vh;
     }
 </style>
