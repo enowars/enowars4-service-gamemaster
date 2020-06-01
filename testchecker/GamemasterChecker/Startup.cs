@@ -33,8 +33,11 @@ namespace GamemasterChecker
             services.AddSingleton(new GamemasterDatabase());
             services.AddLogging(loggingBuilder =>
             {
-                loggingBuilder.ClearProviders();
-                loggingBuilder.AddProvider(new EnoLogMessageConsoleLoggerProvider("GamemasterChecker", CancellationToken.None));
+                if (Environment.GetEnvironmentVariable("USE_ELK") != null)
+                {
+                    loggingBuilder.ClearProviders();
+                    loggingBuilder.AddProvider(new EnoLogMessageConsoleLoggerProvider("GamemasterChecker", CancellationToken.None));
+                }
             });
             services.AddHttpClient("default")
                 .ConfigureHttpMessageHandlerBuilder(builder =>

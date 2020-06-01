@@ -33,7 +33,7 @@ namespace GamemasterChecker
 
         public GamemasterDatabase()
         {
-            var mongo = new MongoClient("mongodb://mongodb:27017");
+            var mongo = new MongoClient(MongoConnection);
             var db = mongo.GetDatabase("GamemasterDatabase");
             Users = db.GetCollection<GamemasterUser>("Users");
 

@@ -6,6 +6,7 @@ services:
       dockerfile: Dockerfile
     environment:
       - DATABASE_DOMAIN=mongodb
+      - USE_ELK=true
     ports:
       - "8000:80"
   mongodb:
