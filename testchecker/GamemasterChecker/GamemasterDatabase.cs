@@ -26,21 +26,19 @@ namespace GamemasterChecker
     public class GamemasterDatabase
     {
         private readonly IMongoCollection<GamemasterUser> Users;
-        private readonly InsertOneOptions InsertOneOptions;
+        private readonly InsertOneOptions InsertOneOptions = new InsertOneOptions() { BypassDocumentValidation = false };
+        private readonly InsertManyOptions InsertManyOptions = new InsertManyOptions() { IsOrdered = false };
 
         public GamemasterDatabase()
         {
             var mongo = new MongoClient("mongodb://mongodb:27017");
             var db = mongo.GetDatabase("GamemasterDatabase");
             Users = db.GetCollection<GamemasterUser>("Users");
-            InsertOneOptions = new InsertOneOptions()
-            {
-                BypassDocumentValidation = false
-            };
+
             var notificationLogBuilder = Builders<GamemasterUser>.IndexKeys;
             var indexModel = new CreateIndexModel<GamemasterUser>(notificationLogBuilder
-                .Ascending(gu => gu.RoundId)
-                .Ascending(gu => gu.TeamId));
+                .Hashed(gu => gu.RoundId)
+                .Hashed(gu => gu.TeamId));
             Users.Indexes.CreateOne(indexModel);
         }
 
@@ -53,6 +51,11 @@ namespace GamemasterChecker
         public async Task AddUserAsync(GamemasterUser user, CancellationToken token)
         {
             await Users.InsertOneAsync(user, InsertOneOptions, token);
+        }
+
+        public async Task InsertUsersAsync(List<GamemasterUser>users, CancellationToken token)
+        {
+            await Users.InsertManyAsync(users,InsertManyOptions, token);
         }
     }
 }

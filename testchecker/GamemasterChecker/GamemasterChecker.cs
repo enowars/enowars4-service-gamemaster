@@ -22,6 +22,9 @@ namespace GamemasterChecker
         private readonly ILogger Logger;
         private readonly GamemasterDatabase Db;
 
+
+        
+
         public GamemasterChecker(IHttpClientFactory httpFactory, GamemasterDatabase db, ILogger<GamemasterChecker> logger)
         {
             HttpFactory = httpFactory;
@@ -127,10 +130,11 @@ namespace GamemasterChecker
 
             // Save all users to db
             Logger.LogInformation($"Saving {users.Count} users to db");
-            foreach (var user in users)
+            /*foreach (var user in users)
             {
                 await Db.AddUserAsync(user, token);
-            }
+            } */
+            await Db.InsertUsersAsync(users, token);
             return CheckerResult.Ok;
         }
 
