@@ -37,8 +37,8 @@ namespace GamemasterChecker
 
             var notificationLogBuilder = Builders<GamemasterUser>.IndexKeys;
             var indexModel = new CreateIndexModel<GamemasterUser>(notificationLogBuilder
-                .Hashed(gu => gu.RoundId)
-                .Hashed(gu => gu.TeamId));
+                .Ascending(gu => gu.RoundId)
+                .Ascending(gu => gu.TeamId));
             Users.Indexes.CreateOne(indexModel);
         }
 
