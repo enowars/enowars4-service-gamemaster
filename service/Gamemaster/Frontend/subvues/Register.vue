@@ -14,9 +14,10 @@
 
 <script lang="ts">
     import { defineComponent } from 'vue';
-    import axios, { AxiosRequestConfig, AxiosPromise, AxiosResponse } from 'axios';
+    import axios, { AxiosRequestConfig } from 'axios';
     import router from './../router';
-
+    import { gmState } from "../store/gmstate";
+    import { SignalRContext } from "./../scripts/signalrhelper";
     export default defineComponent({
         name: 'Login',
         data() {
@@ -42,13 +43,23 @@
                     url: '/api/account/register',
                 };
                 axios(options).then(
-                    function (response) {
+                    response => {
                         console.log(response);
                         if (response.status == 200) {
-                            console.log("Register Completed");
+                            console.log("Register Successful");
+                            alert("Register Successful");
+                            gmState.login(this.input.username);
+                            SignalRContext.getInstance().ensureConnected();
                             router.push("/");
+                        } else {
+                            console.log("this should not happen...");
                         }
-                    });
+                    }).catch(error => {
+                        console.log("Register failed");
+                        console.log(error);
+                        alert("Register failed");
+                    })
+
                 return false;
             }
         }

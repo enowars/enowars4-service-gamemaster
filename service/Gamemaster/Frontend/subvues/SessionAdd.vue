@@ -1,60 +1,60 @@
 <template>
-    <div id="login">
-        <h1>Login</h1>
-        <form id="login"
+    <div id="sessionAdd">
+        <h1>Add Session</h1>
+        <form id="addsession"
               action=""
               method="post">
-            <input type="text" name="username" v-model="input.username" placeholder="Username" />
+            <input type="text" name="name" v-model="input.name" placeholder="Name" />
+            <input type="text" name="notes" v-model="input.notes" placeholder="Notes" />
             <input type="password" name="password" v-model="input.password" placeholder="Password" />
-            <button type="button" v-on:click="login()">Login</button>
+            <button type="button" v-on:click="add()">Add</button>
         </form>
     </div>
 </template>
 
 <script lang="ts">
     import { defineComponent } from 'vue';
-    import axios, { AxiosRequestConfig } from 'axios';
+    import axios, { AxiosRequestConfig, AxiosPromise, AxiosResponse } from 'axios';
     import router from './../router';
+    import { METHODS } from 'http';
     import { gmState } from "../store/gmstate";
-    import { SignalRContext } from "./../scripts/signalrhelper";
     export default defineComponent({
-        name: 'Login',
         data() {
             return {
                 input: {
-                    username: "",
+                    name: "",
+                    notes: "",
                     password: ""
                 }
             }
         },
         methods: {
-            login() {
+            add() {
                 var bodyFormData = new FormData();
-                bodyFormData.set('userName', this.input.username);
-                bodyFormData.set('password', this.input.password);
-                console.log("Logging in...");
+                bodyFormData.set('name', this.input.name);
+                bodyFormData.set('notes', this.input.notes);
+                bodyFormData.set('password', String(this.input.password));
+                console.log("Adding Session...");
                 const options: AxiosRequestConfig = {
                     method: 'POST',
                     data: bodyFormData,
                     headers: { 'Content-Type': 'x-www-form-urlencoded' },
-                    url: '/api/account/login',
+                    url: '/api/gamesession/create',
                 };
                 axios(options).then(
                     response => {
                         console.log(response);
                         if (response.status == 200) {
-                            console.log("Login Successful");
-                            alert("Login Successful");
-                            gmState.login(this.input.username);
-                            SignalRContext.getInstance().ensureConnected();
-                            router.push("/");
+                            console.log("Session Added Successfully");
+                            alert("Session Added Successfully");
+                            router.push("/sessions");
                         } else {
                             console.log("this should not happen...");
                         }
                     }).catch(error => {
-                        console.log("Login failed");
+                        console.log("Session Add failed");
                         console.log(error);
-                        alert("Login failed");
+                        alert("Session Add failed");
                     })
                 return false;
             }
@@ -63,12 +63,5 @@
 </script>
 
 <style scoped>
-    #login {
-        width: 500px;
-        border: 1px solid #CCCCCC;
-        background-color: #FFFFFF;
-        margin: auto;
-        margin-top: 200px;
-        padding: 20px;
-    }
+
 </style>

@@ -5,7 +5,7 @@
             <router-link to='/'>Home</router-link>
             <router-link to='/login'>Login</router-link>
             <router-link to='/register'>Register</router-link>
-            <router-link to='/sessionList'>Sessions</router-link>
+            <router-link to='/sessions'>Sessions</router-link>
             <router-link v-if="state.username != null" to='/tokens'>Tokens</router-link>
             <router-link v-if="state.username != null" to='/'><span v-on:click="logout()">{{state.username}}(Logout)</span></router-link>
         </div>
@@ -45,6 +45,13 @@
                 state: gmState.getState()
             }
         },
+        mounted() {
+            let style = document.createElement('link');
+            style.type = "text/css";
+            style.rel = "stylesheet";
+            style.href = '';
+            document.head.appendChild(style);
+        },
         methods: {
             logout() {
                 console.log("Logging out...");
@@ -74,9 +81,18 @@
         }
     });
 </script>
+<style>
+    @import './assets/style.css';
+</style>
 <style scoped>
+    .container {
+        
+    }
+    :root {
 
+    }
     #root {
+
         text-align: center;
         font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
     }
@@ -86,6 +102,7 @@
     }
     h1 {
         display: inline;
+        color: var(--fg-orange);
     }
     #nav {
         font-size: 1.5em;
@@ -95,11 +112,11 @@
     a {
         text-decoration: none;
         margin: 30px 25px;
-        color: #333;
+        color: var(--fg-yellow);
     }
 
         a:hover {
             text-decoration: underline;
-            color:
+            color:var(--fg-red);
         }
 </style>

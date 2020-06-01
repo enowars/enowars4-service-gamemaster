@@ -2,7 +2,7 @@
 import Home from './subvues/Home.vue'
 import Login from './subvues/Login.vue'
 import Register from './subvues/Register.vue'
-import Session from './subvues/Session.vue'
+import Sessions from './subvues/Sessions.vue'
 import SessionList from './subvues/SessionList.vue'
 import AccountSettings from './subvues/AccountSettings.vue'
 import SessionDetails from './subvues/SessionDetails.vue'
@@ -27,13 +27,13 @@ const router = createRouter({
             component: Register
         },
         {
-            path: '/session',
-            component: Session
-        },       
+            path: '/sessions',
+            component: Sessions
+        }, /*       
         {
             path: '/sessionList',
             component: SessionList
-        },
+        }, */
         {
             path: '/accountSettings',
             component: AccountSettings

@@ -55,7 +55,7 @@
                         if (response.status == 200) {
                             console.log("Token Added Successfully");
                             alert("Token Added Successfully");
-                            router.push("/");
+                            router.push("/tokens");
                         } else {
                             console.log("this should not happen...");
                         }

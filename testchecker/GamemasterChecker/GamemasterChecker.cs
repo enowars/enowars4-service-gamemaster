@@ -138,25 +138,27 @@ namespace GamemasterChecker
             return CheckerResult.Ok;
         }
 
-        public async Task<CheckerResult> HandleGetFlag(CheckerTaskMessage task, CancellationToken Token)
+        public async Task<CheckerResult> HandleGetFlag(CheckerTaskMessage task, CancellationToken token)
         {
+            var users = await Db.GetUsersAsync(task.Round, task.TeamId, token);
+            using var client = new GamemasterClient(HttpFactory.CreateClient("default"), task.Address, users[0], Logger);
             await Task.Delay(1000);
             return CheckerResult.Ok;
         }
 
-        public async Task<CheckerResult> HandleGetNoise(CheckerTaskMessage task, CancellationToken Token)
+        public async Task<CheckerResult> HandleGetNoise(CheckerTaskMessage task, CancellationToken token)
         {
             await Task.Delay(1000);
             throw new NotImplementedException();
         }
 
-        public async Task<CheckerResult> HandlePutNoise(CheckerTaskMessage task, CancellationToken Token)
+        public async Task<CheckerResult> HandlePutNoise(CheckerTaskMessage task, CancellationToken token)
         {
             await Task.Delay(1000);
             throw new NotImplementedException();
         }
 
-        public async Task<CheckerResult> HandleHavok(CheckerTaskMessage task, CancellationToken Token)
+        public async Task<CheckerResult> HandleHavok(CheckerTaskMessage task, CancellationToken token)
         {
             await Task.Delay(1000);
             return CheckerResult.Ok;
