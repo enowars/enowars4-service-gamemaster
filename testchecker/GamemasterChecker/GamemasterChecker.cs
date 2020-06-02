@@ -43,7 +43,7 @@ namespace GamemasterChecker
             users = users.Where(u => Utils.Random.Next() % 2 == 0).ToList();
             Logger.LogDebug($"Users after pruning: {users.Count()}");
             // Register a new master
-            var master = CreateUser();
+            var master = CreateUser(task.Round, task.TeamId);
             using var masterClient = new GamemasterClient(HttpFactory.CreateClient("default"), task.Address, master, Logger);
             bool result;
             try
@@ -77,7 +77,7 @@ namespace GamemasterChecker
             var registerTasks = new List<Task<bool>>();
             for (int i = 0; i < newUsers; i++)
             {
-                var user = CreateUser();
+                var user = CreateUser(task.Round, task.TeamId);
                 users.Add(user);
                 registerTasks.Add(Task.Run(async () =>
                 {
@@ -167,10 +167,12 @@ namespace GamemasterChecker
             return CheckerResult.Ok;
         }
 
-        private GamemasterUser CreateUser()
+        private GamemasterUser CreateUser(long roundId, long teamId)
         {
             return new GamemasterUser()
             {
+                RoundId = roundId,
+                TeamId = teamId,
                 Email = "Test",
                 Password = "Test",
                 Username = $"Herbert{Utils.Random.Next()}{Utils.Random.Next()}{Utils.Random.Next()}{Utils.Random.Next()}{Utils.Random.Next()}{Utils.Random.Next()}{Utils.Random.Next()}{Utils.Random.Next()}{Utils.Random.Next()}{Utils.Random.Next()}"
