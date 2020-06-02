@@ -140,8 +140,10 @@ namespace GamemasterChecker
 
         public async Task<CheckerResult> HandleGetFlag(CheckerTaskMessage task, CancellationToken token)
         {
-            var users = await Db.GetUsersAsync(task.Round, task.TeamId, token);
+            var users = await Db.GetUsersAsync(task.RelatedRoundId, task.TeamId, token);
+            if (users.Count <= 0) return CheckerResult.Mumble;
             using var client = new GamemasterClient(HttpFactory.CreateClient("default"), task.Address, users[0], Logger);
+            
             await Task.Delay(1000);
             return CheckerResult.Ok;
         }

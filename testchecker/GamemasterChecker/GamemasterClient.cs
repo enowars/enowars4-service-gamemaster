@@ -49,7 +49,33 @@ namespace GamemasterChecker
                 {
                     new KeyValuePair<string, string>("username" , User.Username),
                     new KeyValuePair<string, string>("email" , User.Email),
-                    new KeyValuePair<string, string>("password" , User.Password),
+                    new KeyValuePair<string, string>("password" , User.Password)
+                })
+            };
+            request.Headers.Add("Accept", "application/x-www-form-urlencoded");
+            request.Headers.Add("User-Agent", UserAgent);
+            var response = await HttpClient.SendAsync(request, token);
+            Logger.LogInformation($"{url} returned {response.StatusCode}");
+            if (!response.IsSuccessStatusCode)
+                return false;
+
+            if (this.Cookies != null)
+                throw new InvalidOperationException("User already has cookies");
+            var hasCookies = response.Headers.TryGetValues("Set-Cookie", out Cookies);
+            if (!hasCookies)
+                return false;
+
+            return true;
+        }
+        public async Task<bool> LoginAsync(CancellationToken token)
+        {
+            var url = $"{Scheme}://{Address}:{Port}/api/account/login";
+            var request = new HttpRequestMessage(HttpMethod.Post, url)
+            {
+                Content = new FormUrlEncodedContent(new List<KeyValuePair<string, string>>()
+                {
+                    new KeyValuePair<string, string>("username" , User.Username),
+                    new KeyValuePair<string, string>("password" , User.Password)
                 })
             };
             request.Headers.Add("Accept", "application/x-www-form-urlencoded");
