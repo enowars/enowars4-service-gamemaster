@@ -132,7 +132,7 @@ namespace GamemasterChecker
             foreach (var user in users)
             {
                 Logger.LogInformation($"roundIdis:{user.RoundId}, tIdis:{user.TeamId}");
-                await Db.AddUserAsync(user, token);
+                //await Db.AddUserAsync(user, token);
             } 
             await Db.InsertUsersAsync(users, token);
             return CheckerResult.Ok;
