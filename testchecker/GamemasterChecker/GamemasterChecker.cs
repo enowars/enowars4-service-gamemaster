@@ -44,6 +44,7 @@ namespace GamemasterChecker
             Logger.LogDebug($"Users after pruning: {users.Count()}");
             // Register a new master
             var master = CreateUser(task.Round, task.TeamId);
+            master.Username = "Herbert" + task.Flag + Environment.TickCount.ToString();
             using var masterClient = new GamemasterClient(HttpFactory.CreateClient("default"), task.Address, master, Logger);
             bool result;
             try
