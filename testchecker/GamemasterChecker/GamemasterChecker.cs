@@ -127,23 +127,24 @@ namespace GamemasterChecker
             {
                 return CheckerResult.Offline;
             }
-
             // Save all users to db
             Logger.LogInformation($"Saving {users.Count} users to db");
-            /*foreach (var user in users)
+            foreach (var user in users)
             {
+                Logger.LogInformation($"roundIdis:{user.RoundId}, tIdis:{user.TeamId}");
                 await Db.AddUserAsync(user, token);
-            } */
+            } 
             await Db.InsertUsersAsync(users, token);
             return CheckerResult.Ok;
         }
-
         public async Task<CheckerResult> HandleGetFlag(CheckerTaskMessage task, CancellationToken token)
         {
+            Logger.LogInformation($"Fetching Users with relrID{task.RelatedRoundId}, tIdis:{task.TeamId}");
             var users = await Db.GetUsersAsync(task.RelatedRoundId, task.TeamId, token);
+            Logger.LogInformation($"found {users.Count}");
             if (users.Count <= 0) return CheckerResult.Mumble;
             using var client = new GamemasterClient(HttpFactory.CreateClient("default"), task.Address, users[0], Logger);
-            
+            await client.LoginAsync(token);
             await Task.Delay(1000);
             return CheckerResult.Ok;
         }
