@@ -1,6 +1,7 @@
 <template>
     <div class=" inline">
         <h1>Session Details for Session {{ sessionId}}:</h1>
+        <a v-on:click="adduserprompt()">Add User</a>
         <ChatbarVue :session-id="sessionId"></ChatbarVue>
         <RightbarVue></RightbarVue>
         <SceneVue :session-id="sessionId"></SceneVue>
@@ -51,6 +52,33 @@
                     console.log(error);
                 })
             return {
+            }
+        },
+        methods: {
+            adduserprompt() {
+                var usertoadd = prompt("Username which should be added to the session:", "");
+                if (usertoadd == null || usertoadd == "" || usertoadd == undefined)
+                    return;
+                var bodyFormData = new FormData();
+                bodyFormData.set('sessionid', this.$props.sessionId);
+                bodyFormData.set('username', usertoadd);
+                const options: AxiosRequestConfig = {
+                    method: 'POST',
+                    data: bodyFormData,
+                    headers: { 'Content-Type': 'x-www-form-urlencoded' },
+                    url: '/api/gamesession/adduser',
+                };
+                axios(options).then(
+                    response => {
+                        console.log(response);
+                        if (response.status == 200) {
+                            alert("User added successful");
+                        } else {
+                            console.log("this should not happen...");
+                        }
+                    }).catch(error => {
+                        console.log(error);
+                    })
             }
         }
     });

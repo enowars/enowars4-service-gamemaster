@@ -67,6 +67,7 @@ namespace Gamemaster.Database
             var session = await _context.Sessions
                 .Where(s => s.Id == sessionId)
                 .Include(s => s.Players)
+                .Include(s=> s.Owner)
                 .SingleOrDefaultAsync();
 
             if (session.OwnerId == userId) return new SessionView(session);
