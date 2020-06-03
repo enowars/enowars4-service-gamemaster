@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="EnoCore" Version="0.0.1" />
+    <PackageReference Include="EnoCore" Version="0.0.2" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
     <PackageReference Include="MongoDB.Driver" Version="2.10.4" />
   </ItemGroup>
