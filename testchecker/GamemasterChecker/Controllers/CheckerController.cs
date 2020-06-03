@@ -10,8 +10,8 @@ using EnoCore.Models.Database;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using EnoCore;
-using GamemasterChecker.Models.Json;
-using EnoCore.Json;
+using EnoCore.Utils;
+using EnoCore.Models.Json;
 
 namespace GamemasterChecker.Controllers
 {

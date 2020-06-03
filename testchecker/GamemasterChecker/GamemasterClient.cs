@@ -1,5 +1,4 @@
 ﻿using Gamemaster.Models.View;
-using GamemasterChecker.Models.Json;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;

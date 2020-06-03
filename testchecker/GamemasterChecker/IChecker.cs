@@ -1,6 +1,6 @@
 ﻿using EnoCore.Models;
 using EnoCore.Models.Database;
-using GamemasterChecker.Models.Json;
+using EnoCore.Models.Json;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;

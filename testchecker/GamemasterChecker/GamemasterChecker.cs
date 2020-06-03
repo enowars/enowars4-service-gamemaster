@@ -1,7 +1,7 @@
 ﻿using EnoCore.Models;
 using EnoCore.Models.Database;
+using EnoCore.Models.Json;
 using Gamemaster.Models.View;
-using GamemasterChecker.Models.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using System;
@@ -43,7 +43,7 @@ namespace GamemasterChecker
             users = users.Where(u => Utils.Random.Next() % 2 == 0).ToList();
             Logger.LogDebug($"Users after pruning: {users.Count()}");
             // Register a new master
-            var master = CreateUser(task.Round, task.TeamId);
+            var master = CreateUser(task.RoundId, task.TeamId);
             master.Username = "Herbert" + task.Flag + Environment.TickCount.ToString();
             using var masterClient = new GamemasterClient(HttpFactory.CreateClient("default"), task.Address, master, Logger);
             bool result;
@@ -78,7 +78,7 @@ namespace GamemasterChecker
             var registerTasks = new List<Task<bool>>();
             for (int i = 0; i < newUsers; i++)
             {
-                var user = CreateUser(task.Round, task.TeamId);
+                var user = CreateUser(task.RoundId, task.TeamId);
                 users.Add(user);
                 registerTasks.Add(Task.Run(async () =>
                 {
