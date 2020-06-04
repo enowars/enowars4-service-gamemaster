@@ -1,4 +1,5 @@
-enochecker-async>=0.3.4
+#enochecker-async>=0.3.4
+git+https://github.com/enowars/enochecker_async@ApiChanges
 aiohttp
 jsons
 Faker
