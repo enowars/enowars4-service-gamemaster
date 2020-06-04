@@ -110,7 +110,7 @@ class GamemasterChecker(BaseChecker):
 
     async def putflag(self, logger: LoggerAdapter, task: CheckerTaskMessage, collection: MotorCollection) -> None:
         logger.debug (f"Putflag started")
-        clients = await self.dbtoclient (logger, task.round, task.teamId, collection)
+        clients = await self.dbtoclient (logger, task.round_id, task.team_id, collection)
         logger.debug (f"Clientdb fetched")
         logger.debug (f"Before Random: len:{len(clients)}")
         for k in list(clients.keys()):
@@ -128,10 +128,10 @@ class GamemasterChecker(BaseChecker):
             await asyncio.gather(
                 *[self.createuser(logger, task.address, collection, clients) for i in range(users_to_create)]
                 )
-        logger.debug(f"{users_to_create} Users added for round {task.round}, now {len(clients)} users total")
+        logger.debug(f"{users_to_create} Users added for round {task.round_id}, now {len(clients)} users total")
         await self.useraddsession(logger, task.address, clients, Sessionid, mastername, collection)
         logger.debug (f"Saving back Clientdb..")
-        await self.clienttodb(logger, task.round, task.teamId, collection, clients)
+        await self.clienttodb(logger, task.round_id, task.team_id, collection, clients)
         logger.debug (f"Putflag finished")
 
     async def getflag(self, logger: LoggerAdapter, task: CheckerTaskMessage, collection: MotorCollection) -> None:
