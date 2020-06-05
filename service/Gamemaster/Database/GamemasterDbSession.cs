@@ -62,7 +62,7 @@ namespace Gamemaster.Database
             await _context.SaveChangesAsync();
             return new SessionView(session);
         }
-        public async Task<SessionView?> GetSession(long sessionId, long userId)
+        public async Task<ExtendedSessionView?> GetSession(long sessionId, long userId)
         {
             var session = await _context.Sessions
                 .Where(s => s.Id == sessionId)
@@ -70,11 +70,11 @@ namespace Gamemaster.Database
                 .Include(s=> s.Owner)
                 .SingleOrDefaultAsync();
 
-            if (session.OwnerId == userId) return new SessionView(session);
+            if (session.OwnerId == userId) return new ExtendedSessionView(session);
             foreach (var u in session.Players)
             {
                 if (u.UserId == userId)
-                    return new SessionView(session);
+                    return new ExtendedSessionView(session);
             }
             return null;
         }

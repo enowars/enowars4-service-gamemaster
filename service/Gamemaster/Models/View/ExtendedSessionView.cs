@@ -8,18 +8,20 @@ using System.Threading.Tasks;
 
 namespace Gamemaster.Models.View
 {
-    public class SessionView
+    public class ExtendedSessionView
     {
         public long Id { get; set; }
         public string OwnerName { get; set; }
         public DateTime Timestamp { get; set; }
         public string Name { get; set; }
-        public SessionView(Session s)
+        public string Notes { get; set; }
+        public ExtendedSessionView(Session s)
         {
             Name = s.Name;
             Timestamp = s.Timestamp;
             OwnerName = s.Owner.Name;
             Id = s.Id;
+            Notes = s.Notes;
         }
     }
 }

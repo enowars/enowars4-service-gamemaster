@@ -44,7 +44,7 @@ namespace GamemasterChecker
             Logger.LogDebug($"Users after pruning: {users.Count()}");
             // Register a new master
             var master = CreateUser(task.RoundId, task.TeamId);
-            master.Username = "Herbert" + task.Flag + Environment.TickCount.ToString();
+            //master.Username = "Herbert" + task.Flag + Environment.TickCount.ToString();
             using var masterClient = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, master, Logger);
             bool result;
             try
@@ -176,7 +176,7 @@ namespace GamemasterChecker
                 TeamId = teamId,
                 Email = "Test",
                 Password = "Test",
-                Username = $"Herbert{Utils.Random.Next()}{Utils.Random.Next()}{Utils.Random.Next()}{Utils.Random.Next()}{Utils.Random.Next()}{Utils.Random.Next()}{Utils.Random.Next()}{Utils.Random.Next()}{Utils.Random.Next()}{Utils.Random.Next()}"
+                Username = $"Herbert{Environment.TickCount.ToString()}|{Utils.Random.Next()}"
             };
         }
     }

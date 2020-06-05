@@ -63,7 +63,6 @@ namespace Gamemaster.Controllers
                 Logger.LogError($"{nameof(GetInfo)} failed: {e.Message}");
                 return Forbid();
             }
-
         }
         [HttpGet]
         public async Task<IActionResult> List()
