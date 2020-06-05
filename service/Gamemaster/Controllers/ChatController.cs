@@ -25,7 +25,7 @@ namespace Gamemaster.Controllers
             Db = db;
         }
         [HttpPost]
-        public async Task<IActionResult> GetRecent([FromForm]long id)
+        public async Task<IActionResult> GetRecent([FromForm]long id) //TODO Weird stuff
         {
             var currentusername = HttpContext.User.Identity.Name;
             if (currentusername == null)
@@ -38,7 +38,7 @@ namespace Gamemaster.Controllers
                 throw new System.Exception($"No user called {currentusername} found");
             }
             var session = await Db.GetSession(id, currentuser.Id);
-            if (!(session is SessionView _))
+            if (!(session is ExtendedSessionView _))
             {
                 throw new System.ArgumentException("SessionId not valid or User not in Session");
             }
