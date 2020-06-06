@@ -34,7 +34,8 @@ steps:
     - cd enowars4-vulnbox-services
     - rm -rf gamemaster/
     - cp -r ../service/ gamemaster/
-    - git add gamemaster/
+    #- git add gamemaster/
+    - git add -f gamemaster/
     - git commit -m 'Update gamemaster service' || true
     - git push origin HEAD:master || true
 
