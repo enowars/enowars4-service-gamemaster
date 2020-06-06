@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Text.Json;
+using System.Security.Cryptography;
+using Microsoft.Extensions.FileProviders.Physical;
 
 namespace GamemasterChecker
 {
@@ -25,6 +27,10 @@ namespace GamemasterChecker
             user.RoundId = u.RoundId;
             user.TeamId = u.TeamId;
             user.Username = user.Username + Environment.TickCount.ToString();
+            using var rng = new RNGCryptoServiceProvider();
+            byte[] pw = new byte[16];
+            rng.GetNonZeroBytes(pw);
+            user.Password = System.Convert.ToBase64String(pw);
             Console.WriteLine(JsonSerializer.Serialize(user));
             return user;
         }
