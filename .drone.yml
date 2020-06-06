@@ -35,8 +35,8 @@ steps:
     - rm -rf gamemaster/
     - cp -r ../service/ gamemaster/
     - git add gamemaster/
-    - git commit -m 'Update gamemaster service'
-    - git push origin HEAD:master
+    - git commit -m 'Update gamemaster service' || true
+    - git push origin HEAD:master || true
 
     # push checker changes
     - cd -
@@ -45,8 +45,8 @@ steps:
     - rm -rf gamemaster/
     - cp -r ../checker/ gamemaster/
     - git add gamemaster/
-    - git commit -m 'Update gamemaster checker'
-    - git push origin HEAD:master
+    - git commit -m 'Update gamemaster checker' || true
+    - git push origin HEAD:master || true
 
 - name: trigger-vm-image-creation
   image: plugins/downstream
