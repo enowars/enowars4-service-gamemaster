@@ -170,14 +170,15 @@ namespace GamemasterChecker
 
         private GamemasterUser CreateUser(long roundId, long teamId)
         {
-            return new GamemasterUser()
+            var u = new GamemasterUser()
             {
                 RoundId = roundId,
                 TeamId = teamId,
                 Email = "Test",
-                Password = "Test",
+                Password = "ultrasecurepw",
                 Username = $"Herbert{Environment.TickCount.ToString()}|{Utils.Random.Next()}"
             };
+            return FakeUsers.getFakeUser(u);
         }
     }
 }
