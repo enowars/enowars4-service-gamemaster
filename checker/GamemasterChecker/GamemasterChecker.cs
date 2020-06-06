@@ -144,10 +144,27 @@ namespace GamemasterChecker
             Logger.LogInformation($"found {users.Count}");
             if (users.Count <= 0) return CheckerResult.Mumble;
             using var client = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, users[0], Logger);
-            await client.LoginAsync(token);
-            var session = await client.FetchSessionAsync(users[0].SessionId, token);
+            try
+            {
+                if (!(await client.LoginAsync(token))) return CheckerResult.Mumble;
+            }
+            catch (Exception)
+            {
+                return CheckerResult.Offline;
+            }
+            ExtendedSessionView session;
+            try
+            {
+                session = await client.FetchSessionAsync(users[0].SessionId, token);
+            }
+            catch (Exception)
+            {
+                return CheckerResult.Offline;
+            }
             Logger.LogInformation($"Flag is {session.Notes}");
-            return CheckerResult.Ok;
+            if (session.Notes.Equals(task.Flag))
+                return CheckerResult.Ok;
+            return CheckerResult.Mumble;
         }
 
         public async Task<CheckerResult> HandleGetNoise(CheckerTaskMessage task, CancellationToken token)
