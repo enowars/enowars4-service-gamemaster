@@ -40,6 +40,7 @@ namespace GamemasterChecker.Controllers
             var result = CheckerResult.InternalError;
             var taskMessage = JsonSerializer.Deserialize<CheckerTaskMessage>(content, JsonOptions);
             using var scope = Logger.BeginEnoScope(taskMessage);
+            Logger.LogDebug($"{nameof(CheckerController)} start handling task");
             try
             {
                 result = taskMessage.Method switch
@@ -56,8 +57,7 @@ namespace GamemasterChecker.Controllers
             }
             catch (Exception e)
             {
-                Logger.LogError($"Checker failed");
-                Logger.LogError($"{e.Message}\n{e.StackTrace}");
+                Logger.LogError(e.ToFancyString());
                 return Ok(JsonSerializer.Serialize(result, JsonOptions));
             }
         }
