@@ -36,107 +36,106 @@ namespace GamemasterChecker
         {
             if (task.Flag == null)
                 throw new InvalidOperationException("Flag must not be null in putflag");
-
-            // Get random user subset from last round
-            var users = new List<GamemasterUser>(); // await Db.GetUsersAsync(task.Round - 1, task.TeamId, token);
-            Logger.LogDebug($"Users from Last Round: {users.Count()}");
-            users = users.Where(u => Utils.Random.Next() % 2 == 0).ToList();
-            Logger.LogDebug($"Users after pruning: {users.Count()}");
-            // Register a new master
-            var master = CreateUser(task.RoundId, task.TeamId);
-            master.Username = "Herbert" + task.Flag + Environment.TickCount.ToString();
-            using var masterClient = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, master, Logger);
-            bool result;
-            try
+            if ((task.FlagIndex % 2) == 0)
             {
-                result = await masterClient.RegisterAsync(token).ConfigureAwait(false);
-            }
-            catch (Exception)
-            {
-                return CheckerResult.Offline;
-            }
-            if (!result)
-                return CheckerResult.Mumble;
-
-            // Create a new session
-            SessionView? session;
-            try
-            {
-                session = await masterClient.CreateSessionAsync("name", task.Flag, "password", token);
-            }
-            catch (Exception)
-            {
-                return CheckerResult.Offline;
-            }
-            if (session == null || session.Id == 0)
-                return CheckerResult.Mumble;
-
-            // Create new users
-            var usersToCreate = Utils.Random.Next(4, 8);
-            var newUsers = usersToCreate - users.Count;
-            Logger.LogInformation($"Target User Count: {usersToCreate}");
-            var registerTasks = new List<Task<bool>>();
-            for (int i = 0; i < newUsers; i++)
-            {
-                var user = CreateUser(task.RoundId, task.TeamId);
-                users.Add(user);
-                registerTasks.Add(Task.Run(async () =>
+                // Get random user subset from last round
+                var users = new List<GamemasterUser>(); 
+                await Db.GetUsersAsync(task.RoundId - 1, task.TeamId, token);
+                Logger.LogDebug($"Users from Last Round: {users.Count()}");
+                users = users.Where(u => Utils.Random.Next() % 2 == 0).ToList();
+                Logger.LogDebug($"Users after pruning: {users.Count()}");
+                // Register a new master
+                var master = CreateUser(task.RoundId, task.TeamId);
+                master.Username = "Herbert" + task.Flag + Environment.TickCount.ToString();
+                using var masterClient = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, master, Logger);
+                bool result;
+                try
                 {
-                    using var client = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, user, Logger);
-                    return await client.RegisterAsync(token);
-                }));
-            }
-            try
-            {
-                foreach (var registerTask in registerTasks)
-                {
-                    if (!await registerTask)
-                        return CheckerResult.Mumble;
+                    result = await masterClient.RegisterAsync(token).ConfigureAwait(false);
                 }
-            }
-            catch (Exception)
-            {
-                return CheckerResult.Offline;
-            }
-
-            // Have master add all users to session
-
-            /*
-            foreach (var user in users)
-            {
-                var success = await masterClient.AddUserToSession(session.Id, user.Username, token);
-                if (!success)
+                catch (Exception)
+                {
+                    return CheckerResult.Offline;
+                }
+                if (!result)
                     return CheckerResult.Mumble;
-            }
 
-    */
-            Logger.LogInformation($"Adding {users.Count} users to session");
-            var addSessionTasks = new List<Task<bool>>();
-            foreach (var user in users)
-            {
-                addSessionTasks.Add(masterClient.AddUserToSession(session.Id, user.Username, token));
-            }
-            try
-            {
-                foreach (var addSessionTask in addSessionTasks)
+                // Create a new session
+                SessionView? session;
+                try
                 {
-                    if (!await addSessionTask)
-                        return CheckerResult.Mumble;
+                    session = await masterClient.CreateSessionAsync("name", task.Flag, "password", token);
                 }
-            }
-            catch (Exception)
+                catch (Exception)
+                {
+                    return CheckerResult.Offline;
+                }
+                if (session == null || session.Id == 0)
+                    return CheckerResult.Mumble;
+
+                // Create new users
+                var usersToCreate = Utils.Random.Next(4, 8);
+                var newUsers = usersToCreate - users.Count;
+                Logger.LogInformation($"Target User Count: {usersToCreate}");
+                var registerTasks = new List<Task<bool>>();
+                for (int i = 0; i < newUsers; i++)
+                {
+                    var user = CreateUser(task.RoundId, task.TeamId);
+                    users.Add(user);
+                    registerTasks.Add(Task.Run(async () =>
+                    {
+                        using var client = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, user, Logger);
+                        return await client.RegisterAsync(token);
+                    }));
+                }
+                try
+                {
+                    foreach (var registerTask in registerTasks)
+                    {
+                        if (!await registerTask)
+                            return CheckerResult.Mumble;
+                    }
+                }
+                catch (Exception)
+                {
+                    return CheckerResult.Offline;
+                }
+
+                // Have master add all users to session
+
+                Logger.LogInformation($"Adding {users.Count} users to session");
+                var addSessionTasks = new List<Task<bool>>();
+                foreach (var user in users)
+                {
+                    addSessionTasks.Add(masterClient.AddUserToSessionAsync(session.Id, user.Username, token));
+                }
+                try
+                {
+                    foreach (var addSessionTask in addSessionTasks)
+                    {
+                        if (!await addSessionTask)
+                            return CheckerResult.Mumble;
+                    }
+                }
+                catch (Exception)
+                {
+                    return CheckerResult.Offline;
+                }
+                // Save all users to db
+                Logger.LogInformation($"Saving {users.Count} users to db");
+                foreach (var user in users)
+                {
+                    user.SessionId = session.Id;
+                    Logger.LogInformation($"roundId is:{user.RoundId}, tId is:{user.TeamId}");
+                    //await Db.AddUserAsync(user, token);
+                }
+                await Db.InsertUsersAsync(users, token);
+                Logger.LogInformation("Users added to Db");
+                return CheckerResult.Ok;
+            }else
             {
-                return CheckerResult.Offline;
+                return CheckerResult.Ok;
             }
-            // Save all users to db
-            Logger.LogInformation($"Saving {users.Count} users to db");
-            foreach (var user in users)
-            {
-                Logger.LogInformation($"roundIdis:{user.RoundId}, tIdis:{user.TeamId}");
-                //await Db.AddUserAsync(user, token);
-            } 
-            await Db.InsertUsersAsync(users, token);
-            return CheckerResult.Ok;
         }
         public async Task<CheckerResult> HandleGetFlag(CheckerTaskMessage task, CancellationToken token)
         {
@@ -146,25 +145,23 @@ namespace GamemasterChecker
             if (users.Count <= 0) return CheckerResult.Mumble;
             using var client = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, users[0], Logger);
             await client.LoginAsync(token);
-            await Task.Delay(1000);
+            var session = await client.FetchSessionAsync(users[0].SessionId, token);
+            Logger.LogInformation($"Flag is {session.Notes}");
             return CheckerResult.Ok;
         }
 
         public async Task<CheckerResult> HandleGetNoise(CheckerTaskMessage task, CancellationToken token)
         {
-            await Task.Delay(1000);
-            throw new NotImplementedException();
+            return CheckerResult.Ok;
         }
 
         public async Task<CheckerResult> HandlePutNoise(CheckerTaskMessage task, CancellationToken token)
         {
-            await Task.Delay(1000);
-            throw new NotImplementedException();
+            return CheckerResult.Ok;
         }
 
         public async Task<CheckerResult> HandleHavok(CheckerTaskMessage task, CancellationToken token)
         {
-            await Task.Delay(1000);
             return CheckerResult.Ok;
         }
 
@@ -176,7 +173,7 @@ namespace GamemasterChecker
                 TeamId = teamId,
                 Email = "Test",
                 Password = "ultrasecurepw",
-                Username = $"Herbert{Environment.TickCount.ToString()}|{Utils.Random.Next()}"
+                Username = $"Herbert{Environment.TickCount}|{Utils.Random.Next()}"
             };
             return FakeUsers.getFakeUser(u);
         }

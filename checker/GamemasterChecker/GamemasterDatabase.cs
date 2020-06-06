@@ -21,6 +21,7 @@ namespace GamemasterChecker
         public string Email { get; set; }
         public long TeamId { get; set; }
         public long RoundId { get; set; }
+        public long SessionId { get; set; }
 #pragma warning restore CS8618
     }
 

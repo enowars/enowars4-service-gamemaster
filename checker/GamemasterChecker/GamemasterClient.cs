@@ -115,8 +115,24 @@ namespace GamemasterChecker
             var responseString = await response.Content.ReadAsStringAsync(); //TODO find async variant?
             return JsonSerializer.Deserialize<SessionView>(responseString, JsonOptions);
         }
-
-        public async Task<bool> AddUserToSession(long sessionId, string username, CancellationToken token)
+        public async Task<ExtendedSessionView> FetchSessionAsync(long sessionId, CancellationToken token)
+        {
+            var url = $"{Scheme}://{Address}:{Port}/api/gamesession/getinfo";
+            var request = new HttpRequestMessage(HttpMethod.Post, url)
+            {
+                Content = new FormUrlEncodedContent(new List<KeyValuePair<string, string>>()
+                {
+                    new KeyValuePair<string, string>("id" , sessionId.ToString()),
+                })
+            };
+            request.Headers.Add("Accept", "application/x-www-form-urlencoded");
+            request.Headers.Add("User-Agent", UserAgent);
+            request.Headers.Add("Cookie", Cookies);
+            var response = await HttpClient.SendAsync(request, token);
+            var responseString = await response.Content.ReadAsStringAsync(); //TODO find async variant?
+            return JsonSerializer.Deserialize<ExtendedSessionView>(responseString, JsonOptions);
+        }
+        public async Task<bool> AddUserToSessionAsync(long sessionId, string username, CancellationToken token)
         {
             var url = $"{Scheme}://{Address}:{Port}/api/gamesession/adduser";
             var request = new HttpRequestMessage(HttpMethod.Post, url)
