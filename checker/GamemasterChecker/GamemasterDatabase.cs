@@ -22,6 +22,7 @@ namespace GamemasterChecker
         public long TeamId { get; set; }
         public long RoundId { get; set; }
         public long SessionId { get; set; }
+        public string Flag { get; set; }
 #pragma warning restore CS8618
     }
 
@@ -46,12 +47,16 @@ namespace GamemasterChecker
             Users.Indexes.CreateOne(indexModel);
         }
 
-        public async Task<List<GamemasterUser>> GetUsersAsync(long roundId, long teamId, CancellationToken token)
+        public async Task<List<GamemasterUser>> GetUsersAsync(string flag, CancellationToken token)
         {
-            var users = await Users.FindAsync(user => user.RoundId == roundId && user.TeamId == teamId);
+            var users = await Users.FindAsync(user => user.Flag == flag, cancellationToken: token);
             return await users.ToListAsync(token);
         }
-
+        public async Task<List<GamemasterUser>> GetUsersAsync(long roundId, long teamId, CancellationToken token)
+        {
+            var users = await Users.FindAsync(user => user.RoundId == roundId && user.TeamId == teamId, cancellationToken: token);
+            return await users.ToListAsync(token);
+        }
         public async Task AddUserAsync(GamemasterUser user, CancellationToken token)
         {
             await Users.InsertOneAsync(user, InsertOneOptions, token);

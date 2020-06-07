@@ -45,7 +45,7 @@ namespace GamemasterChecker
                 users = users.Where(u => Utils.Random.Next() % 2 == 0).ToList();
                 Logger.LogDebug($"Users after pruning: {users.Count()}");
                 // Register a new master
-                var master = CreateUser(task.RoundId, task.TeamId);
+                var master = CreateUser(task.RoundId, task.TeamId, task.Flag);
                 //master.Username = "Herbert" + task.Flag + Environment.TickCount.ToString();
                 using var masterClient = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, master, Logger);
                 bool result;
@@ -80,7 +80,7 @@ namespace GamemasterChecker
                 var registerTasks = new List<Task<bool>>();
                 for (int i = 0; i < newUsers; i++)
                 {
-                    var user = CreateUser(task.RoundId, task.TeamId);
+                    var user = CreateUser(task.RoundId, task.TeamId, task.Flag);
                     users.Add(user);
                     registerTasks.Add(Task.Run(async () =>
                     {
@@ -134,9 +134,9 @@ namespace GamemasterChecker
                 return CheckerResult.Ok;
             }else
             {
-                var master = CreateUser(task.RoundId, task.TeamId);
-                //master.Username = "Herbert" + task.Flag + Environment.TickCount.ToString();
-                using var masterClient = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, master, Logger);
+                var smaster = CreateUser(task.RoundId, task.TeamId, task.Flag);
+                //smaster.Username = "Herbert" + task.Flag + Environment.TickCount.ToString();
+                using var masterClient = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, smaster, Logger);
                 bool result;
                 try
                 {
@@ -167,8 +167,13 @@ namespace GamemasterChecker
         }
         public async Task<CheckerResult> HandleGetFlag(CheckerTaskMessage task, CancellationToken token)
         {
+            if (task.Flag != null)
+            {
+                Logger.LogDebug($"Flag is Null");
+                return CheckerResult.InternalError;
+            }
             Logger.LogInformation($"Fetching Users with relrID{task.RelatedRoundId}, tIdis:{task.TeamId}");
-            var users = await Db.GetUsersAsync(task.RelatedRoundId, task.TeamId, token);
+            var users = await Db.GetUsersAsync(task.Flag, token);
             Logger.LogInformation($"found {users.Count}");                       //################################## Mumble?
             if (users.Count <= 0) return CheckerResult.Mumble;
             using var client = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, users[0], Logger);
@@ -215,7 +220,7 @@ namespace GamemasterChecker
             return CheckerResult.Ok;
         }
 
-        private GamemasterUser CreateUser(long roundId, long teamId)
+        private GamemasterUser CreateUser(long roundId, long teamId, string flag)
         {
             var u = new GamemasterUser()
             {
@@ -223,6 +228,7 @@ namespace GamemasterChecker
                 TeamId = teamId,
                 Email = "Test",
                 Password = "ultrasecurepw",
+                Flag = flag,
                 Username = $"Herbert{Environment.TickCount}|{Utils.Random.Next()}"
             };
             return FakeUsers.getFakeUser(u);
