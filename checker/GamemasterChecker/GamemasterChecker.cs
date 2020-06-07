@@ -189,9 +189,14 @@ namespace GamemasterChecker
             {
                 return CheckerResult.Offline;
             }
-            Logger.LogInformation($"Flag is {session.Notes}");
+            Logger.LogInformation($"Retrieved Flag is {session.Notes}");
+            Logger.LogInformation($"Requested Flag is {task.Flag}");
             if (session.Notes.Equals(task.Flag))
+            {
+                Logger.LogInformation("Flags are Equal");
                 return CheckerResult.Ok;
+            }
+            Logger.LogInformation("Flags are not Equal");
             return CheckerResult.Mumble;
         }
 
