@@ -1,5 +1,6 @@
 ﻿using Gamemaster.Models.View;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -106,6 +107,33 @@ namespace GamemasterChecker
                 })
             };
             request.Headers.Add("Accept", "application/x-www-form-urlencoded");
+            request.Headers.Add("User-Agent", UserAgent);
+            request.Headers.Add("Cookie", Cookies);
+            var response = await HttpClient.SendAsync(request, token);
+            Logger.LogInformation($"{url} returned {response.StatusCode}");
+            if (!response.IsSuccessStatusCode)
+                return null;
+            var responseString = await response.Content.ReadAsStringAsync(); //TODO find async variant?
+            return JsonSerializer.Deserialize<SessionView>(responseString, JsonOptions);
+        }
+        public async Task<SessionView?> AddTokenAsync(string name, string description, bool isPrivate, byte[] ImageData, CancellationToken token)
+        {
+            var url = $"{Scheme}://{Address}:{Port}/api/account/addtoken";
+            var Content = new MultipartFormDataContent();
+            var ImageContent = new ByteArrayContent(ImageData);
+            ImageContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/jpeg");
+            Content.Add(ImageContent);
+            var request = new HttpRequestMessage(HttpMethod.Post, url)
+            {
+                Content
+                
+                /*{
+                    new KeyValuePair<string, string>("name" , name),
+                    new KeyValuePair<string, string>("description" , description),
+                    new KeyValuePair<string, string>("isprivate" , isPrivate.ToString()),
+                })*/
+            };
+            request.Headers.Add("Accept", "multipart/form-data");
             request.Headers.Add("User-Agent", UserAgent);
             request.Headers.Add("Cookie", Cookies);
             var response = await HttpClient.SendAsync(request, token);

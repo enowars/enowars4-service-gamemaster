@@ -134,6 +134,34 @@ namespace GamemasterChecker
                 return CheckerResult.Ok;
             }else
             {
+                var master = CreateUser(task.RoundId, task.TeamId);
+                //master.Username = "Herbert" + task.Flag + Environment.TickCount.ToString();
+                using var masterClient = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, master, Logger);
+                bool result;
+                try
+                {
+                    result = await masterClient.RegisterAsync(token).ConfigureAwait(false);
+                }
+                catch (Exception)
+                {
+                    return CheckerResult.Offline;
+                }
+                if (!result)
+                    return CheckerResult.Mumble;
+
+                // Create a new session
+                SessionView? session;
+                try
+                {
+                    session = await masterClient.CreateSessionAsync("name", task.Flag, "password", token);
+                }
+                catch (Exception)
+                {
+                    return CheckerResult.Offline;
+                }
+                if (session == null || session.Id == 0)
+                    return CheckerResult.Mumble;
+
                 return CheckerResult.Ok;
             }
         }
@@ -141,7 +169,7 @@ namespace GamemasterChecker
         {
             Logger.LogInformation($"Fetching Users with relrID{task.RelatedRoundId}, tIdis:{task.TeamId}");
             var users = await Db.GetUsersAsync(task.RelatedRoundId, task.TeamId, token);
-            Logger.LogInformation($"found {users.Count}");
+            Logger.LogInformation($"found {users.Count}");                       //################################## Mumble?
             if (users.Count <= 0) return CheckerResult.Mumble;
             using var client = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, users[0], Logger);
             try
