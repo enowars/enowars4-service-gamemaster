@@ -167,11 +167,8 @@ namespace GamemasterChecker
         }
         public async Task<CheckerResult> HandleGetFlag(CheckerTaskMessage task, CancellationToken token)
         {
-            if (task.Flag != null)
-            {
-                Logger.LogDebug($"Flag is Null");
-                return CheckerResult.InternalError;
-            }
+            if (task.Flag == null)
+                throw new InvalidOperationException("Flag must not be null in getflag");
             Logger.LogInformation($"Fetching Users with relrID{task.RelatedRoundId}, tIdis:{task.TeamId}");
             var users = await Db.GetUsersAsync(task.Flag, token);
             Logger.LogInformation($"found {users.Count}");                       //################################## Mumble?
