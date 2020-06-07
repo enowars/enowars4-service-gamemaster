@@ -121,11 +121,11 @@ namespace GamemasterChecker
             var url = $"{Scheme}://{Address}:{Port}/api/account/addtoken";
             var Content = new MultipartFormDataContent();
             var ImageContent = new ByteArrayContent(ImageData);
-            ImageContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/jpeg");
+            //ImageContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/jpeg");
             Content.Add(ImageContent);
             var request = new HttpRequestMessage(HttpMethod.Post, url)
             {
-                Content
+                //Content
                 
                 /*{
                     new KeyValuePair<string, string>("name" , name),
