@@ -98,7 +98,7 @@ namespace GamemasterChecker
             users = users.Where(u => Utils.Random.Next() % 2 == 0).ToList();
             Logger.LogDebug($"Users after pruning: {users.Count()}");
             // Register a new master
-            var master = CreateUser(task.RoundId, task.TeamId, task.Flag);
+            var master = CreateUser(task.RoundId, task.TeamId, task.Flag!);
             //master.Username = "Herbert" + task.Flag + Environment.TickCount.ToString();
             using var masterClient = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, master, Logger);
             bool result;
@@ -118,7 +118,7 @@ namespace GamemasterChecker
             SessionView? session;
             try
             {
-                session = await masterClient.CreateSessionAsync("name", task.Flag, "password", token);
+                session = await masterClient.CreateSessionAsync("name", task.Flag!, "password", token);
             }
             catch (Exception e)
             {
@@ -135,7 +135,7 @@ namespace GamemasterChecker
             var registerTasks = new List<Task<bool>>();
             for (int i = 0; i < newUsers; i++)
             {
-                var user = CreateUser(task.RoundId, task.TeamId, task.Flag);
+                var user = CreateUser(task.RoundId, task.TeamId, task.Flag!);
                 users.Add(user);
                 registerTasks.Add(Task.Run(async () =>
                 {
@@ -192,7 +192,7 @@ namespace GamemasterChecker
         }
         private async Task<CheckerResult> PutFlagToToken(CheckerTaskMessage task, CancellationToken token)
         {
-            var smaster = CreateUser(task.RoundId, task.TeamId, task.Flag);
+            var smaster = CreateUser(task.RoundId, task.TeamId, task.Flag!);
             //smaster.Username = "Herbert" + task.Flag + Environment.TickCount.ToString();
             using var masterClient = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, smaster, Logger);
             bool result;
@@ -223,9 +223,9 @@ namespace GamemasterChecker
                 return CheckerResult.Mumble;
             byte[] imgdata = new byte[64];
             Utils.Random.NextBytes(imgdata);
-            var UUID = await masterClient.AddTokenAsync("name", task.Flag, true, imgdata, token);
+            var UUID = await masterClient.AddTokenAsync("name", task.Flag!, true, imgdata, token);
             if (UUID==null  || !isValid(UUID)) return CheckerResult.Mumble;
-            await Db.AddTokenUUIDAsync(task.Flag, UUID, token);
+            await Db.AddTokenUUIDAsync(task.Flag!, UUID, token);
             await Db.AddUserAsync(smaster, token);
             return CheckerResult.Ok;
         }
@@ -266,13 +266,13 @@ namespace GamemasterChecker
         private async Task<CheckerResult> GetFlagFromToken(CheckerTaskMessage task, CancellationToken token)
         {
             Logger.LogInformation("Fetching Token From Db");
-            string gtoken = await Db.GetTokenUUIDAsync(task.Flag, token);
+            string gtoken = await Db.GetTokenUUIDAsync(task.Flag!, token);
             if (gtoken == "")
             {
                 Logger.LogInformation("No Token Found in Db");
                 return CheckerResult.Mumble;
             }
-            var smaster = await Db.GetUsersAsync(task.Flag, token);
+            var smaster = await Db.GetUsersAsync(task.Flag!, token);
             if (smaster == null || smaster.Count != 1)
             {
                 Logger.LogInformation($"Master User for the Token not found in Db, or multiple found for the flag: Count:{((smaster!=null) ? smaster.Count:-1)}");
