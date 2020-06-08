@@ -1,6 +1,7 @@
 ﻿using EnoCore.Models;
 using EnoCore.Models.Database;
 using EnoCore.Models.Json;
+using EnoCore.Utils;
 using Gamemaster.Models.View;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
@@ -105,8 +106,9 @@ namespace GamemasterChecker
             {
                 result = await masterClient.RegisterAsync(token).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Logger.LogError(e.ToFancyString());
                 return CheckerResult.Offline;
             }
             if (!result)
@@ -118,8 +120,9 @@ namespace GamemasterChecker
             {
                 session = await masterClient.CreateSessionAsync("name", task.Flag, "password", token);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Logger.LogError(e.ToFancyString());
                 return CheckerResult.Offline;
             }
             if (session == null || session.Id == 0)
@@ -148,8 +151,9 @@ namespace GamemasterChecker
                         return CheckerResult.Mumble;
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Logger.LogError(e.ToFancyString());
                 return CheckerResult.Offline;
             }
 
@@ -169,8 +173,9 @@ namespace GamemasterChecker
                         return CheckerResult.Mumble;
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Logger.LogError(e.ToFancyString());
                 return CheckerResult.Offline;
             }
             // Save all users to db
@@ -185,7 +190,6 @@ namespace GamemasterChecker
             Logger.LogInformation("Users added to Db");
             return CheckerResult.Ok;
         }
-    
         private async Task<CheckerResult> PutFlagToToken(CheckerTaskMessage task, CancellationToken token)
         {
             var smaster = CreateUser(task.RoundId, task.TeamId, task.Flag);
@@ -196,8 +200,9 @@ namespace GamemasterChecker
             {
                 result = await masterClient.RegisterAsync(token).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Logger.LogError(e.ToFancyString());
                 return CheckerResult.Offline;
             }
             if (!result)
@@ -209,8 +214,9 @@ namespace GamemasterChecker
             {
                 session = await masterClient.CreateSessionAsync("name", "No 🏳️‍🌈 here, go away...", "password", token);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Logger.LogError(e.ToFancyString());
                 return CheckerResult.Offline;
             }
             if (session == null || session.Id == 0)
@@ -220,6 +226,7 @@ namespace GamemasterChecker
             var UUID = await masterClient.AddTokenAsync("name", task.Flag, true, imgdata, token);
             if (UUID==null  || !isValid(UUID)) return CheckerResult.Mumble;
             await Db.AddTokenUUIDAsync(task.Flag, UUID, token);
+            await Db.AddUserAsync(smaster, token);
             return CheckerResult.Ok;
         }
         private async Task<CheckerResult> GetFlagFromSession(CheckerTaskMessage task, CancellationToken token)
@@ -279,8 +286,9 @@ namespace GamemasterChecker
                 retrievedToken = await mclient.CheckTokenAsync(gtoken, token);
                 Logger.LogInformation($"Retrieved Token: {retrievedToken}");
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Logger.LogError(e.ToFancyString());
                 return CheckerResult.Offline;
             }
             

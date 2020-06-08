@@ -120,36 +120,26 @@ namespace GamemasterChecker
         public async Task<string?> AddTokenAsync(string name, string description, bool isPrivate, byte[] ImageData, CancellationToken token)
         {
             var url = $"{Scheme}://{Address}:{Port}/api/account/addtoken";
-            var Content = new MultipartFormDataContent();
             var ImageContent = new ByteArrayContent(ImageData);
-            ImageContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/jpeg");
-            Content.Add(ImageContent);
+            ImageContent.Headers.Add("Content-Type", "image/png");
+            ImageContent.Headers.Add("Content-Disposition", "form-data; name=\"icon\"; filename=\"Arrow.png\"");
+            var foo = new MultipartFormDataContent();
+            foo.Add(new StringContent(name), "\"name\"");
+            foo.Add(new StringContent(description), "\"description\"");
+            foo.Add(new StringContent("true"), "\"isPrivate\"");
+            foo.Add(ImageContent, "\"icon\"", "\"Arrow.png\"");
             var request = new HttpRequestMessage(HttpMethod.Post, url)
             {
-                Content = new MultipartFormDataContent()
-                {
-                    {
-                        new FormUrlEncodedContent(new List<KeyValuePair<string, string>>()
-                        {
-                            new KeyValuePair<string, string>("name" , name),
-                            new KeyValuePair<string, string>("description" , description),
-                            new KeyValuePair<string, string>("isprivate" , isPrivate.ToString()),
-                        })
-                    },
-                    {Content }
-                }
+                Content = foo
             };
-
-
             /*
             new KeyValuePair<string, string>("name" , name),
             new KeyValuePair<string, string>("description" , description),
-            new KeyValuePair<string, string>("isprivate" , isPrivate.ToString()),
-    */
-            request.Headers.Add("Accept", "multipart/form-data");
+            new KeyValuePair<string, string>("isprivate" , isPrivate.ToString()),*/
+            request.Headers.Add("Accept", "application/json");
             request.Headers.Add("User-Agent", UserAgent);
             request.Headers.Add("Cookie", Cookies);
-            var response = await HttpClient.SendAsync(request, token);
+             var response = await HttpClient.SendAsync(request, token);
             Logger.LogInformation($"{url} returned {response.StatusCode}");
             if (!response.IsSuccessStatusCode)
                 return null;
@@ -168,7 +158,8 @@ namespace GamemasterChecker
             };
             request.Headers.Add("Accept", "application/x-www-form-urlencoded");
             request.Headers.Add("User-Agent", UserAgent);
-            request.Headers.Add("Cookie", Cookies);
+            if (Cookies != null)
+                request.Headers.Add("Cookie", Cookies);
             var response = await HttpClient.SendAsync(request, token);
             var responseString = await response.Content.ReadAsStringAsync(); //TODO find async variant?
             return JsonSerializer.Deserialize<TokenStrippedView>(responseString, JsonOptions);

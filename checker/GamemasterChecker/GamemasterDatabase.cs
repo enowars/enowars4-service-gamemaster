@@ -31,6 +31,7 @@ namespace GamemasterChecker
 #pragma warning disable CS8618
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
         public string Token { get; set; }
         public string Flag { get; set; }
 #pragma warning restore CS8618
@@ -50,17 +51,15 @@ namespace GamemasterChecker
             var mongo = new MongoClient(MongoConnection);
             var db = mongo.GetDatabase("GamemasterDatabase");
             Users = db.GetCollection<GamemasterUser>("Users");
-            var userNotificationLogBuilder = Builders<GamemasterUser>.IndexKeys;
-            var userIndexModel = new CreateIndexModel<GamemasterUser>(userNotificationLogBuilder
+            Users.Indexes.CreateOne(new CreateIndexModel<GamemasterUser>(Builders<GamemasterUser>.IndexKeys
                 .Ascending(gu => gu.RoundId)
-                .Ascending(gu => gu.TeamId)
-                .Ascending(gu => gu.Flag));
-            Users.Indexes.CreateOne(userIndexModel);
+                .Ascending(gu => gu.TeamId)));
+            Users.Indexes.CreateOne(new CreateIndexModel<GamemasterUser>(Builders<GamemasterUser>.IndexKeys
+                .Ascending(gu => gu.Flag)));
             Tokens = db.GetCollection<GamemasterToken>("Tokens");
             var tokenNotificationLogBuilder = Builders<GamemasterToken>.IndexKeys;
-            var tokenIndexModel = new CreateIndexModel<GamemasterToken>(tokenNotificationLogBuilder
-                .Ascending(gt => gt.Flag));
-            Tokens.Indexes.CreateOne(tokenIndexModel);
+            Tokens.Indexes.CreateOne(new CreateIndexModel<GamemasterToken>(Builders<GamemasterToken>.IndexKeys
+                .Ascending(gt => gt.Flag)));
         }
         public async Task AddTokenUUIDAsync(string flag, string UUID, CancellationToken token)
         {
@@ -72,7 +71,7 @@ namespace GamemasterChecker
             var cursor = await Tokens.FindAsync(t => t.Flag == flag);
             List<GamemasterToken> gtoken = await cursor.ToListAsync();
             if (gtoken.Count <= 0) return "";
-            return gtoken[0].Flag;
+            return gtoken[0].Token;
         }
 
         public async Task<List<GamemasterUser>> GetUsersAsync(string flag, CancellationToken token)
