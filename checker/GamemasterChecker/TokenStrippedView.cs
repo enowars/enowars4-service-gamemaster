@@ -1,5 +1,4 @@
-﻿using Gamemaster.Models.Database;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -16,14 +15,6 @@ namespace Gamemaster.Models.View
         public string Description { get; set; }
         public bool IsPrivate { get; set; }
         public string OwnerName { get; set; }
-        public TokenStrippedView(Token t)
-        {
-            UUID = t.UUID;
-            Name = t.Name;
-            Description = t.Description;
-            IsPrivate = t.IsPrivate;
-            OwnerName = t.Owner.Name;
-        }
     }
 #pragma warning restore CS8618
 }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Gamemaster.Models.View
 {
+#pragma warning disable CS8618
     public class ExtendedSessionView
     {
         public long Id { get; set; }
@@ -15,4 +16,5 @@ namespace Gamemaster.Models.View
         public string Name { get; set; }
         public string Notes { get; set; }
     }
+#pragma warning restore CS8618
 }

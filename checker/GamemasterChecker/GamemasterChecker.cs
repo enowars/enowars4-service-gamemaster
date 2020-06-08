@@ -206,7 +206,7 @@ namespace GamemasterChecker
             SessionView? session;
             try
             {
-                session = await masterClient.CreateSessionAsync("name", task.Flag, "password", token);
+                session = await masterClient.CreateSessionAsync("name", "No 🏳️‍🌈 here, go away...", "password", token);
             }
             catch (Exception)
             {
@@ -214,7 +214,9 @@ namespace GamemasterChecker
             }
             if (session == null || session.Id == 0)
                 return CheckerResult.Mumble;
-
+            var UUID = await masterClient.AddTokenAsync("name", task.Flag, true, null, token);
+            if (!isValid(UUID)) return CheckerResult.Mumble;
+            await Db.AddTokenUUIDAsync(task.Flag, UUID, token);
             return CheckerResult.Ok;
         }
         private async Task<CheckerResult> GetFlagFromSession(CheckerTaskMessage task, CancellationToken token)
@@ -253,7 +255,30 @@ namespace GamemasterChecker
         }
         private async Task<CheckerResult> GetFlagFromToken(CheckerTaskMessage task, CancellationToken token)
         {
+            string gtoken = await Db.GetTokenUUIDAsync(task.Flag, token);
+            if (gtoken == "") return CheckerResult.Mumble;
+            var smaster = await Db.GetUsersAsync(task.Flag, token);
+            if (smaster == null || smaster.Count != 1) return CheckerResult.Mumble;
+            var mclient = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, smaster[0], Logger);
+            TokenStrippedView retrievedToken;
+            try
+            {
+                retrievedToken = await mclient.CheckTokenAsync(gtoken, task.Flag, token);
+            }
+            catch (Exception)
+            {
+                return CheckerResult.Offline;
+            }
+            
+            if (retrievedToken.Description.Equals(task.Flag)) return CheckerResult.Ok;
+            else return CheckerResult.Mumble;
+            
             return CheckerResult.Ok;
+        }
+        private bool isValid (string UUID)
+        {
+            if (UUID.Length != 128) return false;
+            return true;
         }
     }
 }

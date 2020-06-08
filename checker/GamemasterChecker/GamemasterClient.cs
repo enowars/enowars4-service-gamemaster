@@ -1,10 +1,11 @@
 ﻿using Gamemaster.Models.View;
 using Microsoft.Extensions.Logging;
-using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Security.Principal;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -116,23 +117,35 @@ namespace GamemasterChecker
             var responseString = await response.Content.ReadAsStringAsync(); //TODO find async variant?
             return JsonSerializer.Deserialize<SessionView>(responseString, JsonOptions);
         }
-        public async Task<SessionView?> AddTokenAsync(string name, string description, bool isPrivate, byte[] ImageData, CancellationToken token)
+        public async Task<string?> AddTokenAsync(string name, string description, bool isPrivate, byte[] ImageData, CancellationToken token)
         {
             var url = $"{Scheme}://{Address}:{Port}/api/account/addtoken";
             var Content = new MultipartFormDataContent();
             var ImageContent = new ByteArrayContent(ImageData);
-            //ImageContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/jpeg");
+            ImageContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/jpeg");
             Content.Add(ImageContent);
             var request = new HttpRequestMessage(HttpMethod.Post, url)
             {
-                //Content
-                
-                /*{
-                    new KeyValuePair<string, string>("name" , name),
-                    new KeyValuePair<string, string>("description" , description),
-                    new KeyValuePair<string, string>("isprivate" , isPrivate.ToString()),
-                })*/
+                Content = new MultipartFormDataContent()
+                {
+                    {
+                        new FormUrlEncodedContent(new List<KeyValuePair<string, string>>()
+                        {
+                            new KeyValuePair<string, string>("name" , name),
+                            new KeyValuePair<string, string>("description" , description),
+                            new KeyValuePair<string, string>("isprivate" , isPrivate.ToString()),
+                        })
+                    },
+                    {Content }
+                }
             };
+
+
+            /*
+            new KeyValuePair<string, string>("name" , name),
+            new KeyValuePair<string, string>("description" , description),
+            new KeyValuePair<string, string>("isprivate" , isPrivate.ToString()),
+    */
             request.Headers.Add("Accept", "multipart/form-data");
             request.Headers.Add("User-Agent", UserAgent);
             request.Headers.Add("Cookie", Cookies);
@@ -141,7 +154,24 @@ namespace GamemasterChecker
             if (!response.IsSuccessStatusCode)
                 return null;
             var responseString = await response.Content.ReadAsStringAsync(); //TODO find async variant?
-            return JsonSerializer.Deserialize<SessionView>(responseString, JsonOptions);
+            return responseString.Replace("\"", "");
+        }
+        public async Task<TokenStrippedView> CheckTokenAsync (string UUID, string flag, CancellationToken token)
+        {
+            var url = $"{Scheme}://{Address}:{Port}/api/token/info";
+            var request = new HttpRequestMessage(HttpMethod.Post, url)
+            {
+                Content = new FormUrlEncodedContent(new List<KeyValuePair<string, string>>()
+                {
+                    new KeyValuePair<string, string>("UUID" , UUID),
+                })
+            };
+            request.Headers.Add("Accept", "application/x-www-form-urlencoded");
+            request.Headers.Add("User-Agent", UserAgent);
+            request.Headers.Add("Cookie", Cookies);
+            var response = await HttpClient.SendAsync(request, token);
+            var responseString = await response.Content.ReadAsStringAsync(); //TODO find async variant?
+            return JsonSerializer.Deserialize<TokenStrippedView>(responseString, JsonOptions);
         }
         public async Task<ExtendedSessionView> FetchSessionAsync(long sessionId, CancellationToken token)
         {

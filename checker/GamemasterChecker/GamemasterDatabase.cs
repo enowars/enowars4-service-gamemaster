@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
@@ -25,12 +26,22 @@ namespace GamemasterChecker
         public string Flag { get; set; }
 #pragma warning restore CS8618
     }
+    public class GamemasterToken
+    {
+#pragma warning disable CS8618
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Token { get; set; }
+        public string Flag { get; set; }
+#pragma warning restore CS8618
+    }
 
     public class GamemasterDatabase
     {
         public static string MongoDomain=> Environment.GetEnvironmentVariable("DATABASE_DOMAIN") ?? "localhost";
         public static string MongoConnection => "mongodb://" + MongoDomain + ":27017";
         private readonly IMongoCollection<GamemasterUser> Users;
+        private readonly IMongoCollection<GamemasterToken> Tokens;
         private readonly InsertOneOptions InsertOneOptions = new InsertOneOptions() { BypassDocumentValidation = false };
         private readonly InsertManyOptions InsertManyOptions = new InsertManyOptions() { IsOrdered = false };
 
@@ -39,12 +50,29 @@ namespace GamemasterChecker
             var mongo = new MongoClient(MongoConnection);
             var db = mongo.GetDatabase("GamemasterDatabase");
             Users = db.GetCollection<GamemasterUser>("Users");
-
-            var notificationLogBuilder = Builders<GamemasterUser>.IndexKeys;
-            var indexModel = new CreateIndexModel<GamemasterUser>(notificationLogBuilder
+            var userNotificationLogBuilder = Builders<GamemasterUser>.IndexKeys;
+            var userIndexModel = new CreateIndexModel<GamemasterUser>(userNotificationLogBuilder
                 .Ascending(gu => gu.RoundId)
-                .Ascending(gu => gu.TeamId));
-            Users.Indexes.CreateOne(indexModel);
+                .Ascending(gu => gu.TeamId)
+                .Ascending(gu => gu.Flag));
+            Users.Indexes.CreateOne(userIndexModel);
+            Tokens = db.GetCollection<GamemasterToken>("Tokens");
+            var tokenNotificationLogBuilder = Builders<GamemasterToken>.IndexKeys;
+            var tokenIndexModel = new CreateIndexModel<GamemasterToken>(tokenNotificationLogBuilder
+                .Ascending(gt => gt.Flag));
+            Tokens.Indexes.CreateOne(tokenIndexModel);
+        }
+        public async Task AddTokenUUIDAsync(string flag, string UUID, CancellationToken token)
+        {
+            var gtoken = new GamemasterToken() { Flag = flag, Token = UUID };
+            await Tokens.InsertOneAsync(gtoken, InsertOneOptions, token);
+        }
+        public async Task<string> GetTokenUUIDAsync(string flag, CancellationToken token)
+        {
+            var cursor = await Tokens.FindAsync(t => t.Flag == flag);
+            List<GamemasterToken> gtoken = await cursor.ToListAsync();
+            if (gtoken.Count <= 0) return "";
+            return gtoken[0].Flag;
         }
 
         public async Task<List<GamemasterUser>> GetUsersAsync(string flag, CancellationToken token)
