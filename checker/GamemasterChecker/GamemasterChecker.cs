@@ -215,7 +215,9 @@ namespace GamemasterChecker
             }
             if (session == null || session.Id == 0)
                 return CheckerResult.Mumble;
-            var UUID = await masterClient.AddTokenAsync("name", task.Flag, true, null, token);
+            byte[] imgdata = new byte[64];
+            Utils.Random.NextBytes(imgdata);
+            var UUID = await masterClient.AddTokenAsync("name", task.Flag, true, imgdata, token);
             if (!isValid(UUID)) return CheckerResult.Mumble;
             await Db.AddTokenUUIDAsync(task.Flag, UUID, token);
             return CheckerResult.Ok;
