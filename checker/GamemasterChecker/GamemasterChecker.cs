@@ -4,6 +4,7 @@ using EnoCore.Models.Json;
 using Gamemaster.Models.View;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
+using MongoDB.Driver.Core.Connections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -255,15 +256,26 @@ namespace GamemasterChecker
         }
         private async Task<CheckerResult> GetFlagFromToken(CheckerTaskMessage task, CancellationToken token)
         {
+            Logger.LogInformation("Fetching Token From Db");
             string gtoken = await Db.GetTokenUUIDAsync(task.Flag, token);
-            if (gtoken == "") return CheckerResult.Mumble;
+            if (gtoken == "")
+            {
+                Logger.LogInformation("No Token Found in Db");
+                return CheckerResult.Mumble;
+            }
             var smaster = await Db.GetUsersAsync(task.Flag, token);
-            if (smaster == null || smaster.Count != 1) return CheckerResult.Mumble;
+            if (smaster == null || smaster.Count != 1)
+            {
+                Logger.LogInformation($"Master User for the Token not found in Db, or multiple found for the flag: Count:{((smaster!=null) ? smaster.Count:-1)}");
+                return CheckerResult.Mumble;
+            }
             var mclient = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, smaster[0], Logger);
             TokenStrippedView retrievedToken;
             try
             {
-                retrievedToken = await mclient.CheckTokenAsync(gtoken, task.Flag, token);
+                Logger.LogInformation("trying to retrieve Token");
+                retrievedToken = await mclient.CheckTokenAsync(gtoken, token);
+                Logger.LogInformation($"Retrieved Token: {retrievedToken}");
             }
             catch (Exception)
             {

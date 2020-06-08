@@ -156,7 +156,7 @@ namespace GamemasterChecker
             var responseString = await response.Content.ReadAsStringAsync(); //TODO find async variant?
             return responseString.Replace("\"", "");
         }
-        public async Task<TokenStrippedView> CheckTokenAsync (string UUID, string flag, CancellationToken token)
+        public async Task<TokenStrippedView> CheckTokenAsync (string UUID, CancellationToken token)
         {
             var url = $"{Scheme}://{Address}:{Port}/api/token/info";
             var request = new HttpRequestMessage(HttpMethod.Post, url)
