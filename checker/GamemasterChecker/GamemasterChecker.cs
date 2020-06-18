@@ -65,7 +65,7 @@ namespace GamemasterChecker
         {
             return new CheckerResultMessage()
             {
-                Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Ok).ToUpper() ?? "",
+                Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Ok)?.ToUpper() ?? "INTERNAL_ERROR",
                 Message = "Finished Successful"
             };
         }
@@ -74,7 +74,7 @@ namespace GamemasterChecker
         {
             return new CheckerResultMessage()
             {
-                Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Ok).ToUpper() ?? "",
+                Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Ok)?.ToUpper() ?? "INTERNAL_ERROR",
                 Message = "Finished Successful"
             };
         }
@@ -83,7 +83,7 @@ namespace GamemasterChecker
         {
             return new CheckerResultMessage()
             {
-                Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Ok).ToUpper() ?? "",
+                Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Ok)?.ToUpper() ?? "INTERNAL_ERROR",
                 Message = "Finished Successful"
             };
         }
@@ -123,19 +123,18 @@ namespace GamemasterChecker
                 Logger.LogError(e.ToFancyString());
                 return new CheckerResultMessage()
                 {
-                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline).ToUpper() ?? "",
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline)?.ToUpper() ?? "INTERNAL_ERROR",
                     Message = $"Register offline"
                 };
             }
             if (!result)
                 return new CheckerResultMessage()
                 {
-                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble).ToUpper() ?? "",
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble)?.ToUpper() ?? "INTERNAL_ERROR",
                     Message = $"Register Failed - returned invalid Statuscode or no cookies"
                 };
-
-        // Create a new session
-        SessionView? session;
+            // Create a new session
+            SessionView? session;
             try
             {
                 session = await masterClient.CreateSessionAsync("name", task.Flag!, "password", token);
@@ -145,14 +144,14 @@ namespace GamemasterChecker
                 Logger.LogError(e.ToFancyString());
                 return new CheckerResultMessage()
                 {
-                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline).ToUpper() ?? "",
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline)?.ToUpper() ?? "INTERNAL_ERROR",
                     Message = $"Create Session offline"
                 };
             }
             if (session == null || session.Id == 0)
                 return new CheckerResultMessage()
                 {
-                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble).ToUpper() ?? "",
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble)?.ToUpper() ?? "INTERNAL_ERROR",
                     Message = $"CreateSession did not finish correctly."
                 };
 
@@ -178,7 +177,7 @@ namespace GamemasterChecker
                     if (!await registerTask)
                         return new CheckerResultMessage()
                         {
-                            Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble).ToUpper() ?? "",
+                            Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble)?.ToUpper() ?? "INTERNAL_ERROR",
                             Message = $"Register Failed - returned invalid Statuscode or no cookies"
                         };
                 }
@@ -188,7 +187,7 @@ namespace GamemasterChecker
                 Logger.LogError(e.ToFancyString());
                 return new CheckerResultMessage()
                 {
-                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline).ToUpper() ?? "",
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline)?.ToUpper() ?? "INTERNAL_ERROR",
                     Message = $"Register offline"
                 };
             }
@@ -208,7 +207,7 @@ namespace GamemasterChecker
                     if (!await addSessionTask)
                         return new CheckerResultMessage()
                         {
-                            Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble).ToUpper() ?? "",
+                            Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble)?.ToUpper() ?? "INTERNAL_ERROR",
                             Message = $"Adding users to session Failed"
                         };
                 }
@@ -218,7 +217,7 @@ namespace GamemasterChecker
                 Logger.LogError(e.ToFancyString());
                 return new CheckerResultMessage()
                 {
-                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline).ToUpper() ?? "",
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline)?.ToUpper() ?? "INTERNAL_ERROR",
                     Message = $"Adding users to session offline"
                 };
             }
@@ -234,7 +233,7 @@ namespace GamemasterChecker
             Logger.LogInformation("Users added to Db");
             return new CheckerResultMessage()
             {
-                Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Ok).ToUpper() ?? "",
+                Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Ok)?.ToUpper() ?? "INTERNAL_ERROR",
                 Message = $"Checker returned ok"
             };
         }
@@ -253,14 +252,14 @@ namespace GamemasterChecker
                 Logger.LogError(e.ToFancyString());
                 return new CheckerResultMessage()
                 {
-                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline).ToUpper() ?? "",
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline)?.ToUpper() ?? "INTERNAL_ERROR",
                     Message = $"Register offline"
                 };
             }
             if (!result)
                 return new CheckerResultMessage()
                 {
-                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble).ToUpper() ?? "",
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble)?.ToUpper() ?? "INTERNAL_ERROR",
                     Message = $"Register Failed - returned invalid Statuscode or no cookies"
                 };
 
@@ -275,14 +274,14 @@ namespace GamemasterChecker
                 Logger.LogError(e.ToFancyString());
                 return new CheckerResultMessage()
                 {
-                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline).ToUpper() ?? "",
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline)?.ToUpper() ?? "INTERNAL_ERROR",
                     Message = $"Create Session offline"
                 };
             }
             if (session == null || session.Id == 0)
                 return new CheckerResultMessage()
                 {
-                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline).ToUpper() ?? "",
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline)?.ToUpper() ?? "INTERNAL_ERROR",
                     Message = $"CreateSession did not finish correctly."
                 };
             byte[] imgdata = new byte[64];
@@ -291,14 +290,14 @@ namespace GamemasterChecker
             if (UUID==null  || !isValid(UUID))
                 return new CheckerResultMessage()
                 {
-                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble).ToUpper() ?? "",
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble)?.ToUpper() ?? "INTERNAL_ERROR",
                     Message = $"Addtoken return invalid."
                 };
             await Db.AddTokenUUIDAsync(task.Flag!, UUID, token);
             await Db.AddUserAsync(smaster, token);
             return new CheckerResultMessage()
             {
-                Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Ok).ToUpper() ?? "",
+                Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Ok)?.ToUpper() ?? "INTERNAL_ERROR",
                 Message = $"Checker returned ok"
             };
         }
@@ -310,7 +309,7 @@ namespace GamemasterChecker
             if (users.Count <= 0)
                 return new CheckerResultMessage()
                 {
-                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble).ToUpper() ?? "",
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble)?.ToUpper() ?? "INTERNAL_ERROR",
                     Message = $"Could not retrieve data"
                 };
             using var client = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, users[0], Logger);
@@ -319,7 +318,7 @@ namespace GamemasterChecker
                 if (!(await client.LoginAsync(token))) 
                     return new CheckerResultMessage()
                     {
-                        Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble).ToUpper() ?? "",
+                        Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble)?.ToUpper() ?? "INTERNAL_ERROR",
                         Message = $"Login failed"
                     };
             }
@@ -327,7 +326,7 @@ namespace GamemasterChecker
             {
                 return new CheckerResultMessage()
                 {
-                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline).ToUpper() ?? "",
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline)?.ToUpper() ?? "INTERNAL_ERROR",
                     Message = $"Login offline"
                 };
             }
@@ -340,7 +339,7 @@ namespace GamemasterChecker
             {
                 return new CheckerResultMessage()
                 {
-                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline).ToUpper() ?? "",
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline)?.ToUpper() ?? "INTERNAL_ERROR",
                     Message = $"GetSession offline"
                 };
             }
@@ -351,14 +350,14 @@ namespace GamemasterChecker
                 Logger.LogInformation("Flags are Equal");
                 return new CheckerResultMessage()
                 {
-                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Ok).ToUpper() ?? "",
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Ok)?.ToUpper() ?? "INTERNAL_ERROR",
                     Message = $"Checker returned ok"
                 };
             }
             Logger.LogInformation("Flags are not Equal");
             return new CheckerResultMessage()
             {
-                Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble).ToUpper() ?? "",
+                Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble)?.ToUpper() ?? "INTERNAL_ERROR",
                 Message = $"Session data inconsistent"
             };
         }
@@ -371,7 +370,7 @@ namespace GamemasterChecker
                 Logger.LogInformation("No Token Found in Db");
                 return new CheckerResultMessage()
                 {
-                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble).ToUpper() ?? "",
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble)?.ToUpper() ?? "INTERNAL_ERROR",
                     Message = $"Putflag likely failed"
                 };
             }
@@ -381,7 +380,7 @@ namespace GamemasterChecker
                 Logger.LogInformation($"Master User for the Token not found in Db, or multiple found for the flag: Count:{((smaster!=null) ? smaster.Count:-1)}");
                 return new CheckerResultMessage()
                 {
-                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble).ToUpper() ?? "",
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble)?.ToUpper() ?? "INTERNAL_ERROR",
                     Message = $"Putflag likely failed"
                 };
             }
@@ -398,7 +397,7 @@ namespace GamemasterChecker
                 Logger.LogError(e.ToFancyString());
                 return new CheckerResultMessage()
                 {
-                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline).ToUpper() ?? "",
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline)?.ToUpper() ?? "INTERNAL_ERROR",
                     Message = $"Token Info failed"
                 };
             }
@@ -406,13 +405,13 @@ namespace GamemasterChecker
             if (retrievedToken.Description.Equals(task.Flag))
                 return new CheckerResultMessage()
                 {
-                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Ok).ToUpper() ?? "",
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Ok)?.ToUpper() ?? "INTERNAL_ERROR",
                     Message = $"Checker returned ok"
                 };
             else
                 return new CheckerResultMessage()
                 {
-                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble).ToUpper() ?? "",
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble)?.ToUpper() ?? "INTERNAL_ERROR",
                     Message = $"Token data inconsistent"
                 };
         }
