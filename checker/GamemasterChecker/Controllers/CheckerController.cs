@@ -39,7 +39,7 @@ namespace GamemasterChecker.Controllers
         {
             CheckerResultMessage result = new CheckerResultMessage()
             {
-                Result = Enum.GetName (typeof (CheckerResult), CheckerResult.InternalError)??"",
+                Result = CheckerResult.INTERNAL_ERROR,
                 Message = "No message set by checker code"
             };
             var taskMessage = JsonSerializer.Deserialize<CheckerTaskMessage>(content, JsonOptions);

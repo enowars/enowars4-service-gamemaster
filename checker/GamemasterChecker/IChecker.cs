@@ -19,11 +19,4 @@ namespace GamemasterChecker
         Task<CheckerResultMessage> HandleGetNoise(CheckerTaskMessage task, CancellationToken Token);
         Task<CheckerResultMessage> HandleHavok(CheckerTaskMessage task, CancellationToken Token);
     }
-    public class CheckerResultMessage
-    {
-        [JsonPropertyName("result")]
-        public string Result { get; set; } = default!;
-        [JsonPropertyName("Message")]
-        public string Message { get; set; } = default!;
-    }
 }
