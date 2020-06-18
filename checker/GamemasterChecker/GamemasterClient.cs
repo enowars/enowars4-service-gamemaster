@@ -82,7 +82,7 @@ namespace GamemasterChecker
             request.Headers.Add("Accept", "application/x-www-form-urlencoded");
             request.Headers.Add("User-Agent", UserAgent);
             var response = await HttpClient.SendAsync(request, token);
-            Logger.LogInformation($"{url} returned {response.StatusCode}");
+            Logger.LogInformation($"{url} returned {response.StatusCode} while trying to login with Username {this.User.Username} and Password {this.User.Password}");
             if (!response.IsSuccessStatusCode)
                 return false;
 
