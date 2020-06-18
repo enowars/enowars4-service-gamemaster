@@ -37,7 +37,11 @@ namespace GamemasterChecker.Controllers
         [HttpPost]
         public async Task<IActionResult> Flag([FromBody] string content)
         {
-            var result = CheckerResult.InternalError;
+            CheckerResultMessage result = new CheckerResultMessage()
+            {
+                Result = Enum.GetName (typeof (CheckerResult), CheckerResult.InternalError)??"",
+                Message = "No message set by checker code"
+            };
             var taskMessage = JsonSerializer.Deserialize<CheckerTaskMessage>(content, JsonOptions);
             using var scope = Logger.BeginEnoScope(taskMessage);
             Logger.LogDebug($"{nameof(CheckerController)} start handling task");

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,10 +13,17 @@ namespace GamemasterChecker
 {
     public interface IChecker
     {
-        Task<CheckerResult> HandlePutFlag(CheckerTaskMessage task, CancellationToken Token);
-        Task<CheckerResult> HandleGetFlag(CheckerTaskMessage task, CancellationToken Token);
-        Task<CheckerResult> HandlePutNoise(CheckerTaskMessage task, CancellationToken Token);
-        Task<CheckerResult> HandleGetNoise(CheckerTaskMessage task, CancellationToken Token);
-        Task<CheckerResult> HandleHavok(CheckerTaskMessage task, CancellationToken Token);
+        Task<CheckerResultMessage> HandlePutFlag(CheckerTaskMessage task, CancellationToken Token);
+        Task<CheckerResultMessage> HandleGetFlag(CheckerTaskMessage task, CancellationToken Token);
+        Task<CheckerResultMessage> HandlePutNoise(CheckerTaskMessage task, CancellationToken Token);
+        Task<CheckerResultMessage> HandleGetNoise(CheckerTaskMessage task, CancellationToken Token);
+        Task<CheckerResultMessage> HandleHavok(CheckerTaskMessage task, CancellationToken Token);
+    }
+    public class CheckerResultMessage
+    {
+        [JsonPropertyName("result")]
+        public string Result { get; set; } = default!;
+        [JsonPropertyName("Message")]
+        public string Message { get; set; } = default!;
     }
 }

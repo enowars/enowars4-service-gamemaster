@@ -34,7 +34,7 @@ namespace GamemasterChecker
             Db = db;
         }
 
-        public async Task<CheckerResult> HandlePutFlag(CheckerTaskMessage task, CancellationToken token)
+        public async Task<CheckerResultMessage> HandlePutFlag(CheckerTaskMessage task, CancellationToken token)
         {
             if (task.Flag == null)
                 throw new InvalidOperationException("Flag must not be null in putflag");
@@ -47,7 +47,7 @@ namespace GamemasterChecker
                 return await PutFlagToToken(task, token);
             }
         }
-        public async Task<CheckerResult> HandleGetFlag(CheckerTaskMessage task, CancellationToken token)
+        public async Task<CheckerResultMessage> HandleGetFlag(CheckerTaskMessage task, CancellationToken token)
         {
             if (task.Flag == null)
                 throw new InvalidOperationException("Flag must not be null in getflag");
@@ -61,19 +61,31 @@ namespace GamemasterChecker
             }
         }
 
-        public async Task<CheckerResult> HandleGetNoise(CheckerTaskMessage task, CancellationToken token)
+        public async Task<CheckerResultMessage> HandleGetNoise(CheckerTaskMessage task, CancellationToken token)
         {
-            return CheckerResult.Ok;
+            return new CheckerResultMessage()
+            {
+                Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Ok) ?? "",
+                Message = "Finished Successful"
+            };
         }
 
-        public async Task<CheckerResult> HandlePutNoise(CheckerTaskMessage task, CancellationToken token)
+        public async Task<CheckerResultMessage> HandlePutNoise(CheckerTaskMessage task, CancellationToken token)
         {
-            return CheckerResult.Ok;
+            return new CheckerResultMessage()
+            {
+                Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Ok) ?? "",
+                Message = "Finished Successful"
+            };
         }
 
-        public async Task<CheckerResult> HandleHavok(CheckerTaskMessage task, CancellationToken token)
+        public async Task<CheckerResultMessage> HandleHavok(CheckerTaskMessage task, CancellationToken token)
         {
-            return CheckerResult.Ok;
+            return new CheckerResultMessage()
+            {
+                Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Ok) ?? "",
+                Message = "Finished Successful"
+            };
         }
 
         private GamemasterUser CreateUser(long roundId, long teamId, string flag)
@@ -89,7 +101,7 @@ namespace GamemasterChecker
             };
             return FakeUsers.getFakeUser(u);
         }
-        private async Task<CheckerResult> PutFlagToSession(CheckerTaskMessage task, CancellationToken token)
+        private async Task<CheckerResultMessage> PutFlagToSession(CheckerTaskMessage task, CancellationToken token)
         {
             // Get random user subset from last round
             var users = new List<GamemasterUser>();
@@ -109,13 +121,21 @@ namespace GamemasterChecker
             catch (Exception e)
             {
                 Logger.LogError(e.ToFancyString());
-                return CheckerResult.Offline;
+                return new CheckerResultMessage()
+                {
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline) ?? "",
+                    Message = $"Register offline"
+                };
             }
             if (!result)
-                return CheckerResult.Mumble;
+                return new CheckerResultMessage()
+                {
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble) ?? "",
+                    Message = $"Register Failed - returned invalid Statuscode or no cookies"
+                };
 
-            // Create a new session
-            SessionView? session;
+        // Create a new session
+        SessionView? session;
             try
             {
                 session = await masterClient.CreateSessionAsync("name", task.Flag!, "password", token);
@@ -123,13 +143,21 @@ namespace GamemasterChecker
             catch (Exception e)
             {
                 Logger.LogError(e.ToFancyString());
-                return CheckerResult.Offline;
+                return new CheckerResultMessage()
+                {
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline) ?? "",
+                    Message = $"Create Session offline"
+                };
             }
             if (session == null || session.Id == 0)
-                return CheckerResult.Mumble;
+                return new CheckerResultMessage()
+                {
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline) ?? "",
+                    Message = $"CreateSession did not finish correctly."
+                };
 
-            // Create new users
-            var usersToCreate = Utils.Random.Next(4, 8);
+        // Create new users
+        var usersToCreate = Utils.Random.Next(4, 8);
             var newUsers = usersToCreate - users.Count;
             Logger.LogInformation($"Target User Count: {usersToCreate}");
             var registerTasks = new List<Task<bool>>();
@@ -148,13 +176,21 @@ namespace GamemasterChecker
                 foreach (var registerTask in registerTasks)
                 {
                     if (!await registerTask)
-                        return CheckerResult.Mumble;
+                        return new CheckerResultMessage()
+                        {
+                            Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble) ?? "",
+                            Message = $"Register Failed - returned invalid Statuscode or no cookies"
+                        };
                 }
             }
             catch (Exception e)
             {
                 Logger.LogError(e.ToFancyString());
-                return CheckerResult.Offline;
+                return new CheckerResultMessage()
+                {
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline) ?? "",
+                    Message = $"Register offline"
+                };
             }
 
             // Have master add all users to session
@@ -170,13 +206,21 @@ namespace GamemasterChecker
                 foreach (var addSessionTask in addSessionTasks)
                 {
                     if (!await addSessionTask)
-                        return CheckerResult.Mumble;
+                        return new CheckerResultMessage()
+                        {
+                            Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble) ?? "",
+                            Message = $"Adding users to session Failed"
+                        };
                 }
             }
             catch (Exception e)
             {
                 Logger.LogError(e.ToFancyString());
-                return CheckerResult.Offline;
+                return new CheckerResultMessage()
+                {
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline) ?? "",
+                    Message = $"Adding users to session offline"
+                };
             }
             // Save all users to db
             Logger.LogInformation($"Saving {users.Count} users to db");
@@ -188,9 +232,13 @@ namespace GamemasterChecker
             }
             await Db.InsertUsersAsync(users, token);
             Logger.LogInformation("Users added to Db");
-            return CheckerResult.Ok;
+            return new CheckerResultMessage()
+            {
+                Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Ok) ?? "",
+                Message = $"Checker returned ok"
+            };
         }
-        private async Task<CheckerResult> PutFlagToToken(CheckerTaskMessage task, CancellationToken token)
+        private async Task<CheckerResultMessage> PutFlagToToken(CheckerTaskMessage task, CancellationToken token)
         {
             var smaster = CreateUser(task.RoundId, task.TeamId, task.Flag!);
             //smaster.Username = "Herbert" + task.Flag + Environment.TickCount.ToString();
@@ -203,10 +251,18 @@ namespace GamemasterChecker
             catch (Exception e)
             {
                 Logger.LogError(e.ToFancyString());
-                return CheckerResult.Offline;
+                return new CheckerResultMessage()
+                {
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline) ?? "",
+                    Message = $"Register offline"
+                };
             }
             if (!result)
-                return CheckerResult.Mumble;
+                return new CheckerResultMessage()
+                {
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble) ?? "",
+                    Message = $"Register Failed - returned invalid Statuscode or no cookies"
+                };
 
             // Create a new session
             SessionView? session;
@@ -217,32 +273,63 @@ namespace GamemasterChecker
             catch (Exception e)
             {
                 Logger.LogError(e.ToFancyString());
-                return CheckerResult.Offline;
+                return new CheckerResultMessage()
+                {
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline) ?? "",
+                    Message = $"Create Session offline"
+                };
             }
             if (session == null || session.Id == 0)
-                return CheckerResult.Mumble;
+                return new CheckerResultMessage()
+                {
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline) ?? "",
+                    Message = $"CreateSession did not finish correctly."
+                };
             byte[] imgdata = new byte[64];
             Utils.Random.NextBytes(imgdata);
             var UUID = await masterClient.AddTokenAsync("name", task.Flag!, true, imgdata, token);
-            if (UUID==null  || !isValid(UUID)) return CheckerResult.Mumble;
+            if (UUID==null  || !isValid(UUID))
+                return new CheckerResultMessage()
+                {
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble) ?? "",
+                    Message = $"Addtoken return invalid."
+                };
             await Db.AddTokenUUIDAsync(task.Flag!, UUID, token);
             await Db.AddUserAsync(smaster, token);
-            return CheckerResult.Ok;
+            return new CheckerResultMessage()
+            {
+                Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Ok) ?? "",
+                Message = $"Checker returned ok"
+            };
         }
-        private async Task<CheckerResult> GetFlagFromSession(CheckerTaskMessage task, CancellationToken token)
+        private async Task<CheckerResultMessage> GetFlagFromSession(CheckerTaskMessage task, CancellationToken token)
         {
             Logger.LogInformation($"Fetching Users with relrID{task.RelatedRoundId}, tIdis:{task.TeamId}");
             var users = await Db.GetUsersAsync(task.Flag, token);
             Logger.LogInformation($"found {users.Count}");                       //################################## Mumble?
-            if (users.Count <= 0) return CheckerResult.Mumble;
+            if (users.Count <= 0)
+                return new CheckerResultMessage()
+                {
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble) ?? "",
+                    Message = $"Could not retrieve data"
+                };
             using var client = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, users[0], Logger);
             try
             {
-                if (!(await client.LoginAsync(token))) return CheckerResult.Mumble;
+                if (!(await client.LoginAsync(token))) 
+                    return new CheckerResultMessage()
+                    {
+                        Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble) ?? "",
+                        Message = $"Login failed"
+                    };
             }
             catch (Exception)
             {
-                return CheckerResult.Offline;
+                return new CheckerResultMessage()
+                {
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline) ?? "",
+                    Message = $"Login offline"
+                };
             }
             ExtendedSessionView session;
             try
@@ -251,32 +338,52 @@ namespace GamemasterChecker
             }
             catch (Exception)
             {
-                return CheckerResult.Offline;
+                return new CheckerResultMessage()
+                {
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline) ?? "",
+                    Message = $"GetSession offline"
+                };
             }
             Logger.LogInformation($"Retrieved Flag is {session.Notes}");
             Logger.LogInformation($"Requested Flag is {task.Flag}");
             if (session.Notes.Equals(task.Flag))
             {
                 Logger.LogInformation("Flags are Equal");
-                return CheckerResult.Ok;
+                return new CheckerResultMessage()
+                {
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Ok) ?? "",
+                    Message = $"Checker returned ok"
+                };
             }
             Logger.LogInformation("Flags are not Equal");
-            return CheckerResult.Mumble;
+            return new CheckerResultMessage()
+            {
+                Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble) ?? "",
+                Message = $"Session data inconsistent"
+            };
         }
-        private async Task<CheckerResult> GetFlagFromToken(CheckerTaskMessage task, CancellationToken token)
+        private async Task<CheckerResultMessage> GetFlagFromToken(CheckerTaskMessage task, CancellationToken token)
         {
             Logger.LogInformation("Fetching Token From Db");
             string gtoken = await Db.GetTokenUUIDAsync(task.Flag!, token);
             if (gtoken == "")
             {
                 Logger.LogInformation("No Token Found in Db");
-                return CheckerResult.Mumble;
+                return new CheckerResultMessage()
+                {
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble) ?? "",
+                    Message = $"Putflag likely failed"
+                };
             }
             var smaster = await Db.GetUsersAsync(task.Flag!, token);
             if (smaster == null || smaster.Count != 1)
             {
                 Logger.LogInformation($"Master User for the Token not found in Db, or multiple found for the flag: Count:{((smaster!=null) ? smaster.Count:-1)}");
-                return CheckerResult.Mumble;
+                return new CheckerResultMessage()
+                {
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble) ?? "",
+                    Message = $"Putflag likely failed"
+                };
             }
             var mclient = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, smaster[0], Logger);
             TokenStrippedView retrievedToken;
@@ -289,13 +396,25 @@ namespace GamemasterChecker
             catch (Exception e)
             {
                 Logger.LogError(e.ToFancyString());
-                return CheckerResult.Offline;
+                return new CheckerResultMessage()
+                {
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Offline) ?? "",
+                    Message = $"Token Info failed"
+                };
             }
             
-            if (retrievedToken.Description.Equals(task.Flag)) return CheckerResult.Ok;
-            else return CheckerResult.Mumble;
-            
-            return CheckerResult.Ok;
+            if (retrievedToken.Description.Equals(task.Flag))
+                return new CheckerResultMessage()
+                {
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Ok) ?? "",
+                    Message = $"Checker returned ok"
+                };
+            else
+                return new CheckerResultMessage()
+                {
+                    Result = Enum.GetName(typeof(CheckerResult), CheckerResult.Mumble) ?? "",
+                    Message = $"Token data inconsistent"
+                };
         }
         private bool isValid (string UUID)
         {
