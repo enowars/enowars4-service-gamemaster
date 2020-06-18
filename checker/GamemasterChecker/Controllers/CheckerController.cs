@@ -52,7 +52,7 @@ namespace GamemasterChecker.Controllers
                     "havoc" => await Checker.HandleHavok(taskMessage, HttpContext.RequestAborted),
                     _ => throw new InvalidOperationException($"Invalid method {taskMessage.Method}"),
                 };
-                Logger.LogInformation($"Checker succeeded");
+                Logger.LogInformation($"Checker succeeded, returning {JsonSerializer.Serialize(result, JsonOptions)}");
                 return Ok(JsonSerializer.Serialize(result, JsonOptions));
             }
             catch (Exception e)
