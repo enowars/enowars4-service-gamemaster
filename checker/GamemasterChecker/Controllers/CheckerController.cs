@@ -31,7 +31,7 @@ namespace GamemasterChecker.Controllers
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
-            JsonOptions.Converters.Add(new CheckerResultMessageJsonConverter());
+            //JsonOptions.Converters.Add(new CheckerResultMessageJsonConverter());
         }
 
         [HttpPost]
