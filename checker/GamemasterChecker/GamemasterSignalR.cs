@@ -46,7 +46,7 @@ namespace GamemasterChecker
                 Logger.LogInformation($"ChatMessage Received: {message}");
                 if (message.Content == "blabla")
                 {
-                    source?.SetResult(true);
+                    Task.Run(() => source?.SetResult(true));
                     reg.Dispose();
                 }
             });
@@ -71,7 +71,7 @@ namespace GamemasterChecker
         public async Task Connect()
         {
             await connection.StartAsync(Token);
-            Logger.LogInformation($"StartAsync succeeded: {connection.ConnectionId}");
+            Logger.LogInformation($"StartAsync succeeded: {connection.ConnectionId} {connection.State}");
         }
 
         public async Task SendMessage(string msg, CancellationToken token)
@@ -93,7 +93,7 @@ namespace GamemasterChecker
             }
             catch (Exception e)
             {
-                Logger.LogInformation("cancelrequested=" + token.IsCancellationRequested + " " + e.InnerException);
+                Logger.LogInformation("cancelrequested=" + token.IsCancellationRequested + " " + connection.State);
                 Logger.LogError(e.ToFancyString());
             }
         }
