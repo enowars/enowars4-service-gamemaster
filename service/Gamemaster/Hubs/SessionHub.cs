@@ -36,7 +36,7 @@ namespace Gamemaster.Hubs
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            Logger.LogInformation($"OnDisconnectedAsync NameIdentifier={Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value}, ConnectionId={Context.ConnectionId}");
+            Logger.LogInformation($"OnDisconnectedAsync NameIdentifier={Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value}, ConnectionId={Context.ConnectionId}, exception={exception}");
             var sceneId = ConIdtoSessionId[Context.ConnectionId];
             Scenes.TryGetValue(sceneId, out var scene);
             if (scene != null)

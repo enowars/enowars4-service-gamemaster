@@ -94,7 +94,7 @@ namespace GamemasterChecker
             }
             catch (Exception e)
             {
-                Logger.LogInformation("cancelrequested=" + token.IsCancellationRequested + " " + connection.State);
+                Logger.LogInformation("cancelrequested=" + token.IsCancellationRequested + " " + connection.State + " " + connection.ConnectionId);
                 Logger.LogError(e.ToFancyString());
             }
         }
