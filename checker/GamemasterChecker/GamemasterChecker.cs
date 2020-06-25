@@ -436,19 +436,17 @@ namespace GamemasterChecker
             var tl1 = client1.RegisterAsync(token);
             var tl2 = client2.RegisterAsync(token);
             var tl3 = client3.RegisterAsync(token);
-            await tl1;
-            await tl2;
-            await tl3;
+            await tl1; await tl2; await tl3;
             var s = await client3.CreateSessionAsync(GetSessionName(), "n", "password", token);
-            client3.AddUserToSessionAsync(s.Id, user2.Username, token);
-            client3.AddUserToSessionAsync(s.Id, user1.Username, token);
+            var ta1 = client3.AddUserToSessionAsync(s.Id, user2.Username, token);
+            var ta2 = client3.AddUserToSessionAsync(s.Id, user1.Username, token);
+            await ta1; await ta2;
             var tcs = new TaskCompletionSource<bool>();
             GamemasterSignalR src1 = new GamemasterSignalR(task.Address, user1, Logger, null, token);
             GamemasterSignalR src2 = new GamemasterSignalR(task.Address, user2, Logger, tcs, token);
             var t1 = src1.Connect();
             var t2 = src2.Connect();
-            await t1;
-            await t2;
+            await t1; await t2;
             await src1.SendMessage("blabla", token);
             if (await tcs.Task)
                 return new CheckerResultMessage()
