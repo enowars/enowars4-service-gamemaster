@@ -67,19 +67,13 @@ namespace GamemasterChecker
             await connection.StopAsync();
             Logger.LogInformation($"connection stopped:{connection.ConnectionId}");
         }
+
         public async Task Connect()
         {
-            try
-            {
-                await connection.StartAsync();
-                Logger.LogInformation($"Connection Started:{connection.ConnectionId}");
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(e.ToFancyString());
-            }
-            
+            await connection.StartAsync(Token);
+            Logger.LogInformation($"StartAsync succeeded: {connection.ConnectionId}");
         }
+
         public async Task SendMessage(string msg, CancellationToken token)
         {
             try
