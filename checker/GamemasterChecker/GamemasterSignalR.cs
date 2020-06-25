@@ -80,7 +80,7 @@ namespace GamemasterChecker
         {
             try
             {
-                await connection.InvokeAsync("Chat", sid, cancellationToken: token);
+                await connection.InvokeAsync("Join", sid, cancellationToken: token);
             }
             catch (Exception e)
             {
