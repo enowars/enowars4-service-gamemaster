@@ -90,11 +90,13 @@ namespace Gamemaster.Hubs
                 await Groups.AddToGroupAsync(Context.ConnectionId, sid.ToString());
                 var scene = Scenes.GetOrAdd(sid, new Scene());
                 ConIdtoSessionId.TryAdd(Context.ConnectionId, sid);
+                SceneView sceneView;
                 lock (scene)
                 {
                     scene.AddUnit("unit" + Context.ConnectionId, new Unit());
+                    sceneView = new SceneView(scene);
                 }
-                await Clients.Group(sid.ToString()).SendAsync("Scene", scene, CancellationToken.None);
+                await Clients.Group(sid.ToString()).SendAsync("Scene", sceneView, CancellationToken.None);
                 Logger.LogInformation($"{Context.ConnectionId} join successfull");
             }
             catch(Exception e)
