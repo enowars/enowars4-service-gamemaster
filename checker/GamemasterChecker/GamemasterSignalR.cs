@@ -1,5 +1,6 @@
 ﻿using EnoCore.Utils;
 using Gamemaster.Models.View;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Logging;
 using System;
@@ -21,7 +22,7 @@ namespace GamemasterChecker
         private TaskCompletionSource<bool> Source;
         private CancellationToken Token;
         private CancellationTokenRegistration reg;
-        public GamemasterSignalR(string address, GamemasterUser user, ILogger logger, TaskCompletionSource<bool>source, CancellationToken token)
+        public GamemasterSignalR(string address, GamemasterUser user, ILogger logger, TaskCompletionSource<bool>source, CancellationToken token, GamemasterClient client)
         {
             Token = token;
             reg = Token.Register(() => source.SetResult(false));
@@ -30,7 +31,11 @@ namespace GamemasterChecker
             Address = address;
             Source = source;
             connection = new HubConnectionBuilder()
-                .WithUrl(Scheme + "://" + address + ":" + Port + "/hubs/session")
+                .WithUrl(Scheme + "://" + address + ":" + Port + "/hubs/session", options=>
+                {
+                    //options.Cookies.SetCookies(new Uri(Scheme + "://" + address + ":" + Port), client.Cookies);
+                    options.Headers.Add("Cookie", client.Cookies.FirstOrDefault());
+                })
                 .Build();
             connection.On<ChatMessageView>("Chat", (message) =>
             {
