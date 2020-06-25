@@ -1,4 +1,5 @@
 ﻿using EnoCore.Utils;
+using Gamemaster.Models;
 using Gamemaster.Models.View;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -49,6 +50,10 @@ namespace GamemasterChecker
                     Task.Run(() => source?.SetResult(true));
                 }
             });
+            connection.On<Scene>("Scene", (scene) =>
+            {
+                Logger.LogInformation($"Such a scene: {scene} {token.IsCancellationRequested} {connection.State} {connection.ConnectionId}");
+            });
             connection.Closed += Connection_Closed;
         }
 
@@ -94,7 +99,7 @@ namespace GamemasterChecker
             }
             catch (Exception e)
             {
-                Logger.LogInformation("cancelrequested=" + token.IsCancellationRequested + " " + connection.State + " " + connection.ConnectionId);
+                Logger.LogInformation("cancelrequested=" + token.IsCancellationRequested + " state=" + connection.State + " connectionid=" + connection.ConnectionId);
                 Logger.LogError(e.ToFancyString());
             }
         }
