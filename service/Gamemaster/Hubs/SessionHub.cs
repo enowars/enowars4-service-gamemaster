@@ -63,30 +63,37 @@ namespace Gamemaster.Hubs
 
         public async Task Join(long sid)
         {
-            using var scope = ServiceProvider.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<IGamemasterDb>();
-            var currentUsername = Context.User.Identity.Name;
-            if (currentUsername == null) return;
-            var currentUser = (await db.GetUser(currentUsername));
-            if (currentUser == null) return;
-            var currentUserId = currentUser.Id;
-            var session = await db.GetSession(sid, currentUserId);
-            if (session == null) return;
-            await Groups.AddToGroupAsync(Context.ConnectionId, sid.ToString());
-            lock (Scenes)
+            try
             {
-                if (!Scenes.ContainsKey(sid))
+                using var scope = ServiceProvider.CreateScope();
+                var db = scope.ServiceProvider.GetRequiredService<IGamemasterDb>();
+                var currentUsername = Context.User.Identity.Name;
+                if (currentUsername == null) return;
+                var currentUser = (await db.GetUser(currentUsername));
+                if (currentUser == null) return;
+                var currentUserId = currentUser.Id;
+                var session = await db.GetSession(sid, currentUserId);
+                if (session == null) return;
+                await Groups.AddToGroupAsync(Context.ConnectionId, sid.ToString());
+                lock (Scenes)
                 {
-                    Scenes[sid] = new Scene();
+                    if (!Scenes.ContainsKey(sid))
+                    {
+                        Scenes[sid] = new Scene();
+                    }
+                };
+                lock (ConIdtoSessionId)
+                {
+                    Logger.LogInformation($"Join, ID:::{Context.ConnectionId}");
+                    ConIdtoSessionId.Add(Context.ConnectionId, sid);
                 }
-            };
-            lock (ConIdtoSessionId)
-            {
-                Logger.LogInformation($"Join, ID:::{Context.ConnectionId}");
-                ConIdtoSessionId.Add(Context.ConnectionId, sid);
+                Scenes[sid].AddUnit("unit" + Context.ConnectionId, new Unit());
+                await Clients.Group(sid.ToString()).SendAsync("Scene", Scenes[sid], CancellationToken.None);
             }
-            Scenes[sid].AddUnit("unit"+ Context.ConnectionId, new Unit());
-            await Clients.Group(sid.ToString()).SendAsync("Scene", Scenes[sid], CancellationToken.None);
+            catch(Exception e)
+            {
+                Logger.LogError($"{Context.ConnectionId} failed to join: {e.Message}\n{e.StackTrace}");
+            }
         }
         public async Task Move(Direction d)
         {
