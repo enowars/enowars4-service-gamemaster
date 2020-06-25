@@ -43,11 +43,10 @@ namespace GamemasterChecker
                 .Build();
             connection.On<ChatMessageView>("Chat", (message) =>
             {
-                Logger.LogInformation($"ChatMessage Received: {message}");
+                Logger.LogInformation($"ChatMessage Received: {message} " + token.IsCancellationRequested + " " + connection.State + " " + connection.ConnectionId);
                 if (message.Content == "blabla")
                 {
                     Task.Run(() => source?.SetResult(true));
-                    reg.Dispose();
                 }
             });
             connection.Closed += Connection_Closed;
@@ -78,7 +77,7 @@ namespace GamemasterChecker
         {
             try
             {
-                Logger.LogInformation("InvokeAsync(Chat) " + token.IsCancellationRequested + " " + connection.State);
+                Logger.LogInformation("InvokeAsync(Chat) " + token.IsCancellationRequested + " " + connection.State + " " + connection.ConnectionId);
                 await connection.InvokeAsync("Chat", msg, cancellationToken: token);
             }
             catch (Exception e)
@@ -90,7 +89,7 @@ namespace GamemasterChecker
         {
             try
             {
-                Logger.LogInformation("InvokeAsync(Join) " + token.IsCancellationRequested + " " + connection.State);
+                Logger.LogInformation("InvokeAsync(Join) " + token.IsCancellationRequested + " " + connection.State + " " + connection.ConnectionId);
                 await connection.InvokeAsync("Join", sid, cancellationToken: token);
             }
             catch (Exception e)
