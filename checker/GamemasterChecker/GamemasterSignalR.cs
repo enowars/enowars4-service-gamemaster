@@ -18,21 +18,33 @@ namespace GamemasterChecker
         private readonly int Port = 8001;
         private readonly GamemasterUser User;
         private readonly HubConnection connection;
-        public GamemasterSignalR(string address, GamemasterUser user, ILogger logger)
+        private TaskCompletionSource<bool> Source;
+        private CancellationToken Token;
+        private CancellationTokenRegistration reg;
+        public GamemasterSignalR(string address, GamemasterUser user, ILogger logger, TaskCompletionSource<bool>source, CancellationToken token)
         {
+            Token = token;
+            reg = Token.Register(() => source.SetResult(false));
             Logger = logger;
             User = user;
             Address = address;
+            Source = source;
             connection = new HubConnectionBuilder()
                 .WithUrl(Scheme + "://" + address + ":" + Port + "/hubs/session")
                 .Build();
             connection.On<ChatMessageView>("Chat", (message) =>
             {
                 Logger.LogInformation($"ChatMessage Received: {message}");
+                if (message.Content == "blabla")
+                {
+                    source?.SetResult(true);
+                    reg.Dispose();
+                }
             });
         }
         public async void Dispose()
         {
+            reg.Dispose();
             await connection.StopAsync();
         }
         public async Task Connect()

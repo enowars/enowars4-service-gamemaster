@@ -81,11 +81,13 @@ namespace GamemasterChecker
 
         public async Task<CheckerResultMessage> HandleHavok(CheckerTaskMessage task, CancellationToken token)
         {
+            return await HavokChat(task, token);
+            /*
             return new CheckerResultMessage()
             {
                 Result = CheckerResult.OK,
                 Message = "Finished Successful"
-            };
+            };*/
         }
 
         private GamemasterUser CreateUser(long roundId, long teamId, string flag)
@@ -419,6 +421,37 @@ namespace GamemasterChecker
         {
             if (UUID.Length != 128) return false;
             return true;
+        }
+        private async Task<CheckerResultMessage> HavokChat(CheckerTaskMessage task, CancellationToken token)
+        {
+            var user1 = CreateUser(-1, -1, "");
+            var user2 = CreateUser(-1, -1, "");
+            var client1 = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, user1, Logger);
+            var client2 = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, user2, Logger);
+            var tl1 = client1.RegisterAsync(token);
+            var tl2 = client2.RegisterAsync(token);
+            await tl1;
+            await tl2;
+            var tcs = new TaskCompletionSource<bool>();
+            GamemasterSignalR src1 = new GamemasterSignalR(task.Address, user1, Logger, null, token);
+            GamemasterSignalR src2 = new GamemasterSignalR(task.Address, user2, Logger, tcs, token);
+            var t1 = src1.Connect();
+            var t2 = src2.Connect();
+            await t1;
+            await t2;
+            await src1.SendMessage("blabla", token);
+            if (await tcs.Task)
+                return new CheckerResultMessage()
+                {
+                    Result = CheckerResult.OK,
+                    Message = $"Checker returned ok"
+                };
+            else
+                return new CheckerResultMessage()
+                {
+                    Result = CheckerResult.MUMBLE,
+                    Message = $"Chat Broken"
+                };
         }
     }
 }
