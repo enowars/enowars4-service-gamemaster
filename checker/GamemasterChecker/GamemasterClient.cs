@@ -21,7 +21,7 @@ namespace GamemasterChecker
         private readonly string Scheme = "http";
         private readonly int Port = 8001;
         private readonly GamemasterUser User;
-        public IEnumerable<string>? Cookies { get; set; }
+        public IEnumerable<string>? Cookies;
         private readonly JsonSerializerOptions JsonOptions;
 
         public GamemasterClient(HttpClient httpClient, string address, GamemasterUser user, ILogger logger)

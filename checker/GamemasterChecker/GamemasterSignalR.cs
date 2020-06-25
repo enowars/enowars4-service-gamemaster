@@ -22,7 +22,7 @@ namespace GamemasterChecker
         private TaskCompletionSource<bool> Source;
         private CancellationToken Token;
         private CancellationTokenRegistration reg;
-        public GamemasterSignalR(string address, GamemasterUser user, ILogger logger, TaskCompletionSource<bool>source, CancellationToken token, GamemasterClient client)
+        public GamemasterSignalR(string address, GamemasterUser user, ILogger logger, TaskCompletionSource<bool>source, GamemasterClient client, CancellationToken token)
         {
             Token = token;
             reg = Token.Register(() => source.SetResult(false));
