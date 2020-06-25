@@ -46,11 +46,21 @@ namespace GamemasterChecker
                     reg.Dispose();
                 }
             });
+            connection.Closed += Connection_Closed;
         }
+
+        private Task Connection_Closed(Exception arg)
+        {
+            Logger.LogInformation($"Connection closed:{connection.ConnectionId}");
+            return Task.CompletedTask;
+        }
+
         public async void Dispose()
         {
+            Logger.LogInformation($"Disposing connection:{connection.ConnectionId}");
             reg.Dispose();
             await connection.StopAsync();
+            Logger.LogInformation($"connection stopped:{connection.ConnectionId}");
         }
         public async Task Connect()
         {
