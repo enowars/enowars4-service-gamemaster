@@ -44,7 +44,7 @@ namespace GamemasterChecker
                 .Build();
             connection.On<ChatMessageView>("Chat", (message) =>
             {
-                Logger.LogInformation($"ChatMessage Received: {message} " + token.IsCancellationRequested + " " + connection.State + " " + connection.ConnectionId);
+                Logger.LogInformation($"{user.Username} ChatMessage Received: {message} " + token.IsCancellationRequested + " " + connection.State + " " + connection.ConnectionId);
                 if (message.Content == "blabla")
                 {
                     Task.Run(() => source?.SetResult(true));
@@ -52,37 +52,37 @@ namespace GamemasterChecker
             });
             connection.On<Scene>("Scene", (scene) =>
             {
-                Logger.LogInformation($"Such a scene: {scene} {token.IsCancellationRequested} {connection.State} {connection.ConnectionId}");
+                Logger.LogInformation($"{user.Username} Received scene with {scene.Units.Count} units {token.IsCancellationRequested} {connection.State} {connection.ConnectionId}");
             });
             connection.Closed += Connection_Closed;
         }
 
         private Task Connection_Closed(Exception arg)
         {
-            Logger.LogInformation($"Connection closed:{connection.ConnectionId}, {arg.ToFancyString()}");
+            Logger.LogInformation($"{User.Username} Connection closed:{connection.ConnectionId}, {arg.ToFancyString()}");
             Source.SetException(new Exception($"Connection has been closed"));
             return Task.CompletedTask;
         }
 
         public async void Dispose()
         {
-            Logger.LogInformation($"Disposing connection:{connection.ConnectionId}");
+            Logger.LogInformation($"{User.Username} Disposing connection:{connection.ConnectionId}");
             reg.Dispose();
             await connection.StopAsync();
-            Logger.LogInformation($"connection stopped:{connection.ConnectionId}");
+            Logger.LogInformation($"{User.Username} connection stopped:{connection.ConnectionId}");
         }
 
         public async Task Connect()
         {
             await connection.StartAsync(Token);
-            Logger.LogInformation($"StartAsync succeeded: {connection.ConnectionId} {connection.State}");
+            Logger.LogInformation($"{User.Username} StartAsync succeeded: {connection.ConnectionId} {connection.State}");
         }
 
         public async Task SendMessage(string msg, CancellationToken token)
         {
             try
             {
-                Logger.LogInformation("InvokeAsync(Chat) " + token.IsCancellationRequested + " " + connection.State + " " + connection.ConnectionId);
+                Logger.LogInformation($"{User.Username} InvokeAsync(Chat) " + token.IsCancellationRequested + " " + connection.State + " " + connection.ConnectionId);
                 await connection.InvokeAsync("Chat", msg, cancellationToken: token);
             }
             catch (Exception e)
@@ -94,12 +94,12 @@ namespace GamemasterChecker
         {
             try
             {
-                Logger.LogInformation("InvokeAsync(Join) " + token.IsCancellationRequested + " " + connection.State + " " + connection.ConnectionId);
+                Logger.LogInformation($"{User.Username} InvokeAsync(Join) " + token.IsCancellationRequested + " " + connection.State + " " + connection.ConnectionId);
                 await connection.InvokeAsync("Join", sid, cancellationToken: token);
             }
             catch (Exception e)
             {
-                Logger.LogInformation("cancelrequested=" + token.IsCancellationRequested + " state=" + connection.State + " connectionid=" + connection.ConnectionId);
+                Logger.LogInformation($"{User.Username} cancelrequested=" + token.IsCancellationRequested + " state=" + connection.State + " connectionid=" + connection.ConnectionId);
                 Logger.LogError(e.ToFancyString());
             }
         }
