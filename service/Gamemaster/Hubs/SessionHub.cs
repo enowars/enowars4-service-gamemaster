@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Gamemaster.Models.Database;
 using Gamemaster.Models.View;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Gamemaster.Hubs
 {
@@ -19,12 +20,12 @@ namespace Gamemaster.Hubs
     {
         public static Dictionary<long, Scene> Scenes = new Dictionary<long, Scene>();
         private readonly ILogger Logger;
-        private readonly IGamemasterDb Db;
+        private readonly IServiceProvider ServiceProvider; //IGamemasterDb
         public static Dictionary<string, long> ConIdtoSessionId = new Dictionary<string, long>();
-        public SessionHub(ILogger<SessionHub> logger, IGamemasterDb db)
+        public SessionHub(ILogger<SessionHub> logger, IServiceProvider serviceProvider)
         {
             Logger = logger;
-            Db = db;
+            ServiceProvider = serviceProvider;
         }
 
         public override Task OnConnectedAsync()
@@ -46,26 +47,30 @@ namespace Gamemaster.Hubs
         }
         public async Task Chat(string Message)
         {
+            using var scope = ServiceProvider.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<IGamemasterDb>();
             var currentUsername = Context.User.Identity.Name;
             if (currentUsername == null) return;
-            var currentUser = (await Db.GetUser(currentUsername));
+            var currentUser = (await db.GetUser(currentUsername));
             if (currentUser == null) return;
             var currentUserId = currentUser.Id;
             var sid = ConIdtoSessionId[Context.ConnectionId];
-            var session = await Db.GetFullSession(sid, currentUserId);
+            var session = await db.GetFullSession(sid, currentUserId);
             if (session == null) return;
-            var msg = await Db.InsertChatMessage(session, currentUser, Message);
+            var msg = await db.InsertChatMessage(session, currentUser, Message);
             await Clients.Group(sid.ToString()).SendAsync("Chat", new ChatMessageView(msg), CancellationToken.None);
         }
 
         public async Task Join(long sid)
         {
+            using var scope = ServiceProvider.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<IGamemasterDb>();
             var currentUsername = Context.User.Identity.Name;
             if (currentUsername == null) return;
-            var currentUser = (await Db.GetUser(currentUsername));
+            var currentUser = (await db.GetUser(currentUsername));
             if (currentUser == null) return;
             var currentUserId = currentUser.Id;
-            var session = await Db.GetSession(sid, currentUserId);
+            var session = await db.GetSession(sid, currentUserId);
             if (session == null) return;
             await Groups.AddToGroupAsync(Context.ConnectionId, sid.ToString());
             lock (Scenes)
@@ -85,28 +90,32 @@ namespace Gamemaster.Hubs
         }
         public async Task Move(Direction d)
         {
+            using var scope = ServiceProvider.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<IGamemasterDb>();
             var currentUsername = Context.User.Identity.Name;
             if (currentUsername == null) return;
-            var currentUser = await Db.GetUser(currentUsername);
+            var currentUser = await db.GetUser(currentUsername);
             if (currentUser == null) return;
             var currentUserId = currentUser.Id;
             Logger.LogInformation($"Move, ID:::{Context.ConnectionId}");
             var sid = ConIdtoSessionId[Context.ConnectionId];
-            var session = await Db.GetSession(sid, currentUserId);
+            var session = await db.GetSession(sid, currentUserId);
             if (session == null) return;
             Scenes[sid].Move("unit" + Context.ConnectionId, d);
             await Clients.Group(sid.ToString()).SendAsync("Scene", Scenes[sid], CancellationToken.None);
         }
         public async Task Drag(int x, int y)
         {
+            using var scope = ServiceProvider.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<IGamemasterDb>();
             var currentUsername = Context.User.Identity.Name;
             if (currentUsername == null) return;
-            var currentUser = await Db.GetUser(currentUsername);
+            var currentUser = await db.GetUser(currentUsername);
             if (currentUser == null) return;
             var currentUserId = currentUser.Id;
             Logger.LogInformation($"Move, ID:::{Context.ConnectionId}");
             var sid = ConIdtoSessionId[Context.ConnectionId];
-            var session = await Db.GetSession(sid, currentUserId);
+            var session = await db.GetSession(sid, currentUserId);
             if (session == null) return;
             Scenes[sid].Drag("unit" + Context.ConnectionId, x, y);
             await Clients.Group(sid.ToString()).SendAsync("Scene", Scenes[sid], CancellationToken.None);
