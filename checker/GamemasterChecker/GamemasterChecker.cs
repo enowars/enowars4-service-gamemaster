@@ -89,7 +89,10 @@ namespace GamemasterChecker
                 Message = "Finished Successful"
             };*/
         }
-
+        private string GetSessionName()
+        {
+            return "blaaaah";
+        }
         private GamemasterUser CreateUser(long roundId, long teamId, string flag)
         {
             var u = new GamemasterUser()
@@ -426,12 +429,19 @@ namespace GamemasterChecker
         {
             var user1 = CreateUser(-1, -1, "");
             var user2 = CreateUser(-1, -1, "");
+            var user3 = CreateUser(-1, -1, "");
             var client1 = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, user1, Logger);
             var client2 = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, user2, Logger);
+            var client3 = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, user3, Logger);
             var tl1 = client1.RegisterAsync(token);
             var tl2 = client2.RegisterAsync(token);
+            var tl3 = client3.RegisterAsync(token);
             await tl1;
             await tl2;
+            await tl3;
+            var s = await client3.CreateSessionAsync(GetSessionName(), "", "password", token);
+            client3.AddUserToSessionAsync(s.Id, user2.Username, token);
+            client3.AddUserToSessionAsync(s.Id, user1.Username, token);
             var tcs = new TaskCompletionSource<bool>();
             GamemasterSignalR src1 = new GamemasterSignalR(task.Address, user1, Logger, null, token);
             GamemasterSignalR src2 = new GamemasterSignalR(task.Address, user2, Logger, tcs, token);
