@@ -439,7 +439,7 @@ namespace GamemasterChecker
             await tl1;
             await tl2;
             await tl3;
-            var s = await client3.CreateSessionAsync(GetSessionName(), "", "password", token);
+            var s = await client3.CreateSessionAsync(GetSessionName(), "n", "password", token);
             client3.AddUserToSessionAsync(s.Id, user2.Username, token);
             client3.AddUserToSessionAsync(s.Id, user1.Username, token);
             var tcs = new TaskCompletionSource<bool>();
