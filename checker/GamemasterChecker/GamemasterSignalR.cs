@@ -78,6 +78,7 @@ namespace GamemasterChecker
         {
             try
             {
+                Logger.LogInformation("InvokeAsync(Chat) " + token.IsCancellationRequested + " " + connection.State);
                 await connection.InvokeAsync("Chat", msg, cancellationToken: token);
             }
             catch (Exception e)
@@ -89,6 +90,7 @@ namespace GamemasterChecker
         {
             try
             {
+                Logger.LogInformation("InvokeAsync(Join) " + token.IsCancellationRequested + " " + connection.State);
                 await connection.InvokeAsync("Join", sid, cancellationToken: token);
             }
             catch (Exception e)

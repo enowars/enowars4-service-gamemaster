@@ -450,7 +450,7 @@ namespace GamemasterChecker
             var tj1 = src1.Join(s.Id, token);
             var tj2 = src2.Join(s.Id, token);
             await tj1; await tj2;
-            await src1.SendMessage("blabla", token);
+            //await src1.SendMessage("blabla", token);
             if (await tcs.Task)
                 return new CheckerResultMessage()
                 {
