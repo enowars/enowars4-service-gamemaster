@@ -71,5 +71,16 @@ namespace GamemasterChecker
                 Logger.LogError(e.ToFancyString());
             }
         }
+        public async Task Join(long sid, CancellationToken token)
+        {
+            try
+            {
+                await connection.InvokeAsync("Chat", sid, cancellationToken: token);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e.ToFancyString());
+            }
+        }
     }
 }

@@ -444,9 +444,12 @@ namespace GamemasterChecker
             var tcs = new TaskCompletionSource<bool>();
             GamemasterSignalR src1 = new GamemasterSignalR(task.Address, user1, Logger, null, token);
             GamemasterSignalR src2 = new GamemasterSignalR(task.Address, user2, Logger, tcs, token);
-            var t1 = src1.Connect();
-            var t2 = src2.Connect();
-            await t1; await t2;
+            var tc1 = src1.Connect();
+            var tc2 = src2.Connect();
+            await tc1; await tc2;
+            var tj1 = src1.Join(s.Id, token);
+            var tj2 = src2.Join(s.Id, token);
+            await tj1; await tj2;
             await src1.SendMessage("blabla", token);
             if (await tcs.Task)
                 return new CheckerResultMessage()
