@@ -68,12 +68,24 @@ namespace Gamemaster.Hubs
                 using var scope = ServiceProvider.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<IGamemasterDb>();
                 var currentUsername = Context.User.Identity.Name;
-                if (currentUsername == null) return;
+                if (currentUsername == null)
+                {
+                    Logger.LogError($"{Context.ConnectionId} no name claim in session");
+                    return;
+                }
                 var currentUser = (await db.GetUser(currentUsername));
-                if (currentUser == null) return;
+                if (currentUser == null)
+                {
+                    Logger.LogError($"{Context.ConnectionId} {currentUsername} not in db");
+                    return;
+                }
                 var currentUserId = currentUser.Id;
                 var session = await db.GetSession(sid, currentUserId);
-                if (session == null) return;
+                if (session == null)
+                {
+                    Logger.LogError($"{Context.ConnectionId} session {sid} not in db");
+                    return;
+                }
                 await Groups.AddToGroupAsync(Context.ConnectionId, sid.ToString());
                 lock (Scenes)
                 {
@@ -84,11 +96,13 @@ namespace Gamemaster.Hubs
                 };
                 lock (ConIdtoSessionId)
                 {
-                    Logger.LogInformation($"Join, ID:::{Context.ConnectionId}");
+                    Logger.LogInformation($"{Context.ConnectionId} adding connectionid->session mapping");
                     ConIdtoSessionId.Add(Context.ConnectionId, sid);
                 }
+                //this is not threadsafe 💣
                 Scenes[sid].AddUnit("unit" + Context.ConnectionId, new Unit());
                 await Clients.Group(sid.ToString()).SendAsync("Scene", Scenes[sid], CancellationToken.None);
+                Logger.LogInformation($"{Context.ConnectionId} join successfull");
             }
             catch(Exception e)
             {
