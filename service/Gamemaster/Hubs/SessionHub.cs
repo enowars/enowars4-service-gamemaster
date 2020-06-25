@@ -12,16 +12,17 @@ using System.Threading.Tasks;
 using Gamemaster.Models.Database;
 using Gamemaster.Models.View;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Concurrent;
 
 namespace Gamemaster.Hubs
 {
     [Authorize]
     public class SessionHub : Hub
     {
-        public static Dictionary<long, Scene> Scenes = new Dictionary<long, Scene>();
+        public static ConcurrentDictionary<long, Scene> Scenes = new ConcurrentDictionary<long, Scene>();
         private readonly ILogger Logger;
         private readonly IServiceProvider ServiceProvider; //IGamemasterDb
-        public static Dictionary<string, long> ConIdtoSessionId = new Dictionary<string, long>();
+        public static ConcurrentDictionary<string, long> ConIdtoSessionId = new ConcurrentDictionary<string, long>();
         public SessionHub(ILogger<SessionHub> logger, IServiceProvider serviceProvider)
         {
             Logger = logger;
@@ -87,21 +88,13 @@ namespace Gamemaster.Hubs
                     return;
                 }
                 await Groups.AddToGroupAsync(Context.ConnectionId, sid.ToString());
-                lock (Scenes)
+                var scene = Scenes.GetOrAdd(sid, new Scene());
+                ConIdtoSessionId.TryAdd(Context.ConnectionId, sid);
+                lock (scene)
                 {
-                    if (!Scenes.ContainsKey(sid))
-                    {
-                        Scenes[sid] = new Scene();
-                    }
-                };
-                lock (ConIdtoSessionId)
-                {
-                    Logger.LogInformation($"{Context.ConnectionId} adding connectionid->session mapping");
-                    ConIdtoSessionId.Add(Context.ConnectionId, sid);
+                    scene.AddUnit("unit" + Context.ConnectionId, new Unit());
                 }
-                //this is not threadsafe 💣
-                Scenes[sid].AddUnit("unit" + Context.ConnectionId, new Unit());
-                await Clients.Group(sid.ToString()).SendAsync("Scene", Scenes[sid], CancellationToken.None);
+                await Clients.Group(sid.ToString()).SendAsync("Scene", scene, CancellationToken.None);
                 Logger.LogInformation($"{Context.ConnectionId} join successfull");
             }
             catch(Exception e)
