@@ -51,7 +51,7 @@ namespace GamemasterChecker
 
         private Task Connection_Closed(Exception arg)
         {
-            Logger.LogInformation($"Connection closed:{connection.ConnectionId}");
+            Logger.LogInformation($"Connection closed:{connection.ConnectionId}, {arg.ToFancyString()}");
             Source.SetException(new Exception($"Connection has been closed"));
             return Task.CompletedTask;
         }
