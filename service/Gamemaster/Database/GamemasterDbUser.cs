@@ -10,6 +10,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Gamemaster.Models.View;
+using System.Buffers;
 
 namespace Gamemaster.Database
 {
@@ -23,6 +24,7 @@ namespace Gamemaster.Database
     }
     public partial class GamemasterDb : IGamemasterDb
     {
+        private static ArrayPool<byte> pool = ArrayPool<byte>.Create();
         public async Task<User> InsertUser(string name, string email, string password)
         {
             byte[] salt = new byte[16];
@@ -44,10 +46,10 @@ namespace Gamemaster.Database
         public async Task<User?> AuthenticateUser(string name, string password)
         {
             User? user = null;
-            try
+            byte[] hash = pool.Rent(64);
+            try /// Arraypool example from https://adamsitnik.com/Array-Pool/
             {
-                byte[] hash = new byte[64];
-                user = await _context.Users.Where(u => u.Name == name).SingleOrDefaultAsync();
+                user = await _context.Users.Where(u => u.Name == name).AsNoTracking().SingleOrDefaultAsync();
                 if (user == null) return null;
                 Hash(password, user.PasswordSalt, hash);
                 if (!user.PasswordSha512Hash.SequenceEqual(hash))
@@ -55,9 +57,9 @@ namespace Gamemaster.Database
                     return null;
                 }
             }
-            catch (Exception e)
+            finally
             {
-                Logger.LogError($"{nameof(AuthenticateUser)} failed: {e.Message}");
+                pool.Return(hash);
             }
             return user;
         }

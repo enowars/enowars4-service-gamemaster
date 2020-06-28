@@ -292,7 +292,7 @@ namespace GamemasterChecker
             byte[] imgdata = new byte[64];
             Utils.Random.NextBytes(imgdata);
             var UUID = await masterClient.AddTokenAsync("name", task.Flag!, true, imgdata, token);
-            if (UUID==null  || !isValid(UUID))
+            if (UUID==null  || !IsValid(UUID))
                 return new CheckerResultMessage()
                 {
                     Result = CheckerResult.MUMBLE,
@@ -420,7 +420,7 @@ namespace GamemasterChecker
                     Message = $"Token data inconsistent"
                 };
         }
-        private bool isValid (string UUID)
+        private bool IsValid (string UUID)
         {
             if (UUID.Length != 128) return false;
             return true;

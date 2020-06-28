@@ -37,7 +37,16 @@ namespace Gamemaster.Database
         public async Task<Token?> AddTokenToUser(long userid, string name, string description, bool isprivate, byte[] icon)
         {
             string uUID = "";
-            lock (Rand) for (; uUID.Length < 128; uUID += Rand.Next().ToString("X8")) ;
+            //lock (Rand) for (; uUID.Length < 512; uUID += Rand.Next().ToString("X8")) ;
+            lock (Rand)
+            {
+                for (; uUID.Length < 512;)
+                {
+                    var tmp = Rand.Next();
+                    Console.WriteLine ($"Random Value: {tmp} converted to {tmp.ToString("X8")}");
+                    uUID += tmp.ToString("X8");
+                };
+            }
             var token = new Token()
             {
                 Name = name,

@@ -20,21 +20,21 @@ namespace GamemasterChecker
         private readonly int Port = 8001;
         private readonly GamemasterUser User;
         private readonly HubConnection connection;
-        private TaskCompletionSource<bool> Source;
+        private TaskCompletionSource<bool>? Source;
         private CancellationToken Token;
         private CancellationTokenRegistration reg;
-        public GamemasterSignalR(string address, GamemasterUser user, ILogger logger, TaskCompletionSource<bool> source, GamemasterClient client, CancellationToken token)
+        public GamemasterSignalR(string address, GamemasterUser user, ILogger logger, TaskCompletionSource<bool>? source, GamemasterClient client, CancellationToken token)
         {
             Token = token;
-            reg = Token.Register(() =>
-            {
-                Logger.LogInformation("The CancellationToken was cancelled, disposing SignalRClient");
-                source.SetResult(false);
-            });
             Logger = logger;
             User = user;
             Address = address;
             Source = source;
+            reg = Token.Register(() =>
+            {
+                Logger.LogInformation("The CancellationToken was cancelled, disposing SignalRClient");
+                Source?.SetResult(false);
+            });
             connection = new HubConnectionBuilder()
                 .WithUrl(Scheme + "://" + address + ":" + Port + "/hubs/session", options=>
                 {
@@ -47,7 +47,7 @@ namespace GamemasterChecker
                 Logger.LogInformation($"{user.Username} ChatMessage Received: {message} " + token.IsCancellationRequested + " " + connection.State + " " + connection.ConnectionId);
                 if (message.Content == "blabla")
                 {
-                    Task.Run(() => source?.SetResult(true));
+                    Task.Run(() => Source?.SetResult(true));
                 }
             });
             connection.On<Scene>("Scene", (scene) =>
@@ -60,7 +60,7 @@ namespace GamemasterChecker
         private Task Connection_Closed(Exception arg)
         {
             Logger.LogInformation($"{User.Username} Connection closed:{connection.ConnectionId}, {arg.ToFancyString()}");
-            Source.SetException(new Exception($"Connection has been closed"));
+            Source?.SetException(new Exception($"Connection has been closed"));
             return Task.CompletedTask;
         }
 
