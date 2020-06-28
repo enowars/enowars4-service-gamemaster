@@ -31,7 +31,7 @@ namespace Gamemaster.Hubs
 
         public override Task OnConnectedAsync()
         {
-            Logger.LogInformation($"OnConnectedAsync NameIdentifier={Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value}, ConnectionId={Context.ConnectionId}");
+            Logger.LogInformation($"OnConnectedAsync NameIdentifier={Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value}, ConnectionId={Context.ConnectionId}, Scenes in Dict:{Scenes.Count()}, ConIDs in Dict: {ConIdtoSessionId.Count()}");
             return Task.CompletedTask;
         }
 
@@ -43,7 +43,8 @@ namespace Gamemaster.Hubs
             if (scene != null)
             {
                 scene.RemoveUnit("unit"+Context.ConnectionId);
-                if (scene.Units.Count() <= 0) Scenes.TryRemove(sceneId, out var _);
+                lock(scene)
+                    if (scene.Units.Count() <= 0) Scenes.TryRemove(sceneId, out var _);
                 await Clients.All.SendAsync(nameof(scene), scene, CancellationToken.None);
             }
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,11 +8,11 @@ namespace Gamemaster.Models
 {
     public class Scene
     {
-        public Dictionary<string, Unit> Units { get; set; } = new Dictionary<string, Unit>();
+        public ConcurrentDictionary<string, Unit> Units { get; set; } = new ConcurrentDictionary<string, Unit>();
 
         internal void AddUnit(string id, Unit unit)
         {
-            Units.Add(id, unit);
+            Units.TryAdd(id, unit);
         }
         internal void Drag(string id, int x, int y)
         {
@@ -39,7 +40,7 @@ namespace Gamemaster.Models
 
         internal void RemoveUnit(string id)
         {
-            Units.Remove(id);
+            Units.TryRemove(id, out var _);
         }
     }
 }
