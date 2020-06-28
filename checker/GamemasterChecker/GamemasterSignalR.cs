@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace GamemasterChecker
 {
-    public class GamemasterSignalR : IDisposable
+    public class GamemasterSignalR : IAsyncDisposable
     {
         private readonly ILogger Logger;
         private readonly string Address;
@@ -64,7 +64,7 @@ namespace GamemasterChecker
             return Task.CompletedTask;
         }
 
-        public async void Dispose()
+        public async ValueTask DisposeAsync()
         {
             Logger.LogInformation($"{User.Username} Disposing connection:{connection.ConnectionId}");
             reg.Dispose();
