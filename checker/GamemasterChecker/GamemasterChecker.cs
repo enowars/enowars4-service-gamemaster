@@ -422,7 +422,7 @@ namespace GamemasterChecker
         }
         private bool IsValid (string UUID)
         {
-            if (UUID.Length != 128) return false;
+            if (UUID.Length != 512) return false;
             return true;
         }
         private async Task<CheckerResultMessage> HavokChat(CheckerTaskMessage task, CancellationToken token)
