@@ -18,11 +18,14 @@ namespace Gamemaster.Models.View
         public string OwnerName { get; set; }
         public TokenStrippedView(Token t)
         {
-            UUID = t.UUID;
-            Name = t.Name;
-            Description = t.Description;
-            IsPrivate = t.IsPrivate;
-            OwnerName = t.Owner.Name;
+            if (t is Token)
+            {
+                UUID = t.UUID;
+                Name = t.Name;
+                Description = t.Description;
+                IsPrivate = t.IsPrivate;
+                OwnerName = t.Owner.Name;
+            }
         }
     }
 #pragma warning restore CS8618

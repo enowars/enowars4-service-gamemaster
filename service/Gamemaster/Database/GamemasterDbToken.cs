@@ -22,9 +22,17 @@ namespace Gamemaster.Database
     }
     public partial class GamemasterDb : IGamemasterDb
     {
-        public async Task<TokenStrippedView> GetTokenByUUID(string UUID)
+        public async Task<TokenStrippedView?> GetTokenByUUID(string UUID)
         {
-            return new TokenStrippedView(await _context.Tokens.Where(t => t.UUID == UUID).Include(t => t.Owner).SingleOrDefaultAsync());
+            try
+            {
+                return new TokenStrippedView(await _context.Tokens.Where(t => t.UUID == UUID).Include(t => t.Owner).SingleOrDefaultAsync());
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e.ToString());
+                return null;
+            }
         }
         public async Task<TokenData> GetTokenDataByUUID(string UUID)
         {

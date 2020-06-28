@@ -44,7 +44,10 @@ namespace Gamemaster.Controllers
         public async Task<IActionResult> Info([FromForm] string UUID)
         {
             TokenStrippedView t = await Db.GetTokenByUUID(UUID);
-            return Json(t);
+            if (t.UUID == UUID)
+                return Json(t);
+            else
+                return NotFound();
         }
         [HttpGet]
         public async Task<IActionResult> GetIcon([FromQuery]string UUID)
