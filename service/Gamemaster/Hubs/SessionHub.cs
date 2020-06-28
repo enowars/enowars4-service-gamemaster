@@ -38,11 +38,12 @@ namespace Gamemaster.Hubs
         public override async Task OnDisconnectedAsync(Exception exception)
         {
             Logger.LogInformation($"OnDisconnectedAsync NameIdentifier={Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value}, ConnectionId={Context.ConnectionId}, exception={exception}");
-            var sceneId = ConIdtoSessionId[Context.ConnectionId];
+            ConIdtoSessionId.TryRemove(Context.ConnectionId, out var sceneId);
             Scenes.TryGetValue(sceneId, out var scene);
             if (scene != null)
             {
                 scene.RemoveUnit("unit"+Context.ConnectionId);
+                if (scene.Units.Count() <= 0) Scenes.TryRemove(sceneId, out var _);
                 await Clients.All.SendAsync(nameof(scene), scene, CancellationToken.None);
             }
         }
