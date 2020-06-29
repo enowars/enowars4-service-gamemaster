@@ -21,6 +21,7 @@
     import axios, { AxiosRequestConfig, AxiosPromise, AxiosResponse } from 'axios';
     import ChatMessageVue from "./ChatMessageVue.vue";
     import { SignalRContext } from "./../scripts/signalrhelper";
+    import { ChatMessage } from '../scripts/types';
     export default defineComponent({
         props: ['sessionId'],
         components: {
@@ -28,7 +29,7 @@
         },
         data() {
             return {
-                chatdata: [],
+                chatdata:  [],
                 input: {
                     msg: ""
                 }
@@ -48,8 +49,19 @@
             axios(options).then(
                 response => {
                     console.log("ChatMessages");
-                    this.chatdata = response.data;
+                    //this.chatdata = response.data;
                 });
+            var ctx: SignalRContext = SignalRContext.getInstance();
+            ctx.setChatMessageHandler((s: ChatMessage[]) => {
+                console.log("Chat Messages received: ", s)
+                console.log("Chat Messages stored: ", this.chatdata)
+                var x = s.concat(this.chatdata as ChatMessage[]).sort(function (a, b) { return a.id - b.id })
+                console.log("Chat Messages after sort: ", x)
+                console.log("Session Context: ", this.$props.sessionId)
+                var newdata: ChatMessage[] = x.filter((e, i, a) => (i == 0) || e.id !== a[i - 1].id).filter((e, i, a) => e.SessionContextId == this.$props.sessionId)
+                console.log("Chat Messages processed: ", newdata)
+                this.chatdata = newdata as any;
+            });
             return;
         },
         methods: {

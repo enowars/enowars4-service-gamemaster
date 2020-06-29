@@ -15,6 +15,7 @@ using System.IO;
 using Gamemaster.Models.View;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Diagnostics;
+using Microsoft.IO;
 
 namespace Gamemaster.Controllers
 {
@@ -24,6 +25,7 @@ namespace Gamemaster.Controllers
     {
         private readonly ILogger<AccountController> Logger;
         private readonly IGamemasterDb Db;
+        private static readonly RecyclableMemoryStreamManager StreamManager = new RecyclableMemoryStreamManager();
 
         public AccountController(ILogger<AccountController> logger, IGamemasterDb db)
         {
@@ -141,27 +143,27 @@ namespace Gamemaster.Controllers
                 var currentusername = HttpContext.User.Identity.Name;
                 if (currentusername == null)
                 {
-                    throw new System.Exception($"User not logged in");
+                    return Forbid();
                 }
                 var currentuser = await Db.GetUser(currentusername);
                 if (!(currentuser is User _))
                 {
-                    throw new System.Exception($"No user called {currentusername} found");
+                    throw new Exception($"No user called {currentusername} found");
                 }
-                MemoryStream stream = new MemoryStream();
+                using var stream = StreamManager.GetStream();
                 await icon.CopyToAsync(stream);
                 var iconbin = stream.ToArray();
                 var token = await Db.AddTokenToUser(currentuser.Id, name, description, isprivate, iconbin);
                 if (token == null)
                 {
-                    throw new System.Exception($"Tokencreate failed");
+                    throw new Exception($"Tokencreate failed");
                 }
                 return Json(token.UUID);
             }
             catch (Exception e)
             {
                 Logger.LogError($"{nameof(AddToken)} failed: {e.Message}");
-                return Forbid();
+                throw e;
             }
         }
     }

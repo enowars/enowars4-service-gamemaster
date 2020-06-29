@@ -3,6 +3,7 @@ export class Scene {
 }
 
 export class ChatMessage {
+    id = 0;
     SenderName = "SenderName";
     SessionContextId = 0;
     Content = "Content";

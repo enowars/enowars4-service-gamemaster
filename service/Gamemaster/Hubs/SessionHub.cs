@@ -61,7 +61,9 @@ namespace Gamemaster.Hubs
             var session = await db.GetFullSession(sid, currentUserId);
             if (session == null) return;
             var msg = await db.InsertChatMessage(session, currentUser, Message);
-            await Clients.Group(sid.ToString()).SendAsync("Chat", new ChatMessageView(msg), CancellationToken.None);
+            var messages = await db.GetChatMessages(sid);
+            //await Clients.All.SendAsync("Chat", new ChatMessageView[1] {new ChatMessageView(msg) }, Context.ConnectionAborted);
+            await Clients.All.SendAsync("Chat", messages, Context.ConnectionAborted);
         }
 
         public async Task Join(long sid)
@@ -98,7 +100,9 @@ namespace Gamemaster.Hubs
                     scene.AddUnit("unit" + Context.ConnectionId, new Unit());
                     sceneView = new SceneView(scene);
                 }
-                await Clients.Group(sid.ToString()).SendAsync("Scene", sceneView, CancellationToken.None);
+                var messages = await db.GetChatMessages(sid);
+                await Clients.Caller.SendAsync("Chat", messages, Context.ConnectionAborted);
+                await Clients.Group(sid.ToString()).SendAsync("Scene", sceneView, Context.ConnectionAborted);
                 Logger.LogInformation($"{Context.ConnectionId} join successfull");
             }
             catch(Exception e)
@@ -120,7 +124,7 @@ namespace Gamemaster.Hubs
             var session = await db.GetSession(sid, currentUserId);
             if (session == null) return;
             Scenes[sid].Move("unit" + Context.ConnectionId, d);
-            await Clients.Group(sid.ToString()).SendAsync("Scene", Scenes[sid], CancellationToken.None);
+            await Clients.Group(sid.ToString()).SendAsync("Scene", Scenes[sid], Context.ConnectionAborted);
         }
         public async Task Drag(int x, int y)
         {
@@ -136,7 +140,7 @@ namespace Gamemaster.Hubs
             var session = await db.GetSession(sid, currentUserId);
             if (session == null) return;
             Scenes[sid].Drag("unit" + Context.ConnectionId, x, y);
-            await Clients.Group(sid.ToString()).SendAsync("Scene", Scenes[sid], CancellationToken.None);
+            await Clients.Group(sid.ToString()).SendAsync("Scene", Scenes[sid], Context.ConnectionAborted);
         }
     }
 }

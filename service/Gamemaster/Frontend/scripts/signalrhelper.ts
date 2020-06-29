@@ -7,7 +7,7 @@ export class SignalRContext {
     private handleSceneUpdate: ((s: Scene) => void) | null = null;
     private lastSceneUpdate: Scene | null = null;
     private sessionId: number | null = null;
-    private handleChatMessage: ((msg: ChatMessage) => void) | null = null;
+    private handleChatMessage: ((msg: ChatMessage[]) => void) | null = null;
 
     static getInstance(): SignalRContext {
         if (!SignalRContext.instance) {
@@ -33,7 +33,7 @@ export class SignalRContext {
         this.connection.on("test", (data: string) => {
             console.log("recv " + data);
         });
-        this.connection.on("Chat", (msg: ChatMessage) => {
+        this.connection.on("Chat", (msg: ChatMessage[]) => {
             if (this.handleChatMessage !== null) {
                 this.handleChatMessage(msg);
             }
@@ -67,7 +67,7 @@ export class SignalRContext {
             handler(this.lastSceneUpdate);
         }
     }
-    public setChatMessageHandler(handler: (s: ChatMessage) => void) {
+    public setChatMessageHandler(handler: (s: ChatMessage[]) => void) {
         console.log("setChatMessageHandler(" + handler + ")");
         this.handleChatMessage = handler;
     }
