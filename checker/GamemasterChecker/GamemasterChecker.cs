@@ -104,7 +104,7 @@ namespace GamemasterChecker
         private string GetChatMessage()
         {
             var msg = FakeUsers.getFakeChat();
-            Logger.LogInformation($"GetSessionChatMessage returned {msg}");
+            Logger.LogInformation($"GetChatMessage returned {msg}");
             return msg;
         }
         private GamemasterUser CreateUser(long roundId, long teamId, string flag)
@@ -262,7 +262,7 @@ namespace GamemasterChecker
             SessionView? session;
             try
             {
-                session = await masterClient.CreateSessionAsync("name", task.Flag!, "password", token);
+                session = await masterClient.CreateSessionAsync(GetSessionName(), task.Flag!, "password", token);
             }
             catch (Exception e)
             {

@@ -14,13 +14,16 @@ namespace GamemasterChecker
         public static string getFakeSession()
         {
             var o = new Faker("de");
-            return o.Hacker.Noun();
+            return o.Company.Bs();
         }
         public static string getFakeChat()
         {
             var o = new Faker("de");
-            //return o.Hacker.Phrase();
-            return o.Rant.Review();
+            return o.Random.Bool() switch
+            {
+                true => o.Hacker.Phrase(),
+                false => o.Rant.Review()
+            };
         }
         public static GamemasterUser getFakeUser(GamemasterUser u)
         {
