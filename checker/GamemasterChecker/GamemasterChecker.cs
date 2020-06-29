@@ -431,7 +431,7 @@ namespace GamemasterChecker
             Logger.LogInformation($"Fetching Users with relrID{task.RelatedRoundId}, tIdis:{task.TeamId}");
             var users = await Db.GetUsersAsync(task.Flag, token);
             Logger.LogInformation($"found {users.Count}");                       //################################## MUMBLE?
-            if (users.Count != 0)
+            if (users.Count <= 0)
                 return new CheckerResultMessage()
                 {
                     Result = CheckerResult.MUMBLE,
