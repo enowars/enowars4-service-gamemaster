@@ -14,7 +14,8 @@ namespace GamemasterChecker
         public static string getFakeSession()
         {
             var o = new Faker("de");
-            return o.Company.Bs();
+            //return o.Company.Bs();
+            return o.Company.CatchPhrase();
         }
         public static string getFakeChat()
         {
