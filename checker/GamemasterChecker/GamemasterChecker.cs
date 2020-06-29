@@ -111,59 +111,22 @@ namespace GamemasterChecker
             user2.SessionId = s.Id;
             await Db.AddUserAsync(user2, token);
         }
-        private async Task<CheckerResultMessage> GetFlagFromChat(CheckerTaskMessage task, CancellationToken token)
+        private async Task GetFlagFromChat(CheckerTaskMessage task, CancellationToken token)
         {
             var users = await Db.GetUsersAsync(task.Flag!, token);
             if (users.Count <= 0)
-                return new CheckerResultMessage()
-                {
-                    Result = CheckerResult.MUMBLE,
-                    Message = $"Could not retrieve data"
-                };
+                throw new MumbleException("Putflag failed");
             var user1 = users[0];
             var client1 = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, user1, Logger);
             await client1.LoginAsync(token);
             var tcs = new TaskCompletionSource<bool>();
             await using GamemasterSignalR src1 = new GamemasterSignalR(task.Address, user1, Logger, tcs, task.Flag, client1, token);
-            try
-            {
-                await src1.Connect();
-            }
-            catch (Exception)
-            {
-                return new CheckerResultMessage()
-                {
-                    Result = CheckerResult.OFFLINE,
-                    Message = $"Connect OFFLINE"
-                };
-            }
+            await src1.Connect();
             var tj1 = src1.Join(user1.SessionId, token);
             await tj1;
-            try
-            {
-                if (await tcs.Task)
-                    return new CheckerResultMessage()
-                    {
-                        Result = CheckerResult.OK,
-                        Message = $"Checker returned ok"
-                    };
-                else
-                    return new CheckerResultMessage()
-                    {
-                        Result = CheckerResult.MUMBLE,
-                        Message = $"Chat Broken"
-                    };
-            }
-            catch (Exception)
-            {
-                return new CheckerResultMessage()
-                {
-                    Result = CheckerResult.MUMBLE,
-                    Message = $"Chat Broken"
-                };
-            }
+            await tcs.Task;
         }
-        private async Task<CheckerResultMessage> PutFlagToSession(CheckerTaskMessage task, CancellationToken token)
+        private async Task PutFlagToSession(CheckerTaskMessage task, CancellationToken token)
         {
             // Get random user subset from last round
             var users = new List<GamemasterUser>();
@@ -220,13 +183,8 @@ namespace GamemasterChecker
             }
             await Db.InsertUsersAsync(users, token);
             Logger.LogInformation("Users added to Db");
-            return new CheckerResultMessage()
-            {
-                Result = CheckerResult.OK,
-                Message = $"Checker returned ok"
-            };
         }
-        private async Task<CheckerResultMessage> PutFlagToToken(CheckerTaskMessage task, CancellationToken token)
+        private async Task PutFlagToToken(CheckerTaskMessage task, CancellationToken token)
         {
             var smaster = FakeUsers.GetFakeUser(task.RoundId, task.TeamId, task.Flag);
             //smaster.Username = "Herbert" + task.Flag + Environment.TickCount.ToString();
@@ -240,11 +198,6 @@ namespace GamemasterChecker
             var uuid = await masterClient.AddTokenAsync("name", task.Flag!, true, imgdata, token);
             await Db.AddTokenUUIDAsync(task.Flag!, uuid, token);
             await Db.AddUserAsync(smaster, token);
-            return new CheckerResultMessage()
-            {
-                Result = CheckerResult.OK,
-                Message = $"Checker returned ok"
-            };
         }
         private async Task GetFlagFromSession(CheckerTaskMessage task, CancellationToken token)
         {
