@@ -72,7 +72,7 @@ namespace GamemasterChecker.Controllers
                     Result = CheckerResult.OK
                 }, JsonOptions);
                 Logger.LogInformation($"CheckerResultMessage OK");
-                return Ok();
+                return Ok(json);
             }
             catch (MumbleException e)
             {
