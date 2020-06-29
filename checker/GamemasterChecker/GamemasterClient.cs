@@ -17,7 +17,7 @@ namespace GamemasterChecker
         private readonly ILogger Logger;
         private readonly string Address;
         private readonly HttpClient HttpClient;
-        private readonly string UserAgent = UserAgents.GetRandomUserAgent();
+        private readonly string UserAgent = FakeUsers.GetUserAgent();
         private readonly string Scheme = "http";
         private readonly int Port = 8001;
         private readonly GamemasterUser User;
@@ -123,11 +123,13 @@ namespace GamemasterChecker
             var ImageContent = new ByteArrayContent(ImageData);
             ImageContent.Headers.Add("Content-Type", "image/png");
             ImageContent.Headers.Add("Content-Disposition", "form-data; name=\"icon\"; filename=\"Arrow.png\"");
-            var foo = new MultipartFormDataContent();
-            foo.Add(new StringContent(name), "\"name\"");
-            foo.Add(new StringContent(description), "\"description\"");
-            foo.Add(new StringContent("true"), "\"isPrivate\"");
-            foo.Add(ImageContent, "\"icon\"", "\"Arrow.png\"");
+            var foo = new MultipartFormDataContent
+            {
+                { new StringContent(name), "\"name\"" },
+                { new StringContent(description), "\"description\"" },
+                { new StringContent(isPrivate.ToString().ToLower()), "\"isPrivate\"" },
+                { ImageContent, "\"icon\"", "\"Arrow.png\"" }
+            };
             var request = new HttpRequestMessage(HttpMethod.Post, url)
             {
                 Content = foo

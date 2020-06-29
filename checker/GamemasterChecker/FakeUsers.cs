@@ -11,13 +11,21 @@ namespace GamemasterChecker
 {
     public class FakeUsers
     {
-        public static string getFakeSession()
+        public static string GetFakeSession()
         {
             var o = new Faker("de");
-            //return o.Company.Bs();
-            return o.Company.CatchPhrase();
+            return o.Random.Bool() switch
+            {
+                true => o.Company.Bs(),
+                false => o.Company.CatchPhrase()
+            };
         }
-        public static string getFakeChat()
+        public static string GetUserAgent()
+        {
+            var o = new Faker("de");
+            return o.Internet.UserAgent();
+        }
+        public static string GetFakeChat()
         {
             var o = new Faker("de");
             return o.Random.Bool() switch
@@ -26,11 +34,11 @@ namespace GamemasterChecker
                 false => o.Rant.Review()
             };
         }
-        public static GamemasterUser getFakeUser(GamemasterUser u)
+        public static GamemasterUser GetFakeUser(GamemasterUser u)
         {
-            var o = new Faker<GamemasterUser>()
+            var o = new Faker<GamemasterUser>("de")
                 .CustomInstantiator(f => u)
-                .RuleFor(u => u.Username, (f, u) => f.Internet.UserName(f.Name.FirstName(), f.Name.LastName()))
+                .RuleFor(u => u.Username, (f, u) => f.Internet.UserNameUnicode(f.Name.FirstName(), f.Name.LastName()))
                 .RuleFor(u => u.Email, (f, u) => f.Internet.Email(f.Name.FirstName(), f.Name.LastName()))
                 .FinishWith((f, u) =>
                 {

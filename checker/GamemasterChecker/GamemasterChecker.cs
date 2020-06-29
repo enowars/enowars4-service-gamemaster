@@ -97,13 +97,13 @@ namespace GamemasterChecker
         }
         private string GetSessionName()
         {
-            var Session = FakeUsers.getFakeSession();
+            var Session = FakeUsers.GetFakeSession();
             Logger.LogInformation($"GetSessionName returned {Session}");
             return Session;
         }
         private string GetChatMessage()
         {
-            var msg = FakeUsers.getFakeChat();
+            var msg = FakeUsers.GetFakeChat();
             Logger.LogInformation($"GetChatMessage returned {msg}");
             return msg;
         }
@@ -118,7 +118,7 @@ namespace GamemasterChecker
                 Flag = flag,
                 Username = $"Herbert{Environment.TickCount}|{Utils.Random.Next()}"
             };
-            return FakeUsers.getFakeUser(u);
+            return FakeUsers.GetFakeUser(u);
         }
         private bool IsValid(string UUID)
         {
@@ -128,7 +128,7 @@ namespace GamemasterChecker
         private async Task<CheckerResultMessage> PutFlagToChat(CheckerTaskMessage task, CancellationToken token)
         {
             var user1 = CreateUser(-1, -1, "");
-            var user2 = CreateUser(-1, -1, task.Flag);
+            var user2 = CreateUser(-1, -1, task.Flag!);
             var user3 = CreateUser(-1, -1, "");
             var client1 = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, user1, Logger);
             var client2 = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, user2, Logger);
@@ -138,8 +138,8 @@ namespace GamemasterChecker
             var tl3 = client3.RegisterAsync(token);
             await tl1; await tl2; await tl3;
             var s = await client3.CreateSessionAsync(GetSessionName(), "n", "password", token);
-            var ta1 = client3.AddUserToSessionAsync(s.Id, user2.Username, token);
-            var ta2 = client3.AddUserToSessionAsync(s.Id, user1.Username, token);
+            var ta1 = client3.AddUserToSessionAsync(s!.Id, user2.Username, token);
+            var ta2 = client3.AddUserToSessionAsync(s!.Id, user1.Username, token);
             await ta1; await ta2;
             await using GamemasterSignalR src1 = new GamemasterSignalR(task.Address, user1, Logger, null, null, client1, token);
             await using GamemasterSignalR src2 = new GamemasterSignalR(task.Address, user2, Logger, null, null, client2, token);

@@ -15,7 +15,6 @@ namespace GamemasterChecker
     public class GamemasterSignalR : IAsyncDisposable
     {
         private readonly ILogger Logger;
-        private readonly string Address;
         private readonly string Scheme = "http";
         private readonly int Port = 8001;
         private readonly GamemasterUser User;
@@ -29,7 +28,6 @@ namespace GamemasterChecker
             Token = token;
             Logger = logger;
             User = user;
-            Address = address;
             Source = source;
             ContentToCompare = contentToCompare;
             reg = Token.Register(() =>
