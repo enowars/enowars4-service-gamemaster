@@ -63,7 +63,7 @@ namespace Gamemaster.Hubs
             var msg = await db.InsertChatMessage(session, currentUser, Message);
             var messages = await db.GetChatMessages(sid);
             //await Clients.All.SendAsync("Chat", new ChatMessageView[1] {new ChatMessageView(msg) }, Context.ConnectionAborted);
-            await Clients.All.SendAsync("Chat", messages, Context.ConnectionAborted);
+            await Clients.Group(sid.ToString()).SendAsync("Chat", messages, Context.ConnectionAborted);
         }
 
         public async Task Join(long sid)
