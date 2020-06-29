@@ -49,7 +49,7 @@ namespace GamemasterChecker
                     Logger.LogDebug($"Comparing to: {ContentToCompare}");
                     foreach (var e in messages)
                     {
-                        Logger.LogDebug($"message: {e}");
+                        Logger.LogDebug($"message: {e.Content}");
                         if (e.Content == ContentToCompare)
                         {
                             Task.Run(() => Source?.SetResult(false));
