@@ -68,7 +68,10 @@ namespace GamemasterChecker.Controllers
                         throw new InvalidOperationException($"Invalid method {taskMessage.Method}");
                 };
                 Logger.LogInformation($"Checker succeeded, returning {JsonSerializer.Serialize(result, JsonOptions)}");
-                return Ok(JsonSerializer.Serialize(result, JsonOptions));
+                return Ok(JsonSerializer.Serialize(new CheckerResultMessage()
+                {
+                    Result = CheckerResult.OK
+                }, JsonOptions));
             }
             catch (MumbleException e)
             {
