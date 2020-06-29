@@ -76,7 +76,7 @@ namespace GamemasterChecker.Controllers
             }
             catch (MumbleException e)
             {
-                Logger.LogInformation($"CheckerResultMessage MUMBLE");
+                Logger.LogInformation($"CheckerResultMessage MUMBLE {e.ToFancyString()}");
                 return Ok(JsonSerializer.Serialize(new CheckerResultMessage()
                 {
                     Result = CheckerResult.MUMBLE,
@@ -85,7 +85,7 @@ namespace GamemasterChecker.Controllers
             }
             catch (OfflineException e)
             {
-                Logger.LogInformation($"CheckerResultMessage OFFLINE");
+                Logger.LogInformation($"CheckerResultMessage OFFLINE {e.ToFancyString()}");
                 return Ok(JsonSerializer.Serialize(new CheckerResultMessage()
                 {
                     Result = CheckerResult.OFFLINE,
