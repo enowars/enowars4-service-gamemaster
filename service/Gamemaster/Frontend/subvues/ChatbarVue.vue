@@ -56,10 +56,8 @@
             ctx.setChatMessageHandler((s: ChatMessage[]) => {
                 console.log("Chat Messages received: ", s)
                 console.log("Chat Messages stored: ", this.chatdata)
-                var x = s.concat(this.chatdata as ChatMessage[]).sort(function (a, b) { return a.id - b.id })
-                console.log("Chat Messages after sort: ", x)
                 console.log("Session Context: ", this.$props.sessionId)
-                var newdata: ChatMessage[] = x.filter((e, i, a) => (i == 0) || e.id !== a[i - 1].id).filter((e, i, a) => e.sessionContextId == this.$props.sessionId)
+                var newdata: ChatMessage[] = s.concat(this.chatdata as ChatMessage[]).sort(function (a, b) { return a.id - b.id }).filter((e, i, a) => (i == 0) || e.id !== a[i - 1].id).filter((e, i, a) => e.sessionContextId == this.$props.sessionId)
                 newdata.forEach(function (e, i, a) { e.timeString = moment(e.timestamp).format("HH:MM"); e.tooltip = moment(e.timestamp).format("DD/MM/YY, HH:MM:SS");});
                 console.log("Chat Messages processed: ", newdata)
                 this.chatdata = newdata as any;
