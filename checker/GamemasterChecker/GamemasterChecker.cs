@@ -136,7 +136,6 @@ namespace GamemasterChecker
             Logger.LogDebug($"Users after pruning: {users.Count()}");
             // Register a new master
             var master = FakeUsers.GetFakeUser(task.RoundId, task.TeamId, task.Flag);
-            //master.Username = "Herbert" + task.Flag + Environment.TickCount.ToString();
             using var masterClient = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, master, Logger);
             await masterClient.RegisterAsync(token).ConfigureAwait(false);
             // Create a new session

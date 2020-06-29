@@ -52,8 +52,13 @@ namespace GamemasterChecker
                         Logger.LogDebug($"message: {e.Content}");
                         if (e.Content == ContentToCompare)
                         {
+                            Logger.LogTrace("equal!");
                             Task.Run(() => Source?.SetResult(false));
                             return;
+                        }
+                        else
+                        {
+                            Logger.LogTrace("not equal");
                         }
                     }
                     Source?.SetException(new MumbleException("Flag is not in chat"));

@@ -54,15 +54,7 @@ namespace GamemasterChecker
             rng.GetNonZeroBytes(pw);
             user.Password = System.Convert.ToBase64String(pw);
             Console.WriteLine(JsonSerializer.Serialize(user));
-            return new GamemasterUser()
-            {
-                RoundId = roundId,
-                TeamId = teamId,
-                Email = "Test",
-                Password = "ultrasecurepw",
-                Flag = flag,
-                Username = $"Herbert{Environment.TickCount}|{Utils.Random.Next()}"
-            };
+            return user;
         }
     }
 }
