@@ -93,6 +93,10 @@ namespace GamemasterChecker
         {
             return "blaaaah";
         }
+        private string GetChatMessage()
+        {
+            return "blabla";
+        }
         private GamemasterUser CreateUser(long roundId, long teamId, string flag)
         {
             var u = new GamemasterUser()
@@ -490,15 +494,16 @@ namespace GamemasterChecker
             var ta2 = client3.AddUserToSessionAsync(s.Id, user1.Username, token);
             await ta1; await ta2;
             var tcs = new TaskCompletionSource<bool>();
+            var message = GetChatMessage();
             await using GamemasterSignalR src1 = new GamemasterSignalR(task.Address, user1, Logger, null, null, client1, token);
-            await using GamemasterSignalR src2 = new GamemasterSignalR(task.Address, user2, Logger, tcs, "blabla", client2, token);
+            await using GamemasterSignalR src2 = new GamemasterSignalR(task.Address, user2, Logger, tcs, message, client2, token);
             var tc1 = src1.Connect();
             var tc2 = src2.Connect();
             await tc1; await tc2;
             var tj1 = src1.Join(s.Id, token);
             var tj2 = src2.Join(s.Id, token);
             await tj1; await tj2;
-            await src1.SendMessage("blabla", token);
+            await src1.SendMessage(message, token);
             if (await tcs.Task)
                 return new CheckerResultMessage()
                 {
