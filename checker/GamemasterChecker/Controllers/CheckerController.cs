@@ -67,14 +67,16 @@ namespace GamemasterChecker.Controllers
                     default:
                         throw new InvalidOperationException($"Invalid method {taskMessage.Method}");
                 };
-                Logger.LogInformation($"Checker succeeded, returning {JsonSerializer.Serialize(result, JsonOptions)}");
-                return Ok(JsonSerializer.Serialize(new CheckerResultMessage()
+                var json = JsonSerializer.Serialize(new CheckerResultMessage()
                 {
                     Result = CheckerResult.OK
-                }, JsonOptions));
+                }, JsonOptions);
+                Logger.LogInformation($"CheckerResultMessage OK");
+                return Ok();
             }
             catch (MumbleException e)
             {
+                Logger.LogInformation($"CheckerResultMessage MUMBLE");
                 return Ok(JsonSerializer.Serialize(new CheckerResultMessage()
                 {
                     Result = CheckerResult.MUMBLE,
@@ -83,6 +85,7 @@ namespace GamemasterChecker.Controllers
             }
             catch (OfflineException e)
             {
+                Logger.LogInformation($"CheckerResultMessage OFFLINE");
                 return Ok(JsonSerializer.Serialize(new CheckerResultMessage()
                 {
                     Result = CheckerResult.OFFLINE,
@@ -91,6 +94,7 @@ namespace GamemasterChecker.Controllers
             }
             catch (Exception e)
             {
+                Logger.LogInformation($"CheckerResultMessage INTERNAL_ERROR");
                 Logger.LogError(e.ToFancyString());
                 return Ok(JsonSerializer.Serialize(result, JsonOptions));
             }
