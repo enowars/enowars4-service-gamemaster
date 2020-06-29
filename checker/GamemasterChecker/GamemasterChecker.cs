@@ -127,6 +127,7 @@ namespace GamemasterChecker
             var ta1 = client3.AddUserToSessionAsync(s.Id, user2.Username, token);
             var ta2 = client3.AddUserToSessionAsync(s.Id, user1.Username, token);
             await ta1; await ta2;
+            var tcs = new TaskCompletionSource<bool>();
             await using GamemasterSignalR src1 = new GamemasterSignalR(task.Address, user1, Logger, null, client1, token);
             await using GamemasterSignalR src2 = new GamemasterSignalR(task.Address, user2, Logger, null, client2, token);
             var tc1 = src1.Connect();
