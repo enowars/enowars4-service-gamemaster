@@ -40,24 +40,51 @@ namespace GamemasterChecker.Controllers
             CheckerResultMessage result = new CheckerResultMessage()
             {
                 Result = CheckerResult.INTERNAL_ERROR,
-                Message = "No message set by checker code"
+                Message = null
             };
             var taskMessage = JsonSerializer.Deserialize<CheckerTaskMessage>(content, JsonOptions);
             using var scope = Logger.BeginEnoScope(taskMessage);
             Logger.LogDebug($"{nameof(CheckerController)} start handling task");
             try
             {
-                result = taskMessage.Method switch
+                switch (taskMessage.Method)
                 {
-                    "putflag" => await Checker.HandlePutFlag(taskMessage, HttpContext.RequestAborted),
-                    "getflag" => await Checker.HandleGetFlag(taskMessage, HttpContext.RequestAborted),
-                    "putnoise" => await Checker.HandlePutNoise(taskMessage, HttpContext.RequestAborted),
-                    "getnoise" => await Checker.HandlePutNoise(taskMessage, HttpContext.RequestAborted),
-                    "havoc" => await Checker.HandleHavok(taskMessage, HttpContext.RequestAborted),
-                    _ => throw new InvalidOperationException($"Invalid method {taskMessage.Method}"),
+                    case "putflag":
+                        await Checker.HandlePutFlag(taskMessage, HttpContext.RequestAborted);
+                        break;
+                    case "getflag":
+                        await Checker.HandleGetFlag(taskMessage, HttpContext.RequestAborted);
+                        break;
+                    case "putnoise":
+                        await Checker.HandlePutNoise(taskMessage, HttpContext.RequestAborted);
+                        break;
+                    case "getnoise":
+                        await Checker.HandlePutNoise(taskMessage, HttpContext.RequestAborted);
+                        break;
+                    case "havoc":
+                        await Checker.HandleHavok(taskMessage, HttpContext.RequestAborted);
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Invalid method {taskMessage.Method}");
                 };
                 Logger.LogInformation($"Checker succeeded, returning {JsonSerializer.Serialize(result, JsonOptions)}");
                 return Ok(JsonSerializer.Serialize(result, JsonOptions));
+            }
+            catch (MumbleException e)
+            {
+                return Ok(JsonSerializer.Serialize(new CheckerResultMessage()
+                {
+                    Result = CheckerResult.MUMBLE,
+                    Message = e.ScoreboardMessage
+                }));
+            }
+            catch (OfflineException e)
+            {
+                return Ok(JsonSerializer.Serialize(new CheckerResultMessage()
+                {
+                    Result = CheckerResult.OFFLINE,
+                    Message = e.ScoreboardMessage
+                }));
             }
             catch (Exception e)
             {

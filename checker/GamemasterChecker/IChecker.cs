@@ -13,10 +13,10 @@ namespace GamemasterChecker
 {
     public interface IChecker
     {
-        Task<CheckerResultMessage> HandlePutFlag(CheckerTaskMessage task, CancellationToken Token);
-        Task<CheckerResultMessage> HandleGetFlag(CheckerTaskMessage task, CancellationToken Token);
-        Task<CheckerResultMessage> HandlePutNoise(CheckerTaskMessage task, CancellationToken Token);
-        Task<CheckerResultMessage> HandleGetNoise(CheckerTaskMessage task, CancellationToken Token);
-        Task<CheckerResultMessage> HandleHavok(CheckerTaskMessage task, CancellationToken Token);
+        Task HandlePutFlag(CheckerTaskMessage task, CancellationToken Token);
+        Task HandleGetFlag(CheckerTaskMessage task, CancellationToken Token);
+        Task HandlePutNoise(CheckerTaskMessage task, CancellationToken Token);
+        Task HandleGetNoise(CheckerTaskMessage task, CancellationToken Token);
+        Task HandleHavok(CheckerTaskMessage task, CancellationToken Token);
     }
 }

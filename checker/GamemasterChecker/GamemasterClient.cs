@@ -1,4 +1,6 @@
-﻿using Gamemaster.Models.View;
+﻿using EnoCore.Utils;
+using Gamemaster.Models.View;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -41,7 +43,7 @@ namespace GamemasterChecker
             HttpClient.Dispose();
         }
 
-        public async Task<bool> RegisterAsync(CancellationToken token)
+        public async Task RegisterAsync(CancellationToken token)
         {
             var url = $"{Scheme}://{Address}:{Port}/api/account/register";
             var request = new HttpRequestMessage(HttpMethod.Post, url)
@@ -55,21 +57,29 @@ namespace GamemasterChecker
             };
             request.Headers.Add("Accept", "application/x-www-form-urlencoded");
             request.Headers.Add("User-Agent", UserAgent);
-            var response = await HttpClient.SendAsync(request, token);
+            HttpResponseMessage response;
+            try
+            {
+                response = await HttpClient.SendAsync(request, token);
+            }
+            catch (Exception e)
+            {
+                Logger.LogWarning($"{User.Username} failed: {e.ToFancyString()}");
+                throw new OfflineException("Registration failed");
+            }
             Logger.LogInformation($"{url} returned {response.StatusCode}");
             if (!response.IsSuccessStatusCode)
-                return false;
+                throw new MumbleException("Registration failed");
 
-            if (this.Cookies != null)
+            if (Cookies != null)
                 throw new InvalidOperationException("User already has cookies");
             var hasCookies = response.Headers.TryGetValues("Set-Cookie", out Cookies);
             if (!hasCookies)
-                return false;
-
-            return true;
+                throw new MumbleException("Registration failed");
         }
-        public async Task<bool> LoginAsync(CancellationToken token)
+        public async Task LoginAsync(CancellationToken token)
         {
+            Logger.LogInformation($"Login {User.Username}:{User.Password}");
             var url = $"{Scheme}://{Address}:{Port}/api/account/login";
             var request = new HttpRequestMessage(HttpMethod.Post, url)
             {
@@ -81,21 +91,26 @@ namespace GamemasterChecker
             };
             request.Headers.Add("Accept", "application/x-www-form-urlencoded");
             request.Headers.Add("User-Agent", UserAgent);
-            var response = await HttpClient.SendAsync(request, token);
-            Logger.LogInformation($"{url} returned {response.StatusCode} while trying to login with Username {this.User.Username} and Password {this.User.Password}");
+            HttpResponseMessage response;
+            try
+            {
+                response = await HttpClient.SendAsync(request, token);
+            }
+            catch (Exception e)
+            {
+                Logger.LogWarning($"{User.Username} failed: {e.ToFancyString()}");
+                throw new OfflineException("Login failed");
+            }
             if (!response.IsSuccessStatusCode)
-                return false;
-
-            if (this.Cookies != null)
+                throw new MumbleException("Login failed");
+            if (Cookies != null)
                 throw new InvalidOperationException("User already has cookies");
             var hasCookies = response.Headers.TryGetValues("Set-Cookie", out Cookies);
             if (!hasCookies)
-                return false;
-
-            return true;
+                throw new MumbleException("Login failed");
         }
 
-        public async Task<SessionView?> CreateSessionAsync(string name, string notes, string password, CancellationToken token)
+        public async Task<SessionView> CreateSessionAsync(string name, string notes, string password, CancellationToken token)
         {
             var url = $"{Scheme}://{Address}:{Port}/api/gamesession/create";
             var request = new HttpRequestMessage(HttpMethod.Post, url)
@@ -110,45 +125,67 @@ namespace GamemasterChecker
             request.Headers.Add("Accept", "application/x-www-form-urlencoded");
             request.Headers.Add("User-Agent", UserAgent);
             request.Headers.Add("Cookie", Cookies);
-            var response = await HttpClient.SendAsync(request, token);
+            HttpResponseMessage response;
+            try
+            {
+                response = await HttpClient.SendAsync(request, token);
+            }
+            catch (Exception e)
+            {
+                Logger.LogWarning($"{User.Username} failed: {e.ToFancyString()}");
+                throw new OfflineException("Create session failed");
+            }
             Logger.LogInformation($"{url} returned {response.StatusCode}");
             if (!response.IsSuccessStatusCode)
-                return null;
-            var responseString = await response.Content.ReadAsStringAsync(); //TODO find async variant?
-            return JsonSerializer.Deserialize<SessionView>(responseString, JsonOptions);
+                throw new MumbleException("Create session failed");
+            var responseString = await response.Content.ReadAsStringAsync(); //TODO find cancellable variant or verify that it is already cancelled
+            var view = JsonSerializer.Deserialize<SessionView>(responseString, JsonOptions);
+            if (view.Id <= 0 || view.Name == null || view.OwnerName == null || view.Timestamp == null)
+            {
+                Logger.LogWarning($"{User.Username} create session failed: invalid view");
+                throw new MumbleException("Create session failed");
+            }
+            return view;
         }
-        public async Task<string?> AddTokenAsync(string name, string description, bool isPrivate, byte[] ImageData, CancellationToken token)
+        public async Task<string> AddTokenAsync(string name, string description, bool isPrivate, byte[] ImageData, CancellationToken token)
         {
             var url = $"{Scheme}://{Address}:{Port}/api/account/addtoken";
             var ImageContent = new ByteArrayContent(ImageData);
             ImageContent.Headers.Add("Content-Type", "image/png");
             ImageContent.Headers.Add("Content-Disposition", "form-data; name=\"icon\"; filename=\"Arrow.png\"");
-            var foo = new MultipartFormDataContent
-            {
-                { new StringContent(name), "\"name\"" },
-                { new StringContent(description), "\"description\"" },
-                { new StringContent(isPrivate.ToString().ToLower()), "\"isPrivate\"" },
-                { ImageContent, "\"icon\"", "\"Arrow.png\"" }
-            };
             var request = new HttpRequestMessage(HttpMethod.Post, url)
             {
-                Content = foo
+                Content = new MultipartFormDataContent
+                {
+                    { new StringContent(name), "\"name\"" },
+                    { new StringContent(description), "\"description\"" },
+                    { new StringContent(isPrivate.ToString().ToLower()), "\"isPrivate\"" },
+                    { ImageContent, "\"icon\"", "\"Arrow.png\"" }
+                }
             };
-            /*
-            new KeyValuePair<string, string>("name" , name),
-            new KeyValuePair<string, string>("description" , description),
-            new KeyValuePair<string, string>("isprivate" , isPrivate.ToString()),*/
             request.Headers.Add("Accept", "application/json");
             request.Headers.Add("User-Agent", UserAgent);
             request.Headers.Add("Cookie", Cookies);
-             var response = await HttpClient.SendAsync(request, token);
-            Logger.LogInformation($"{url} returned {response.StatusCode}");
+            HttpResponseMessage response;
+            try
+            {
+                response = await HttpClient.SendAsync(request, token);
+                Logger.LogDebug($"{url} returned {response.StatusCode}");
+            }
+            catch (Exception e)
+            {
+                Logger.LogWarning($"{User.Username} failed: {e.ToFancyString()}");
+                throw new OfflineException("Create token failed");
+            }
             if (!response.IsSuccessStatusCode)
-                return null;
-            var responseString = await response.Content.ReadAsStringAsync(); //TODO find async variant?
-            return responseString.Replace("\"", "");
+                throw new MumbleException("Create token failed");
+            var responseString = await response.Content.ReadAsStringAsync(); //TODO find cancellable variant or verify that it is already cancelled
+            var uuid = responseString.Replace("\"", "");
+            if (!IsValidUuid(uuid))
+                throw new MumbleException("Create token failed");
+            return uuid;
         }
-        public async Task<TokenStrippedView> CheckTokenAsync (string UUID, CancellationToken token)
+        public async Task<TokenStrippedView> CheckTokenAsync(string UUID, CancellationToken token)
         {
             var url = $"{Scheme}://{Address}:{Port}/api/token/info";
             var request = new HttpRequestMessage(HttpMethod.Post, url)
@@ -162,9 +199,22 @@ namespace GamemasterChecker
             request.Headers.Add("User-Agent", UserAgent);
             if (Cookies != null)
                 request.Headers.Add("Cookie", Cookies);
-            var response = await HttpClient.SendAsync(request, token);
+            HttpResponseMessage response;
+            try
+            {
+                response = await HttpClient.SendAsync(request, token);
+                Logger.LogInformation($"{url} returned {response.StatusCode}");
+            }
+            catch (Exception e)
+            {
+                Logger.LogWarning($"{User.Username} failed: {e.ToFancyString()}");
+                throw new OfflineException("Get token info failed");
+            }
             var responseString = await response.Content.ReadAsStringAsync(); //TODO find async variant?
-            return JsonSerializer.Deserialize<TokenStrippedView>(responseString, JsonOptions);
+            var tsv = JsonSerializer.Deserialize<TokenStrippedView>(responseString, JsonOptions);
+            if (tsv.Name == null || tsv.OwnerName == null || tsv.UUID == null || tsv.Description == null)
+                throw new MumbleException("Get token info failed");
+            return tsv;
         }
         public async Task<ExtendedSessionView> FetchSessionAsync(long sessionId, CancellationToken token)
         {
@@ -179,11 +229,24 @@ namespace GamemasterChecker
             request.Headers.Add("Accept", "application/x-www-form-urlencoded");
             request.Headers.Add("User-Agent", UserAgent);
             request.Headers.Add("Cookie", Cookies);
-            var response = await HttpClient.SendAsync(request, token);
+            HttpResponseMessage response;
+            try
+            {
+                response = await HttpClient.SendAsync(request, token);
+                Logger.LogInformation($"{url} returned {response.StatusCode}");
+            }
+            catch (Exception e)
+            {
+                Logger.LogWarning($"{User.Username} failed: {e.ToFancyString()}");
+                throw new OfflineException("Get session info failed");
+            }
             var responseString = await response.Content.ReadAsStringAsync(); //TODO find async variant?
-            return JsonSerializer.Deserialize<ExtendedSessionView>(responseString, JsonOptions);
+            var esv = JsonSerializer.Deserialize<ExtendedSessionView>(responseString, JsonOptions);
+            if (esv.Id <= 0 || esv.Name == null || esv.OwnerName == null || esv.Notes == null)
+                throw new MumbleException("Get session info failed");
+            return esv;
         }
-        public async Task<bool> AddUserToSessionAsync(long sessionId, string username, CancellationToken token)
+        public async Task AddUserToSessionAsync(long sessionId, string username, CancellationToken token)
         {
             var url = $"{Scheme}://{Address}:{Port}/api/gamesession/adduser";
             var request = new HttpRequestMessage(HttpMethod.Post, url)
@@ -197,10 +260,25 @@ namespace GamemasterChecker
             request.Headers.Add("Accept", "application/x-www-form-urlencoded");
             request.Headers.Add("User-Agent", UserAgent);
             request.Headers.Add("Cookie", Cookies);
-            var response = await HttpClient.SendAsync(request, token);
-            Logger.LogInformation($"{url} returned {response.StatusCode}");
+            HttpResponseMessage response;
+            try
+            {
+                response = await HttpClient.SendAsync(request, token);
+                Logger.LogInformation($"{url} returned {response.StatusCode}");
+            }
+            catch (Exception e)
+            {
+                Logger.LogWarning($"{User.Username} failed: {e.ToFancyString()}");
+                throw new OfflineException("Get session info failed");
+            }
             if (!response.IsSuccessStatusCode)
-                return false;
+                throw new MumbleException("adduser failed");
+        }
+
+
+        private bool IsValidUuid(string uuid)
+        {
+            if (uuid.Length != 512) return false;
             return true;
         }
     }

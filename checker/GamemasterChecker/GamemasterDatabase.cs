@@ -23,7 +23,7 @@ namespace GamemasterChecker
         public long TeamId { get; set; }
         public long RoundId { get; set; }
         public long SessionId { get; set; }
-        public string Flag { get; set; }
+        public string? Flag { get; set; }
 #pragma warning restore CS8618
     }
     public class GamemasterToken
@@ -69,7 +69,7 @@ namespace GamemasterChecker
         public async Task<string> GetTokenUUIDAsync(string flag, CancellationToken token)
         {
             var cursor = await Tokens.FindAsync(t => t.Flag == flag);
-            List<GamemasterToken> gtoken = await cursor.ToListAsync();
+            List<GamemasterToken> gtoken = await cursor.ToListAsync(token);
             if (gtoken.Count <= 0) return "";
             return gtoken[0].Token;
         }

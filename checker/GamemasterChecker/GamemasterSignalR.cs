@@ -19,9 +19,9 @@ namespace GamemasterChecker
         private readonly int Port = 8001;
         private readonly GamemasterUser User;
         private readonly HubConnection connection;
-        private TaskCompletionSource<bool>? Source;
-        private CancellationToken Token;
-        private CancellationTokenRegistration reg;
+        private readonly TaskCompletionSource<bool>? Source;
+        private readonly CancellationToken Token;
+        private readonly CancellationTokenRegistration Reg;
         private readonly string? ContentToCompare;
         public GamemasterSignalR(string address, GamemasterUser user, ILogger logger, TaskCompletionSource<bool>? source,string? contentToCompare, GamemasterClient client, CancellationToken token)
         {
@@ -30,26 +30,33 @@ namespace GamemasterChecker
             User = user;
             Source = source;
             ContentToCompare = contentToCompare;
-            reg = Token.Register(() =>
+            Reg = Token.Register(() =>
             {
-                Logger.LogInformation("The CancellationToken was cancelled, disposing SignalRClient");
-                Source?.SetResult(false);
+                Logger.LogWarning("The CancellationToken was cancelled, disposing SignalRClient");
+                Source?.TrySetException(new MumbleException("Chat messages not delivered in time"));
             });
             connection = new HubConnectionBuilder()
                 .WithUrl(Scheme + "://" + address + ":" + Port + "/hubs/session", options=>
                 {
-                    //options.Cookies.SetCookies(new Uri(Scheme + "://" + address + ":" + Port), client.Cookies);
                     options.Headers.Add("Cookie", client.Cookies.FirstOrDefault());
                 })
                 .Build();
-            connection.On<ChatMessageView[]>("Chat", (message) =>
+            connection.On<ChatMessageView[]>("Chat", (messages) =>
             {
-                Logger.LogInformation($"{user.Username} ChatMessage Received: {message} " + token.IsCancellationRequested + " " + connection.State + " " + connection.ConnectionId);
-                foreach (var e in message)
-                if (e.Content == ContentToCompare)
+                Logger.LogInformation($"{user.Username} ChatMessage Received: {messages} " + token.IsCancellationRequested + " " + connection.State + " " + connection.ConnectionId);
+                if (ContentToCompare != null)
                 {
-                    Task.Run(() => Source?.SetResult(true));
-                    return;
+                    foreach (var e in messages)
+                        if (e.Content == ContentToCompare)
+                        {
+                            Task.Run(() => Source?.SetResult(false));
+                            return;
+                        }
+                    Source?.SetException(new MumbleException("Flag is not in chat"));
+                }
+                else
+                {
+                    source?.SetResult(false);
                 }
             });
             connection.On<Scene>("Scene", (scene) =>
@@ -61,23 +68,29 @@ namespace GamemasterChecker
 
         private Task Connection_Closed(Exception arg)
         {
-            Logger.LogInformation($"{User.Username} Connection closed:{connection.ConnectionId}, {arg.ToFancyString()}");
-            Source?.SetException(new Exception($"Connection has been closed"));
+            Logger.LogInformation($"{User.Username} Connection closed: {connection.ConnectionId}, {arg.ToFancyString()}");
+            Source?.TrySetException(new OfflineException("Connection to session hub was closed by the server"));
             return Task.CompletedTask;
         }
 
         public async ValueTask DisposeAsync()
         {
-            Logger.LogInformation($"{User.Username} Disposing connection:{connection.ConnectionId}");
-            reg.Dispose();
+            Reg.Dispose();
             await connection.StopAsync();
-            Logger.LogInformation($"{User.Username} connection stopped:{connection.ConnectionId}");
         }
 
         public async Task Connect()
         {
-            await connection.StartAsync(Token);
-            Logger.LogInformation($"{User.Username} StartAsync succeeded: {connection.ConnectionId} {connection.State}");
+            try
+            {
+                await connection.StartAsync(Token);
+                Logger.LogInformation($"{User.Username} StartAsync succeeded: {connection.ConnectionId} {connection.State}");
+            }
+            catch(Exception e) //TODO handle auth failures, raise mumble
+            {
+                Logger.LogWarning($"{User.Username} StartAsync failed: {e.ToFancyString()}");
+                throw new OfflineException("Connection to session hub failed");
+            }
         }
 
         public async Task SendMessage(string msg, CancellationToken token)
@@ -101,8 +114,8 @@ namespace GamemasterChecker
             }
             catch (Exception e)
             {
-                Logger.LogInformation($"{User.Username} cancelrequested=" + token.IsCancellationRequested + " state=" + connection.State + " connectionid=" + connection.ConnectionId);
-                Logger.LogError(e.ToFancyString());
+                Logger.LogWarning($"{User.Username} failed: {e.ToFancyString()}");
+                throw new OfflineException("Join invocation in session hub failed");
             }
         }
     }
