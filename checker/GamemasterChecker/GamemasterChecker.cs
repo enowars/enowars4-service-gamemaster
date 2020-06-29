@@ -103,7 +103,9 @@ namespace GamemasterChecker
         }
         private string GetChatMessage()
         {
-            return "blabla";
+            var msg = FakeUsers.getFakeChat();
+            Logger.LogInformation($"GetSessionChatMessage returned {msg}");
+            return msg;
         }
         private GamemasterUser CreateUser(long roundId, long teamId, string flag)
         {
