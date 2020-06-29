@@ -23,13 +23,15 @@ namespace GamemasterChecker
         private readonly CancellationToken Token;
         private readonly CancellationTokenRegistration Reg;
         private readonly string? ContentToCompare;
-        public GamemasterSignalR(string address, GamemasterUser user, ILogger logger, TaskCompletionSource<bool>? source,string? contentToCompare, GamemasterClient client, CancellationToken token)
+        private int MessageBatchIndex;
+        public GamemasterSignalR(string address, GamemasterUser user, ILogger logger, TaskCompletionSource<bool>? source, int messageBatchIndex, string? contentToCompare, GamemasterClient client, CancellationToken token)
         {
             Token = token;
             Logger = logger;
             User = user;
             Source = source;
             ContentToCompare = contentToCompare;
+            MessageBatchIndex = messageBatchIndex;
             Reg = Token.Register(() =>
             {
                 Logger.LogWarning("The CancellationToken was cancelled, disposing SignalRClient");
@@ -43,22 +45,18 @@ namespace GamemasterChecker
                 .Build();
             connection.On<ChatMessageView[]>("Chat", (messages) =>
             {
-                Logger.LogInformation($"{user.Username} {connection.ConnectionId} ChatMessage Received: {messages.Length}");
+                Logger.LogInformation($"{user.Username} {connection.ConnectionId} ChatMessage received: {messages.Length}");
                 if (ContentToCompare != null)
                 {
-                    Logger.LogDebug($"Comparing to: {ContentToCompare}");
+                    if (MessageBatchIndex != 0)
+                        MessageBatchIndex -= 1;
+                    Logger.LogDebug($"Comparing {messages.Count()} messages to: {ContentToCompare}");
                     foreach (var e in messages)
                     {
-                        Logger.LogDebug($"message: {e.Content}");
                         if (e.Content == ContentToCompare)
                         {
-                            Logger.LogDebug("equal!");
                             Task.Run(() => Source?.SetResult(false));
                             return;
-                        }
-                        else
-                        {
-                            Logger.LogDebug("not equal");
                         }
                     }
                     Source?.SetException(new MumbleException("Flag is not in chat"));

@@ -99,8 +99,8 @@ namespace GamemasterChecker
             var ta1 = client3.AddUserToSessionAsync(s!.Id, user2.Username, token);
             var ta2 = client3.AddUserToSessionAsync(s!.Id, user1.Username, token);
             await ta1; await ta2;
-            await using GamemasterSignalR src1 = new GamemasterSignalR(task.Address, user1, Logger, null, null, client1, token);
-            await using GamemasterSignalR src2 = new GamemasterSignalR(task.Address, user2, Logger, null, null, client2, token);
+            await using GamemasterSignalR src1 = new GamemasterSignalR(task.Address, user1, Logger, null, 0, null, client1, token);
+            await using GamemasterSignalR src2 = new GamemasterSignalR(task.Address, user2, Logger, null, 0, null, client2, token);
             var tc1 = src1.Connect();
             var tc2 = src2.Connect();
             await tc1; await tc2;
@@ -120,7 +120,7 @@ namespace GamemasterChecker
             var client1 = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, user1, Logger);
             await client1.LoginAsync(token);
             var tcs = new TaskCompletionSource<bool>();
-            await using GamemasterSignalR src1 = new GamemasterSignalR(task.Address, user1, Logger, tcs, task.Flag, client1, token);
+            await using GamemasterSignalR src1 = new GamemasterSignalR(task.Address, user1, Logger, tcs, 0, task.Flag, client1, token);
             await src1.Connect();
             var tj1 = src1.Join(user1.SessionId, token);
             await tj1;
@@ -248,8 +248,8 @@ namespace GamemasterChecker
             await ta1; await ta2;
             var tcs = new TaskCompletionSource<bool>();
             var message = GetChatMessage();
-            await using GamemasterSignalR src1 = new GamemasterSignalR(task.Address, user1, Logger, null, null, client1, token);
-            await using GamemasterSignalR src2 = new GamemasterSignalR(task.Address, user2, Logger, tcs, message, client2, token);
+            await using GamemasterSignalR src1 = new GamemasterSignalR(task.Address, user1, Logger, null, 0, null, client1, token);
+            await using GamemasterSignalR src2 = new GamemasterSignalR(task.Address, user2, Logger, tcs, 1, message, client2, token);
             var tc1 = src1.Connect();
             var tc2 = src2.Connect();
             await tc1; await tc2;
