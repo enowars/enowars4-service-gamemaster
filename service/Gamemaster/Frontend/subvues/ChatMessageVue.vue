@@ -1,7 +1,7 @@
 <template>
     <tr>
+        <td title="{{data.tooltip}}">({{data.timeString}})</td>
         <td>{{data.senderName}}</td>
-        <td>{{data.timestamp}}</td>
     </tr>
     <tr>
         <td>{{data.content}}</td>

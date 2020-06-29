@@ -4,10 +4,12 @@ export class Scene {
 
 export class ChatMessage {
     id = 0;
-    SenderName = "SenderName";
-    SessionContextId = 0;
-    Content = "Content";
-    date = "date";
+    senderName = "SenderName";
+    sessionContextId = 0;
+    content = "Content";
+    timestamp = "";
+    timeString = "";
+    tooltip = "";
 }
 
 export class Unit {
