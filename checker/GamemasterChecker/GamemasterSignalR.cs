@@ -23,13 +23,15 @@ namespace GamemasterChecker
         private TaskCompletionSource<bool>? Source;
         private CancellationToken Token;
         private CancellationTokenRegistration reg;
-        public GamemasterSignalR(string address, GamemasterUser user, ILogger logger, TaskCompletionSource<bool>? source, GamemasterClient client, CancellationToken token)
+        private readonly string? ContentToCompare;
+        public GamemasterSignalR(string address, GamemasterUser user, ILogger logger, TaskCompletionSource<bool>? source,string? contentToCompare, GamemasterClient client, CancellationToken token)
         {
             Token = token;
             Logger = logger;
             User = user;
             Address = address;
             Source = source;
+            ContentToCompare = contentToCompare;
             reg = Token.Register(() =>
             {
                 Logger.LogInformation("The CancellationToken was cancelled, disposing SignalRClient");
@@ -42,12 +44,14 @@ namespace GamemasterChecker
                     options.Headers.Add("Cookie", client.Cookies.FirstOrDefault());
                 })
                 .Build();
-            connection.On<ChatMessageView>("Chat", (message) =>
+            connection.On<ChatMessageView[]>("Chat", (message) =>
             {
                 Logger.LogInformation($"{user.Username} ChatMessage Received: {message} " + token.IsCancellationRequested + " " + connection.State + " " + connection.ConnectionId);
-                if (message.Content == "blabla")
+                foreach (var e in message)
+                if (e.Content == ContentToCompare)
                 {
                     Task.Run(() => Source?.SetResult(true));
+                    return;
                 }
             });
             connection.On<Scene>("Scene", (scene) =>
