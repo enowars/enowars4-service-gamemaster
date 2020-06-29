@@ -66,9 +66,9 @@ namespace GamemasterChecker
             return Task.CompletedTask;
         }
 
-        public async Task HandleHavok(CheckerTaskMessage task, CancellationToken token)
+        public async Task HandleHavoc(CheckerTaskMessage task, CancellationToken token)
         {
-            await HavokChat(task, token);
+            await HavocChat(task, token);
         }
         private string GetSessionName()
         {
@@ -231,7 +231,7 @@ namespace GamemasterChecker
             if (!retrievedToken.Description.Equals(task.Flag))
                 throw new MumbleException("Flag not found in token");
         }
-        private async Task HavokChat(CheckerTaskMessage task, CancellationToken token)
+        private async Task HavocChat(CheckerTaskMessage task, CancellationToken token)
         {
             var user1 = FakeUsers.GetFakeUser(-1, -1, null);
             var user2 = FakeUsers.GetFakeUser(-1, -1, null);

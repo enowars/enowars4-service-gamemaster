@@ -17,6 +17,6 @@ namespace GamemasterChecker
         Task HandleGetFlag(CheckerTaskMessage task, CancellationToken Token);
         Task HandlePutNoise(CheckerTaskMessage task, CancellationToken Token);
         Task HandleGetNoise(CheckerTaskMessage task, CancellationToken Token);
-        Task HandleHavok(CheckerTaskMessage task, CancellationToken Token);
+        Task HandleHavoc(CheckerTaskMessage task, CancellationToken Token);
     }
 }

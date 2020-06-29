@@ -62,7 +62,7 @@ namespace GamemasterChecker.Controllers
                         await Checker.HandlePutNoise(taskMessage, HttpContext.RequestAborted);
                         break;
                     case "havoc":
-                        await Checker.HandleHavok(taskMessage, HttpContext.RequestAborted);
+                        await Checker.HandleHavoc(taskMessage, HttpContext.RequestAborted);
                         break;
                     default:
                         throw new InvalidOperationException($"Invalid method {taskMessage.Method}");

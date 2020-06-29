@@ -43,15 +43,19 @@ namespace GamemasterChecker
                 .Build();
             connection.On<ChatMessageView[]>("Chat", (messages) =>
             {
-                Logger.LogInformation($"{user.Username} ChatMessage Received: {messages} " + token.IsCancellationRequested + " " + connection.State + " " + connection.ConnectionId);
+                Logger.LogInformation($"{user.Username} {connection.ConnectionId} ChatMessage Received: {messages.Length}");
                 if (ContentToCompare != null)
                 {
+                    Logger.LogDebug($"Comparing to: {ContentToCompare}");
                     foreach (var e in messages)
+                    {
+                        Logger.LogDebug($"message: {e}");
                         if (e.Content == ContentToCompare)
                         {
                             Task.Run(() => Source?.SetResult(false));
                             return;
                         }
+                    }
                     Source?.SetException(new MumbleException("Flag is not in chat"));
                 }
                 else
@@ -97,7 +101,7 @@ namespace GamemasterChecker
         {
             try
             {
-                Logger.LogInformation($"{User.Username} InvokeAsync(Chat) " + token.IsCancellationRequested + " " + connection.State + " " + connection.ConnectionId);
+                Logger.LogInformation($"{User.Username} {connection.ConnectionId} InvokeAsync(Chat) {msg}");
                 await connection.InvokeAsync("Chat", msg, cancellationToken: token);
             }
             catch (Exception e)
