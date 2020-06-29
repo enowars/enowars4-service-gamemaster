@@ -153,7 +153,11 @@ namespace GamemasterChecker
         }
         private async Task<CheckerResultMessage> GetFlagFromChat(CheckerTaskMessage task, CancellationToken token)
         {
-
+            return new CheckerResultMessage()
+            {
+                Result = CheckerResult.OK,
+                Message = $"Checker returned ok"
+            };
         }
         private async Task<CheckerResultMessage> PutFlagToSession(CheckerTaskMessage task, CancellationToken token)
         {
