@@ -22,8 +22,9 @@ namespace GamemasterChecker
         }
         public static string GetUserAgent()
         {
-            var o = new Faker("de");
-            return o.Internet.UserAgent();
+            //var o = new Faker("de");
+            //return o.Internet.UserAgent();
+            return UserAgents.GetRandomUserAgent();
         }
         public static string GetFakeChat()
         {
