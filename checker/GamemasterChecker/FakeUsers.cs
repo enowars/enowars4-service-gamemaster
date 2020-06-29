@@ -11,7 +11,11 @@ namespace GamemasterChecker
 {
     public class FakeUsers
     {
-        
+        public static string getFakeSession()
+        {
+            var o = new Faker("de");
+            return o.Hacker.Phrase();
+        }
         public static GamemasterUser getFakeUser(GamemasterUser u)
         {
             var o = new Faker<GamemasterUser>()
