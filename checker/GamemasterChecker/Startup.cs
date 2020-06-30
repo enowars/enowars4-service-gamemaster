@@ -55,7 +55,6 @@ namespace GamemasterChecker
                 {
                     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                     options.JsonSerializerOptions.WriteIndented = true;
-                    options.JsonSerializerOptions.Converters.Add(new CheckerResultMessageJsonConverter());
                 });
             services.AddSingleton(typeof(IChecker), typeof(GamemasterChecker));
         }

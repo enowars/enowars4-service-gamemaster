@@ -38,7 +38,12 @@ namespace GamemasterChecker.Controllers
         [Route("/service")]
         public async Task<IActionResult> Service()
         {
-            return Ok();
+            return Ok(JsonSerializer.Serialize(new CheckerInfoMessage()
+            {
+                FlagCount = 3,
+                NoiseCount = 0,
+                HavocCount = 1
+            }, JsonOptions));
         }
         [HttpPost]
         [Route("/")]
@@ -56,19 +61,19 @@ namespace GamemasterChecker.Controllers
             {
                 switch (taskMessage.Method)
                 {
-                    case "putflag":
+                    case CheckerTaskMethod.putflag:
                         await Checker.HandlePutFlag(taskMessage, HttpContext.RequestAborted);
                         break;
-                    case "getflag":
+                    case CheckerTaskMethod.getflag:
                         await Checker.HandleGetFlag(taskMessage, HttpContext.RequestAborted);
                         break;
-                    case "putnoise":
+                    case CheckerTaskMethod.putnoise:
                         await Checker.HandlePutNoise(taskMessage, HttpContext.RequestAborted);
                         break;
-                    case "getnoise":
+                    case CheckerTaskMethod.getnoise:
                         await Checker.HandlePutNoise(taskMessage, HttpContext.RequestAborted);
                         break;
-                    case "havoc":
+                    case CheckerTaskMethod.havoc:
                         await Checker.HandleHavoc(taskMessage, HttpContext.RequestAborted);
                         break;
                     default:
