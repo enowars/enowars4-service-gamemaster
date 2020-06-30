@@ -40,6 +40,7 @@ namespace GamemasterChecker.Controllers
         {
             return Ok(JsonSerializer.Serialize(new CheckerInfoMessage()
             {
+                ServiceName = "Gamemaster",
                 FlagCount = 3,
                 NoiseCount = 0,
                 HavocCount = 1
