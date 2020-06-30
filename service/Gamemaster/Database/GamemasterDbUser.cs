@@ -57,6 +57,8 @@ namespace Gamemaster.Database
                     return null;
                 }
             }
+            catch
+            { }
             finally
             {
                 pool.Return(hash);
