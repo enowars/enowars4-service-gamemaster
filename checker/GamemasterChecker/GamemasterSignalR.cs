@@ -64,7 +64,7 @@ namespace GamemasterChecker
                             return;
                         }
                     }
-                    Source?.SetException(new MumbleException("Flag is not in chat"));
+                    //Source?.SetException(new MumbleException("Flag is not in chat"));
                 }
                 else
                 {
