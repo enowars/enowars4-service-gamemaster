@@ -117,6 +117,7 @@ namespace GamemasterChecker
             if (users.Count <= 0)
                 throw new MumbleException("Putflag failed");
             var user1 = users[0];
+            Logger.LogInformation($"GetFlagFromChat -  Name:\"{user1.Username}\", Password:\"{user1.Password}\", SessionId:\"{user1.SessionId}\"");
             var client1 = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, user1, Logger);
             await client1.LoginAsync(token);
             var tcs = new TaskCompletionSource<bool>();
