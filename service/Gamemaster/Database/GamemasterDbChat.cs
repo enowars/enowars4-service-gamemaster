@@ -36,7 +36,13 @@ namespace Gamemaster.Database
         }
         public async Task<ChatMessageView[]> GetChatMessages(long context)
         {
-            return await _context.ChatMessages.Where(msg => msg.SessionContextId == context).OrderBy(msg => msg.Id).Take(100).Select(m => new ChatMessageView(m)).ToArrayAsync();
+            return await _context.ChatMessages
+                .Where(msg => msg.SessionContextId == context)
+                .Include(msg => msg.Sender)
+                .OrderBy(msg => msg.Id)
+                .Take(100)
+                .Select(m => new ChatMessageView(m))
+                .ToArrayAsync();
         }
     }
 }
