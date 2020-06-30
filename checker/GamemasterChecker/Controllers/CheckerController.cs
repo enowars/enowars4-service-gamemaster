@@ -17,6 +17,7 @@ namespace GamemasterChecker.Controllers
 {
     [ApiController]
     [Route("/")]
+    [Route("/service")]
     public class CheckerController : Controller
     {
         private readonly JsonSerializerOptions JsonOptions;
@@ -33,8 +34,14 @@ namespace GamemasterChecker.Controllers
             };
             //JsonOptions.Converters.Add(new CheckerResultMessageJsonConverter());
         }
-
+        [HttpGet]
+        [Route("/service")]
+        public async Task<IActionResult> Service()
+        {
+            return Ok();
+        }
         [HttpPost]
+        [Route("/")]
         public async Task<IActionResult> Flag([FromBody] string content)
         {
             CheckerResultMessage result = new CheckerResultMessage()
