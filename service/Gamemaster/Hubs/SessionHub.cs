@@ -45,7 +45,7 @@ namespace Gamemaster.Hubs
                 scene.RemoveUnit("unit"+Context.ConnectionId);
                 lock(scene)
                     if (scene.Units.Count() <= 0) Scenes.TryRemove(sceneId, out var _);
-                await Clients.All.SendAsync(nameof(scene), scene, CancellationToken.None);
+                await Clients.Group(sceneId.ToString()).SendAsync(nameof(scene), scene, CancellationToken.None);
             }
         }
         public async Task Chat(string Message)

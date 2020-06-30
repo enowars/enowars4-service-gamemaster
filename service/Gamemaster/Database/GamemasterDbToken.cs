@@ -46,16 +46,6 @@ namespace Gamemaster.Database
         {
             string uUID = "";
             lock (Rand) for (; uUID.Length < 512; uUID += Rand.Next().ToString("X8")) ;
-            /*
-            lock (Rand)
-            {
-                for (; uUID.Length < 512;)
-                {
-                    var tmp = Rand.Next();
-                    Console.WriteLine ($"Random Value: {tmp} converted to {tmp:X8}");
-                    uUID += tmp.ToString("X8");
-                };
-            } */
             var token = new Token()
             {
                 Name = name,
