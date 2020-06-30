@@ -49,11 +49,12 @@ namespace GamemasterChecker
                 Logger.LogInformation($"{user.Username} {connection.ConnectionId} ChatMessage received: {messages.Length}");
                 if (ContentToCompare != null)
                 {
+                    /*
                     if (MessageBatchIndex != 0)
                     {
                         MessageBatchIndex -= 1;
                         return;
-                    }
+                    }*/
                     Logger.LogDebug($"Comparing {messages.Count()} messages to: {ContentToCompare}");
                     foreach (var e in messages)
                     {
