@@ -12,7 +12,7 @@ services:
   postgres:
     image: postgres
     volumes:
-      - ./postgresql.conf:/var/lib/postgresql/data/postgresql.conf
+      - ./postgresql.conf:/etc/postgresql/postgresql.conf
     environment:
       POSTGRES_USER: docker
       POSTGRES_PASSWORD: docker
