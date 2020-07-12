@@ -35,25 +35,35 @@ namespace GamemasterChecker
         {
             if (task.Flag == null)
                 throw new InvalidOperationException("Flag must not be null in putflag");
-            var op = task.FlagIndex % 3;
-            if (op == 0)
-                await PutFlagToSession(task, token);
-            else if (op == 1)
-                await PutFlagToToken(task, token);
-            else if (op == 2)
-                await PutFlagToChat(task, token);
+            switch (task.FlagIndex % 3)
+            {
+                case 0:
+                    await PutFlagToSession(task, token);
+                    break;
+                case 1:
+                    await PutFlagToToken(task, token);
+                    break;
+                case 2:
+                    await PutFlagToChat(task, token);
+                    break;
+            }
         }
         public async Task HandleGetFlag(CheckerTaskMessage task, CancellationToken token)
         {
             if (task.Flag == null)
                 throw new InvalidOperationException("Flag must not be null in getflag");
-            var op = task.FlagIndex % 3;
-            if (op == 0)
-                await GetFlagFromSession(task, token);
-            else if (op == 1)
-                await GetFlagFromToken(task, token);
-            else if (op == 2)
-                await GetFlagFromChat(task, token);
+            switch (task.FlagIndex % 3)
+            {
+                case 0:
+                    await GetFlagFromSession(task, token);
+                    break;
+                case 1:
+                    await GetFlagFromToken(task, token);
+                    break;
+                case 2:
+                    await GetFlagFromChat(task, token);
+                    break;
+            }
         }
 
         public Task HandleGetNoise(CheckerTaskMessage task, CancellationToken token)
@@ -233,6 +243,7 @@ namespace GamemasterChecker
         }
         private async Task HavocChat(CheckerTaskMessage task, CancellationToken token)
         {
+            var shorterToken = new CancellationTokenSource((int)task.Timeout).Token;
             var user1 = FakeUsers.GetFakeUser(-1, -1, null);
             var user2 = FakeUsers.GetFakeUser(-1, -1, null);
             var user3 = FakeUsers.GetFakeUser(-1, -1, null);

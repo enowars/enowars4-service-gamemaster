@@ -72,7 +72,7 @@ namespace GamemasterChecker.Controllers
                         await Checker.HandlePutNoise(taskMessage, HttpContext.RequestAborted);
                         break;
                     case CheckerTaskMethod.getnoise:
-                        await Checker.HandlePutNoise(taskMessage, HttpContext.RequestAborted);
+                        await Checker.HandleGetNoise(taskMessage, HttpContext.RequestAborted);
                         break;
                     case CheckerTaskMethod.havoc:
                         await Checker.HandleHavoc(taskMessage, HttpContext.RequestAborted);
