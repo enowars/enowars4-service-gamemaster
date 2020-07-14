@@ -280,7 +280,7 @@ namespace GamemasterChecker
             var tcs = new TaskCompletionSource<bool>();
             var message = GetChatMessage();
             await using GamemasterSignalR src1 = new GamemasterSignalR(task.Address, user1, Logger, null, 0, null, client1, shorterToken);
-            await using GamemasterSignalR src2 = new GamemasterSignalR(task.Address, user2, Logger, tcs, 1, message+"blaa", client2, shorterToken);
+            await using GamemasterSignalR src2 = new GamemasterSignalR(task.Address, user2, Logger, tcs, 1, message, client2, shorterToken);
             var tc1 = src1.Connect();
             var tc2 = src2.Connect();
             await tc1; await tc2;
