@@ -39,8 +39,9 @@ namespace GamemasterChecker
 
     public class GamemasterDatabase
     {
-        public static string MongoDomain=> Environment.GetEnvironmentVariable("DATABASE_DOMAIN") ?? "localhost";
-        public static string MongoConnection => "mongodb://" + MongoDomain + ":27017";
+        public static string MongoHost=> Environment.GetEnvironmentVariable("MONGO_HOST") ?? "localhost";
+        public static string MongoPort=> Environment.GetEnvironmentVariable("MONGO_PORT") ?? "localhost";
+        public static string MongoConnection => $"mongodb://{MongoHost}:{MongoPort}";
         private readonly IMongoCollection<GamemasterUser> Users;
         private readonly IMongoCollection<GamemasterToken> Tokens;
         private readonly InsertOneOptions InsertOneOptions = new InsertOneOptions() { BypassDocumentValidation = false };

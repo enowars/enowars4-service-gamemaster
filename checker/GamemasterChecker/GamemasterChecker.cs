@@ -86,6 +86,24 @@ namespace GamemasterChecker
             Logger.LogInformation($"GetSessionName returned {Session}");
             return Session;
         }
+        private string GetSessionNotes()
+        {
+            var Notes = "No 🏳️‍🌈 here, go away...";
+            Logger.LogInformation($"GetSessionNotes returned {Notes}");
+            return Notes;
+        }
+        private string GetSessionPassword()
+        {
+            var Password = "password";
+            Logger.LogInformation($"GetSessionNotes returned {Password}");
+            return Password;
+        }
+        private string GetTokenName()
+        {
+            var Token = FakeUsers.GetFakeSession();
+            Logger.LogInformation($"GetTokenName returned {Token}");
+            return Token;
+        }
         private string GetChatMessage()
         {
             var msg = FakeUsers.GetFakeChat();
@@ -123,6 +141,7 @@ namespace GamemasterChecker
         }
         private async Task GetFlagFromChat(CheckerTaskMessage task, CancellationToken token)
         {
+            var shorterToken = new CancellationTokenSource((int)(task.Timeout * 0.9)).Token;
             var users = await Db.GetUsersAsync(task.Flag!, token);
             if (users.Count <= 0)
                 throw new MumbleException("Putflag failed");
@@ -131,7 +150,7 @@ namespace GamemasterChecker
             var client1 = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, user1, Logger);
             await client1.LoginAsync(token);
             var tcs = new TaskCompletionSource<bool>();
-            await using GamemasterSignalR src1 = new GamemasterSignalR(task.Address, user1, Logger, tcs, 0, task.Flag, client1, token);
+            await using GamemasterSignalR src1 = new GamemasterSignalR(task.Address, user1, Logger, tcs, 0, task.Flag, client1, shorterToken);
             await src1.Connect();
             var tj1 = src1.Join(user1.SessionId, token);
             await tj1;
@@ -150,7 +169,7 @@ namespace GamemasterChecker
             using var masterClient = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, master, Logger);
             await masterClient.RegisterAsync(token).ConfigureAwait(false);
             // Create a new session
-            SessionView session = await masterClient.CreateSessionAsync(GetSessionName(), task.Flag!, "password", token);
+            SessionView session = await masterClient.CreateSessionAsync(GetSessionName(), task.Flag!, GetSessionPassword(), token);
 
             // Create new users
             var usersToCreate = Utils.Random.Next(4, 8);
@@ -202,10 +221,10 @@ namespace GamemasterChecker
             await masterClient.RegisterAsync(token).ConfigureAwait(false);
 
             // Create a new session
-            SessionView session = await masterClient.CreateSessionAsync("name", "No 🏳️‍🌈 here, go away...", "password", token);
+            SessionView session = await masterClient.CreateSessionAsync(GetSessionName(), GetSessionNotes(), "password", token);
             byte[] imgdata = new byte[64];
             Utils.Random.NextBytes(imgdata);
-            var uuid = await masterClient.AddTokenAsync("name", task.Flag!, true, imgdata, token);
+            var uuid = await masterClient.AddTokenAsync(GetTokenName(), task.Flag!, true, imgdata, token); ;
             await Db.AddTokenUUIDAsync(task.Flag!, uuid, token);
             await Db.AddUserAsync(smaster, token);
         }
@@ -243,7 +262,7 @@ namespace GamemasterChecker
         }
         private async Task HavocChat(CheckerTaskMessage task, CancellationToken token)
         {
-            var shorterToken = new CancellationTokenSource((int)task.Timeout).Token;
+            var shorterToken = new CancellationTokenSource((int)(task.Timeout*0.9)).Token;
             var user1 = FakeUsers.GetFakeUser(-1, -1, null);
             var user2 = FakeUsers.GetFakeUser(-1, -1, null);
             var user3 = FakeUsers.GetFakeUser(-1, -1, null);
@@ -260,8 +279,8 @@ namespace GamemasterChecker
             await ta1; await ta2;
             var tcs = new TaskCompletionSource<bool>();
             var message = GetChatMessage();
-            await using GamemasterSignalR src1 = new GamemasterSignalR(task.Address, user1, Logger, null, 0, null, client1, token);
-            await using GamemasterSignalR src2 = new GamemasterSignalR(task.Address, user2, Logger, tcs, 1, message, client2, token);
+            await using GamemasterSignalR src1 = new GamemasterSignalR(task.Address, user1, Logger, null, 0, null, client1, shorterToken);
+            await using GamemasterSignalR src2 = new GamemasterSignalR(task.Address, user2, Logger, tcs, 1, message+"blaa", client2, shorterToken);
             var tc1 = src1.Connect();
             var tc2 = src2.Connect();
             await tc1; await tc2;

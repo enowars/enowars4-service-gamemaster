@@ -5,7 +5,8 @@ services:
       context: GamemasterChecker
       dockerfile: Dockerfile
     environment:
-      - DATABASE_DOMAIN=mongodb
+      - MONGO_HOST=mongodb
+      - MONGO_PORT=27017
       - USE_ELK=true
     ports:
       - "8000:80"
