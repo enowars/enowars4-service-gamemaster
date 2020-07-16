@@ -210,8 +210,17 @@ namespace GamemasterChecker
                 Logger.LogWarning($"{User.Username} failed: {e.ToFancyString()}");
                 throw new OfflineException("Get token info failed");
             }
-            var responseString = await response.Content.ReadAsStringAsync(); //TODO find async variant?
-            var tsv = JsonSerializer.Deserialize<TokenStrippedView>(responseString, JsonOptions);
+            TokenStrippedView tsv;
+            try
+            {
+                var responseString = await response.Content.ReadAsStringAsync(); //TODO find async variant?
+                tsv = JsonSerializer.Deserialize<TokenStrippedView>(responseString, JsonOptions);
+
+            }
+            catch (Exception e)
+            {
+                throw new MumbleException("Failed to Parse Result of /api/token/info");
+            }
             if (tsv.Name == null || tsv.OwnerName == null || tsv.UUID == null || tsv.Description == null)
                 throw new MumbleException("Get token info failed");
             return tsv;
