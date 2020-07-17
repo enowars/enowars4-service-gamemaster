@@ -1,13 +1,13 @@
 <template>
     <div id="tokenAdd">
         <h1>Add Token</h1>
-        <form id="addtoken"
+        <form id="addtoken" ref="addtoken"
               action=""
               method="post">
-            <input type="text" name="name" v-model="input.name" placeholder="Name" />
-            <input type="text" name="description" v-model="input.description" placeholder="Description" />
-            <input type="checkbox" name="isPrivate" v-model="input.isPrivate" placeholder="Description" />
-            <input type="file" id="file" ref="file" v-on:change="handleFileSelection" />
+            <input type="text" name="name" placeholder="Name" />
+            <input type="text" name="description" placeholder="Description" />
+            <input type="checkbox" name="isPrivate" placeholder="Description" />
+            <input type="file" name="icon" />
             <button type="button" v-on:click="add()">Add</button>
         </form>
     </div>
@@ -22,26 +22,20 @@
     export default defineComponent({
         data() {
             return {
-                input: {
-                    name: "",
-                    description: "",
-                    isPrivate: true,
-                    file: { type: File }
-                }
             }
         },
         methods: {
-            handleFileSelection(event: InputEvent) {
-                console.log(event);
-                const foo = this as any;
-                this.input.file = foo.$refs.file.files[0];
-            },
             add() {
-                var bodyFormData = new FormData();
-                bodyFormData.set('name', this.input.name);
-                bodyFormData.set('description', this.input.description);
-                bodyFormData.set('isPrivate', String(this.input.isPrivate));
-                bodyFormData.append("icon", this.input.file as any as Blob);
+                var bodyFormData = new FormData(this.$refs.addtoken as HTMLFormElement);
+                if (bodyFormData.get("isPrivate") == "on")
+                {
+                    bodyFormData.set("isPrivate", "true")
+                } else
+                {
+                    bodyFormData.set("isPrivate", "false");
+                }
+                console.log(bodyFormData);
+                console.log(bodyFormData.get("isPrivate"));
                 console.log("Adding Token...");
                 const options: AxiosRequestConfig = {
                     method: 'POST',
