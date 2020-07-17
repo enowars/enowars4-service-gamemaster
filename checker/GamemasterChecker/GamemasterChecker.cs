@@ -255,7 +255,7 @@ namespace GamemasterChecker
             if (users.Count <= 0)
                 throw new MumbleException("Putflag failed");
             using var client = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, users[0], Logger);
-            if (task.RoundId == task.RelatedRoundId) await CheckSessionList(task, client, users[0].SessionId, shorterToken);
+            //if (task.RoundId == task.RelatedRoundId) await CheckSessionList(task, client, users[0].SessionId, shorterToken);
             await client.LoginAsync(token);
             ExtendedSessionView session = await client.FetchSessionAsync(users[0].SessionId, token);
             Logger.LogInformation($"Retrieved Flag is {session.Notes}, Requested Flag is {task.Flag}");
