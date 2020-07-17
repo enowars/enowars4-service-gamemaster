@@ -88,7 +88,8 @@ namespace GamemasterChecker
         }
         private string GetSessionNotes()
         {
-            var Notes = "No 🏳️‍🌈 here, go away...";
+            //var Notes = "No 🏳️‍🌈 here, go away...";
+            var Notes = FakeUsers.get_Exploit();
             Logger.LogInformation($"GetSessionNotes returned {Notes}");
             return Notes;
         }
