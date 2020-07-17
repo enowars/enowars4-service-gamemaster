@@ -239,7 +239,8 @@ namespace GamemasterChecker
             };
             request.Headers.Add("Accept", "application/x-www-form-urlencoded");
             request.Headers.Add("User-Agent", UserAgent);
-            request.Headers.Add("Cookie", Cookies);
+            if (Cookies != null)
+                request.Headers.Add("Cookie", Cookies);
             HttpResponseMessage response;
             try
             {
