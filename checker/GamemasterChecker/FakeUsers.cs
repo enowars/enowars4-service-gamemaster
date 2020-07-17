@@ -16,7 +16,7 @@ namespace GamemasterChecker
         {
             "\" OR true",
             "\"; cat data.db;",
-            "\"; ls | grep -re 🏳️‍🌈\X{4}",
+            "\"; ls | grep -re 🏳️‍🌈\\X{4}",
             "\x31\xc0\x48\xbb\xd1\x9d\x96\x91\xd0\x8c\x97\xff\x48\xf7\xdb\x53\x54\x5f\x99\x52\x57\x54\x5e\xb0\x3b\x0f\x05",
             "\" OR 1=1; DROP Table \"Users\"; --",
             "\" OR 2 != 0; DROP DATABASE \"Default\"; --",
