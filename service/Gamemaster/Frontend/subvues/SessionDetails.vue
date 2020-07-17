@@ -2,7 +2,7 @@
     <!--<div>-->
         <!-- <h1>Session Details for Session {{$route.params.id}}</h1> -->
         <SessionDetailsDenied v-if="!input.access" />
-        <SessionDetailsVue v-if="input.access" :session-id="input.id" />
+        <SessionDetailsVue v-if="input.access" :session-id="input.id" :session-notes="input.notes" />
     <!--</div> -->
 </template>
 
@@ -18,7 +18,8 @@
             return {
                 input: {
                     access: false,
-                    id: "test"
+                    id: "test",
+                    notes: ""
                 }
             }
         },
@@ -44,6 +45,10 @@
                 response => {
                     console.log(response);
                     if (response.status == 200) {
+                        console.log("################################################");
+                        console.log(response.data);
+                        console.log(response.data.notes);
+                        this.input.notes = response.data.notes;
                         this.input.access = true;
                     } else {
                         console.log("this should not happen...");

@@ -72,7 +72,7 @@ namespace Gamemaster.Controllers
         [HttpPost]
         public async Task<IActionResult> Login([FromForm] string username, [FromForm] string password)
         {
-            var dbUser = await Db.AuthenticateUser(username, password);
+           var dbUser = await Db.AuthenticateUser(username, password);
             if (dbUser is User user)
             {
                 var claims = new List<Claim>
@@ -90,6 +90,7 @@ namespace Gamemaster.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
             return new EmptyResult();
         }
 

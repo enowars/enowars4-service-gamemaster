@@ -1,6 +1,7 @@
 <template>
     <div class=" inline">
         <h1>Session Details for Session {{ sessionId}}:</h1>
+        <p>Notes Are: {{sessionNotes}}</p>
         <a v-on:click="adduserprompt()">Add User</a>
         <ChatbarVue :session-id="sessionId"></ChatbarVue>
         <RightbarVue></RightbarVue>
@@ -18,7 +19,7 @@
     import RightbarVue from "./RightbarVue.vue";
     import SessionListElement from "./SessionListElement.vue";
     export default defineComponent({
-        props: ['sessionId'],
+        props: ['sessionId', 'sessionNotes'],
         data() {
             return {
                 input: {
