@@ -230,14 +230,30 @@ namespace GamemasterChecker
             await Db.AddTokenUUIDAsync(task.Flag!, uuid, token);
             await Db.AddUserAsync(smaster, token);
         }
+        private async Task CheckSessionList(CheckerTaskMessage task, GamemasterClient client, long sessionId, CancellationToken token)
+        {
+            var i = 0;
+            while (!token.IsCancellationRequested)
+            {
+                var sessions = await client.FetchSessionList(i, 100, token);
+                foreach (var s in sessions)
+                {
+                    if (s.Id == sessionId) return;
+                }
+                i += 20;
+            }
+            throw new MumbleException("Could not find Session");
+        }
         private async Task GetFlagFromSession(CheckerTaskMessage task, CancellationToken token)
         {
+            var shorterToken = new CancellationTokenSource((int)(task.Timeout * 0.9)).Token;
             Logger.LogInformation($"Fetching Users with relrID{task.RelatedRoundId}, tIdis:{task.TeamId}");
             var users = await Db.GetUsersAsync(task.Flag!, token);
             Logger.LogInformation($"found {users.Count}");
             if (users.Count <= 0)
                 throw new MumbleException("Putflag failed");
             using var client = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, users[0], Logger);
+            if (task.RoundId == task.RelatedRoundId) await CheckSessionList(task, client, users[0].SessionId, shorterToken);
             await client.LoginAsync(token);
             ExtendedSessionView session = await client.FetchSessionAsync(users[0].SessionId, token);
             Logger.LogInformation($"Retrieved Flag is {session.Notes}, Requested Flag is {task.Flag}");

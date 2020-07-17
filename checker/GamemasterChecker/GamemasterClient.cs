@@ -1,4 +1,5 @@
-﻿using EnoCore.Utils;
+﻿using Bogus.DataSets;
+using EnoCore.Utils;
 using Gamemaster.Models.View;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -224,6 +225,44 @@ namespace GamemasterChecker
             if (tsv.Name == null || tsv.OwnerName == null || tsv.UUID == null || tsv.Description == null)
                 throw new MumbleException("Get token info failed");
             return tsv;
+        }
+        public async Task<SessionView[]> FetchSessionList(long skip, long take, CancellationToken token)
+        {
+            var url = $"{Scheme}://{Address}:{Port}/api/gamesession/listrecent";
+            var request = new HttpRequestMessage(HttpMethod.Post, url)
+            {
+                Content = new FormUrlEncodedContent(new List<KeyValuePair<string, string>>()
+                {
+                    new KeyValuePair<string, string>("skip" , skip.ToString()),
+                    new KeyValuePair<string, string>("take" , take.ToString()),
+                })
+            };
+            request.Headers.Add("Accept", "application/x-www-form-urlencoded");
+            request.Headers.Add("User-Agent", UserAgent);
+            request.Headers.Add("Cookie", Cookies);
+            HttpResponseMessage response;
+            try
+            {
+                response = await HttpClient.SendAsync(request, token);
+                Logger.LogInformation($"{url} returned {response.StatusCode}");
+            }
+            catch (Exception e)
+            {
+                Logger.LogWarning($"{nameof(FetchSessionList)} failed: {e.ToFancyString()}");
+                throw new OfflineException("Failed to List Sessions");
+            }
+            try
+            {
+                var responseString = await response.Content.ReadAsStringAsync(); //TODO find async variant?
+                var sva = JsonSerializer.Deserialize<SessionView[]>(responseString, JsonOptions);
+                if (!(sva.Length > 0))
+                    throw new MumbleException("Failed to List Sessions");
+                return sva;
+            }
+            catch
+            {
+                throw new MumbleException("Failed to List Sessions");
+            }
         }
         public async Task<ExtendedSessionView> FetchSessionAsync(long sessionId, CancellationToken token)
         {
