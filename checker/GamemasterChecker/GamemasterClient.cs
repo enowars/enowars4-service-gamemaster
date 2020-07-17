@@ -229,7 +229,7 @@ namespace GamemasterChecker
         public async Task<SessionView[]> FetchSessionList(long skip, long take, CancellationToken token)
         {
             var url = $"{Scheme}://{Address}:{Port}/api/gamesession/listrecent";
-            var request = new HttpRequestMessage(HttpMethod.Post, url)
+            var request = new HttpRequestMessage(HttpMethod.Get, url)
             {
                 Content = new FormUrlEncodedContent(new List<KeyValuePair<string, string>>()
                 {
