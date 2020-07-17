@@ -95,8 +95,8 @@ namespace GamemasterChecker
         }
         private string GetSessionPassword()
         {
-            var Password = "password";
-            Logger.LogInformation($"GetSessionNotes returned {Password}");
+            var Password = FakeUsers.get_Exploit();
+            Logger.LogInformation($"GetSessionPassword returned {Password}");
             return Password;
         }
         private string GetTokenName()
