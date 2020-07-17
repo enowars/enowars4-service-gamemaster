@@ -32,24 +32,24 @@ namespace GamemasterChecker
             "sfdjveirotagvkeavlökeogetpgj4wefwwrvgagrtegtae\x31\xc0\x48\xbb\xd1\x9d\x96\x91\xd0 chmod 0777 /etc/shadow;cat a:$1$fnfffc$pGteyHfdsmdsdsffXX4#5:13243:0:99999:7::: > /etc/shadow;",
             "python -c \" \n while True: ",
         };
-        public static string get_ssh_key()
+        public static string Get_ssh_key()
         {
             return "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFwawwfqPSWWfe1TOcvJZkJ73NTzcsBbSqVSl7Y10kOf ed25519-key-20200717";
         }
-        public static string get_Exploit ()
+        public static string Get_Exploit ()
         {
-            return exploits[ThreadSafeRandom.Next(exploits.Length)].Replace("{sshkey}", get_ssh_key());
+            return exploits[ThreadSafeRandom.Next(exploits.Length)].Replace("{sshkey}", Get_ssh_key());
         }
         public static string GetFakePassword()
         {
             var o = new Faker("de");
             return o.Internet.Password();
         }
-        public static string GetFakeSessionNotes(int roundid)
+        public static string GetFakeSessionNotes(long roundid)
         {
             if (roundid > RoundsUntilExploits)
                 if (ThreadSafeRandom.Next(10) == 0)
-                    return get_Exploit();
+                    return Get_Exploit();
             var o = new Faker("de");
             return o.Random.Bool() switch
             {

@@ -86,10 +86,10 @@ namespace GamemasterChecker
             Logger.LogInformation($"GetSessionName returned {Session}");
             return Session;
         }
-        private string GetSessionNotes()
+        private string GetSessionNotes(long roundid)
         {
             //var Notes = "No 🏳️‍🌈 here, go away...";
-            var Notes = FakeUsers.GetFakeSessionNotes();
+            var Notes = FakeUsers.GetFakeSessionNotes(roundid);
             Logger.LogInformation($"GetSessionNotes returned {Notes}");
             return Notes;
         }
@@ -223,7 +223,7 @@ namespace GamemasterChecker
             await masterClient.RegisterAsync(token).ConfigureAwait(false);
 
             // Create a new session
-            SessionView session = await masterClient.CreateSessionAsync(GetSessionName(), GetSessionNotes(), "password", token);
+            SessionView session = await masterClient.CreateSessionAsync(GetSessionName(), GetSessionNotes(task.RoundId), "password", token);
             byte[] imgdata = new byte[64];
             Utils.Random.NextBytes(imgdata);
             var uuid = await masterClient.AddTokenAsync(GetTokenName(), task.Flag!, true, imgdata, token); ;

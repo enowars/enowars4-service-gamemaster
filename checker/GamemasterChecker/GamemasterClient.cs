@@ -217,7 +217,7 @@ namespace GamemasterChecker
                 tsv = JsonSerializer.Deserialize<TokenStrippedView>(responseString, JsonOptions);
 
             }
-            catch (Exception e)
+            catch
             {
                 throw new MumbleException("Failed to Parse Result of /api/token/info");
             }
