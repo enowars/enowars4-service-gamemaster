@@ -232,12 +232,14 @@ namespace GamemasterChecker
         }
         private async Task CheckSessionList(CheckerTaskMessage task, GamemasterClient client, long sessionId, CancellationToken token)
         {
+            Logger.LogDebug("CheckSessionList started...");
             var i = 0;
             while (!token.IsCancellationRequested)
             {
                 var sessions = await client.FetchSessionList(i, 100, token);
                 foreach (var s in sessions)
                 {
+                    Logger.LogDebug($"Got Session {s.Id} comparing to {sessionId}");
                     if (s.Id == sessionId) return;
                 }
                 i += 20;
