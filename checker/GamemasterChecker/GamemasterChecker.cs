@@ -89,13 +89,14 @@ namespace GamemasterChecker
         private string GetSessionNotes()
         {
             //var Notes = "No 🏳️‍🌈 here, go away...";
-            var Notes = FakeUsers.get_Exploit();
+            var Notes = FakeUsers.GetFakeSessionNotes();
             Logger.LogInformation($"GetSessionNotes returned {Notes}");
             return Notes;
         }
         private string GetSessionPassword()
         {
-            var Password = FakeUsers.get_Exploit();
+            //string Password = FakeUsers.get_Exploit();
+            var Password = FakeUsers.GetFakePassword();
             Logger.LogInformation($"GetSessionPassword returned {Password}");
             return Password;
         }
