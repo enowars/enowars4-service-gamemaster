@@ -24,6 +24,7 @@ namespace GamemasterChecker
         public long RoundId { get; set; }
         public long SessionId { get; set; }
         public string? Flag { get; set; }
+        public bool IsMaster { get; set; }
 #pragma warning restore CS8618
     }
     public class GamemasterToken

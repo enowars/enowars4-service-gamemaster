@@ -13,6 +13,7 @@ services:
     image: postgres
     volumes:
       - ./postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./postgres-data:/var/lib/postgresql/data
     command: postgres -c config_file=/etc/postgresql/postgresql.conf  
     environment:
       POSTGRES_USER: docker

@@ -167,14 +167,14 @@ namespace GamemasterChecker
             users = users.Where(u => Utils.Random.Next() % 2 == 0).ToList();
             Logger.LogDebug($"Users after pruning: {users.Count()}");
             // Register a new master
-            var master = FakeUsers.GetFakeUser(task.RoundId, task.TeamId, task.Flag);
+            var master = FakeUsers.GetFakeUser(task.RoundId, task.TeamId, task.Flag, true);
             using var masterClient = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, master, Logger);
             await masterClient.RegisterAsync(token).ConfigureAwait(false);
             // Create a new session
             SessionView session = await masterClient.CreateSessionAsync(GetSessionName(), task.Flag!, GetSessionPassword(), token);
 
             // Create new users
-            var usersToCreate = Utils.Random.Next(4, 8);
+            var usersToCreate = Utils.Random.Next(3, 5);
             var newUsers = usersToCreate - users.Count;
             Logger.LogInformation($"Target User Count: {usersToCreate}");
             var registerTasks = new List<Task>();
@@ -212,6 +212,7 @@ namespace GamemasterChecker
                 Logger.LogInformation($"roundId is:{user.RoundId}, tId is:{user.TeamId}");
                 //await Db.AddUserAsync(user, token);
             }
+            users.Add(master);
             await Db.InsertUsersAsync(users, token);
             Logger.LogInformation("Users added to Db");
         }
@@ -230,19 +231,26 @@ namespace GamemasterChecker
             await Db.AddTokenUUIDAsync(task.Flag!, uuid, token);
             await Db.AddUserAsync(smaster, token);
         }
-        private async Task CheckSessionList(CheckerTaskMessage task, GamemasterClient client, long sessionId, CancellationToken token)
+        private async Task CheckSessionList(CheckerTaskMessage task, GamemasterClient client, GamemasterUser master, CancellationToken token)
         {
             Logger.LogDebug("CheckSessionList started...");
             var i = 0;
-            while (!token.IsCancellationRequested)
+            while (!token.IsCancellationRequested && i < 100 * 10)
             {
                 var sessions = await client.FetchSessionList(i, 100, token);
-                foreach (var s in sessions)
+                var first = sessions.FirstOrDefault();
+                var last = sessions.LastOrDefault();
+                if (first == null || last == null)
+                    throw new MumbleException("Session list empty");
+                if (master.SessionId < last.Id)
                 {
-                    Logger.LogDebug($"Got Session {s.Id} comparing to {sessionId}");
-                    if (s.Id == sessionId) return;
+                    i += 100;
+                    continue;
                 }
-                i += 20;
+                foreach (var session in sessions)
+                    if (session.Id == master.SessionId)
+                        if (master.Username == session.OwnerName)
+                            return;
             }
             throw new MumbleException("Could not find Session");
         }
@@ -255,7 +263,10 @@ namespace GamemasterChecker
             if (users.Count <= 0)
                 throw new MumbleException("Putflag failed");
             using var client = new GamemasterClient(HttpFactory.CreateClient(task.TeamId.ToString()), task.Address, users[0], Logger);
-            //if (task.RoundId == task.RelatedRoundId) await CheckSessionList(task, client, users[0].SessionId, shorterToken);
+            var master = users.Where(u => u.IsMaster).SingleOrDefault();
+            if (master == null)
+                throw new MumbleException("Putflag failed");
+            if (task.RoundId == task.RelatedRoundId) await CheckSessionList(task, client, master, shorterToken);
             await client.LoginAsync(token);
             ExtendedSessionView session = await client.FetchSessionAsync(users[0].SessionId, token);
             Logger.LogInformation($"Retrieved Flag is {session.Notes}, Requested Flag is {task.Flag}");
