@@ -233,7 +233,7 @@ namespace GamemasterChecker
         }
         private async Task CheckSessionList(CheckerTaskMessage task, GamemasterClient client, GamemasterUser master, CancellationToken token)
         {
-            Logger.LogDebug("CheckSessionList started...");
+            Logger.LogDebug($"CheckSessionList looking for session of {master.Username} ({master.SessionId})");
             var i = 0;
             while (!token.IsCancellationRequested && i < 100 * 10)
             {
@@ -244,6 +244,7 @@ namespace GamemasterChecker
                     throw new MumbleException("Session list empty");
                 if (master.SessionId < last.Id)
                 {
+                    Logger.LogDebug($"CheckSessionList fetching more, {master.SessionId} < {last.Id}");
                     i += 100;
                     continue;
                 }
