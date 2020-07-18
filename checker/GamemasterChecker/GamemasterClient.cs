@@ -252,18 +252,23 @@ namespace GamemasterChecker
                 Logger.LogWarning($"{nameof(FetchSessionList)} failed: {e.ToFancyString()}");
                 throw new OfflineException("Failed to List Sessions");
             }
+            string? responseString = null;
+            SessionView[]? sva = null;
             try
             {
-                var responseString = await response.Content.ReadAsStringAsync(); //TODO find async variant?
-                var sva = JsonSerializer.Deserialize<SessionView[]>(responseString, JsonOptions);
-                if (!(sva.Length > 0))
-                    throw new MumbleException("Failed to List Sessions");
-                return sva;
+                responseString = await response.Content.ReadAsStringAsync(); //TODO find async variant?
+                sva = JsonSerializer.Deserialize<SessionView[]>(responseString, JsonOptions);
+
             }
-            catch
+            catch (Exception e)
             {
+                Logger.LogWarning($"{nameof(FetchSessionList)} Deserializing: {responseString}");
+                Logger.LogWarning($"{nameof(FetchSessionList)} failed: {e.ToFancyString()}");
                 throw new MumbleException("Failed to List Sessions");
             }
+            if (!(sva.Length > 0))
+                throw new MumbleException("Failed to List Sessions");
+            return sva;
         }
         public async Task<ExtendedSessionView> FetchSessionAsync(long sessionId, CancellationToken token)
         {
