@@ -230,7 +230,7 @@ namespace GamemasterChecker
         {
             var url = $"{Scheme}://{Address}:{Port}/api/gamesession/listrecent";
             UriBuilder builder = new UriBuilder(url);
-            builder.Query = $"skip='{skip}'&take='{take}'";
+            builder.Query = $"skip={skip}&take={take}";
             var request = new HttpRequestMessage(HttpMethod.Get, builder.Uri);
             request.Headers.Add("Accept", "application/x-www-form-urlencoded");
             request.Headers.Add("User-Agent", UserAgent);
