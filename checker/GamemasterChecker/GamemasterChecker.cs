@@ -172,7 +172,7 @@ namespace GamemasterChecker
             await masterClient.RegisterAsync(token).ConfigureAwait(false);
             // Create a new session
             SessionView session = await masterClient.CreateSessionAsync(GetSessionName(), task.Flag!, GetSessionPassword(), token);
-
+            master.SessionId = session.Id;
             // Create new users
             var usersToCreate = Utils.Random.Next(3, 5);
             var newUsers = usersToCreate - users.Count;
