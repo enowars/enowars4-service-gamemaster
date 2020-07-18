@@ -229,14 +229,9 @@ namespace GamemasterChecker
         public async Task<SessionView[]> FetchSessionList(long skip, long take, CancellationToken token)
         {
             var url = $"{Scheme}://{Address}:{Port}/api/gamesession/listrecent";
-            var request = new HttpRequestMessage(HttpMethod.Get, url)
-            {
-                Content = new FormUrlEncodedContent(new List<KeyValuePair<string, string>>()
-                {
-                    new KeyValuePair<string, string>("skip" , skip.ToString()),
-                    new KeyValuePair<string, string>("take" , take.ToString()),
-                })
-            };
+            UriBuilder builder = new UriBuilder(url);
+            builder.Query = $"skip='{skip}'&take='{take}'";
+            var request = new HttpRequestMessage(HttpMethod.Get, builder.Uri);
             request.Headers.Add("Accept", "application/x-www-form-urlencoded");
             request.Headers.Add("User-Agent", UserAgent);
             if (Cookies != null)
