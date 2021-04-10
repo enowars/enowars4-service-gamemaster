@@ -139,6 +139,11 @@
 
         public async Task<SessionView> CreateSessionAsync(string name, string notes, string password, CancellationToken token)
         {
+            if (this.cookies == null)
+            {
+                throw new InvalidOperationException("not logged in");
+            }
+
             var url = $"{this.scheme}://{this.address!}:{this.port}/api/gamesession/create";
             var request = new HttpRequestMessage(HttpMethod.Post, url)
             {
@@ -358,6 +363,11 @@
 
         public async Task AddUserToSessionAsync(long sessionId, string username, CancellationToken token)
         {
+            if (this.cookies == null)
+            {
+                throw new InvalidOperationException("not logged in");
+            }
+
             var url = $"{this.scheme}://{this.address}:{this.port}/api/gamesession/adduser";
             var request = new HttpRequestMessage(HttpMethod.Post, url)
             {
