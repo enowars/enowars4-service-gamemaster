@@ -32,7 +32,7 @@
                         handler.AllowAutoRedirect = false;
                     }
                 });
-            collection.AddScoped(typeof(GamemasterClient));
+            collection.AddTransient(typeof(GamemasterClient));
         }
     }
 }
