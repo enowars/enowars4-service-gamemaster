@@ -24,16 +24,7 @@
         {
             this.logger = logger;
             this.logger.LogDebug("GamemasterCheckerDatabase()");
-            var mongo = new MongoClient(new MongoClientSettings()
-            {
-                ConnectTimeout = TimeSpan.FromSeconds(3),
-                ServerSelectionTimeout = TimeSpan.FromSeconds(3),
-                SocketTimeout = TimeSpan.FromSeconds(5),
-                HeartbeatTimeout = TimeSpan.FromSeconds(5),
-                WaitQueueTimeout = TimeSpan.FromSeconds(5),
-                DirectConnection = true,
-                Server = new MongoServerAddress("mongodb"), // TODO
-            });
+            var mongo = new MongoClient(MongoConnection);
             while (true)
             {
                 try

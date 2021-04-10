@@ -23,6 +23,7 @@
             this.logger = logger;
             this.checkerDb = checkerDb;
             this.serviceProvider = serviceProvider;
+            this.logger.LogInformation("GamemasterCheckerHandler()");
         }
 
         public async Task HandleGetFlag(CheckerTaskMessage task, CancellationToken token)
