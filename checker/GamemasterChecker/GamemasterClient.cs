@@ -365,7 +365,7 @@
 
         public async Task AddUserToSessionAsync(long sessionId, string username, CancellationToken token)
         {
-            this.logger.LogDebug($"AddUserToSessionAsync(sessionId={sessionId}, username={username}, cookie={this.cookies})");
+            this.logger.LogDebug($"AddUserToSessionAsync(sessionId={sessionId}, username={username}, cookie={this.cookies!.First()})");
             var url = $"{this.scheme}://{this.address}:{this.port}/api/gamesession/adduser";
             var request = new HttpRequestMessage(HttpMethod.Post, url)
             {
@@ -392,6 +392,7 @@
 
             if (!response.IsSuccessStatusCode)
             {
+                this.logger.LogError($"Request failed: {response.Content.ReadAsStringAsync(token)}");
                 throw new MumbleException("adduser failed");
             }
         }
