@@ -39,10 +39,10 @@
                     await this.GetFlagFromSession(task, token);
                     break;
                 case 1:
-                    // await this.GetFlagFromToken(task, token);
+                    await this.GetFlagFromToken(task, token);
                     break;
                 case 2:
-                    // await this.GetFlagFromChat(task, token);
+                    await this.GetFlagFromChat(task, token);
                     break;
             }
         }
@@ -75,10 +75,10 @@
                     await this.PutFlagToSession(task, token);
                     break;
                 case 1:
-                    // await this.PutFlagToToken(task, token);
+                    await this.PutFlagToToken(task, token);
                     break;
                 case 2:
-                    // await this.PutFlagToChat(task, token);
+                    await this.PutFlagToChat(task, token);
                     break;
             }
         }
