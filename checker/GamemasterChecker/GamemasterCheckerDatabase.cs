@@ -29,7 +29,13 @@
                 try
                 {
                     this.logger.LogDebug($"MongoCLient({MongoConnection})");
-                    var mongo = new MongoClient(MongoConnection);
+                    var mongo = new MongoClient(new MongoClientSettings()
+                    {
+                        ConnectTimeout = TimeSpan.FromSeconds(3),
+                        ServerSelectionTimeout = TimeSpan.FromSeconds(3),
+                        SocketTimeout = TimeSpan.FromSeconds(5),
+                        Server = new MongoServerAddress("mongodb"),
+                    });
                     var db = mongo.GetDatabase("GamemasterDatabase");
                     this.users = db.GetCollection<GamemasterUser>("Users");
                     this.users.Indexes.CreateOne(new CreateIndexModel<GamemasterUser>(Builders<GamemasterUser>.IndexKeys
