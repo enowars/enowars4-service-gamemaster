@@ -35,6 +35,7 @@
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             };
+            logger.LogDebug($"GamemasterClient() cookies={this.cookies}");
         }
 
         public void Dispose()
@@ -44,6 +45,11 @@
 
         public async Task RegisterAsync(string address, GamemasterUser user, CancellationToken token)
         {
+            if (this.cookies != null)
+            {
+                throw new InvalidOperationException("wat");
+            }
+
             this.address = address;
             this.user = user;
             var url = $"{this.scheme}://{address}:{this.port}/api/account/register";

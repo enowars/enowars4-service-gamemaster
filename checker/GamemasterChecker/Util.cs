@@ -92,7 +92,7 @@
             };
         }
 
-        public static GamemasterUser GenerateFakeUser(long roundId, long teamId, string? flag, bool isMaster = false)
+        public static GamemasterUser GenerateFakeUser(string? flag, bool isMaster = false)
         {
             var user = UserFaker.Generate();
             user.Flag = flag;

@@ -90,7 +90,7 @@
         private async Task PutFlagToSession(CheckerTaskMessage task, CancellationToken token)
         {
             // Register a new master
-            var master = Util.GenerateFakeUser(task.RoundId, task.TeamId, task.Flag, true);
+            var master = Util.GenerateFakeUser(task.Flag, true);
             var users = new List<GamemasterUser>()
             {
                 master,
@@ -109,7 +109,7 @@
             var registerTasks = new List<Task>();
             for (int i = 0; i < newUsers; i++)
             {
-                var user = Util.GenerateFakeUser(task.RoundId, task.TeamId, task.Flag);
+                var user = Util.GenerateFakeUser(task.Flag);
                 users.Add(user);
                 registerTasks.Add(
                     Task.Run(
@@ -147,7 +147,7 @@
 
         private async Task PutFlagToToken(CheckerTaskMessage task, CancellationToken token)
         {
-            var master = Util.GenerateFakeUser(task.RoundId, task.TeamId, task.Flag);
+            var master = Util.GenerateFakeUser(task.Flag);
             using var masterClient = this.serviceProvider.GetRequiredService<GamemasterClient>();
             await masterClient.RegisterAsync(task.Address, master, token).ConfigureAwait(false);
 
@@ -162,9 +162,9 @@
 
         private async Task PutFlagToChat(CheckerTaskMessage task, CancellationToken token)
         {
-            var user1 = Util.GenerateFakeUser(-1, -1, null);
-            var user2 = Util.GenerateFakeUser(-1, -1, task.Flag);
-            var user3 = Util.GenerateFakeUser(-1, -1, null);
+            var user1 = Util.GenerateFakeUser(null);
+            var user2 = Util.GenerateFakeUser(task.Flag);
+            var user3 = Util.GenerateFakeUser(null);
             using var client1 = this.serviceProvider.GetRequiredService<GamemasterClient>();
             using var client2 = this.serviceProvider.GetRequiredService<GamemasterClient>();
             using var client3 = this.serviceProvider.GetRequiredService<GamemasterClient>();
@@ -275,9 +275,9 @@
         private async Task HavocChat(CheckerTaskMessage task, CancellationToken token)
         {
             var shorterToken = new CancellationTokenSource((int)(task.Timeout * 0.9)).Token;
-            var user1 = Util.GenerateFakeUser(-1, -1, null);
-            var user2 = Util.GenerateFakeUser(-1, -1, null);
-            var user3 = Util.GenerateFakeUser(-1, -1, null);
+            var user1 = Util.GenerateFakeUser(null);
+            var user2 = Util.GenerateFakeUser(null);
+            var user3 = Util.GenerateFakeUser(null);
             using var client1 = this.serviceProvider.GetRequiredService<GamemasterClient>();
             using var client2 = this.serviceProvider.GetRequiredService<GamemasterClient>();
             using var client3 = this.serviceProvider.GetRequiredService<GamemasterClient>();
