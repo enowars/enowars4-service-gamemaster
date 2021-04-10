@@ -114,14 +114,15 @@
                         {
                             using var client = this.serviceProvider.GetRequiredService<GamemasterClient>();
                             await client.RegisterAsync(task.Address, user, token);
-                        },
-                        token));
+                        }));
             }
 
             foreach (var registerTask in registerTasks)
             {
                 await registerTask;
             }
+
+            this.logger.LogInformation($"Test sleep");
 
             await Task.Delay(1000); // wat
 
