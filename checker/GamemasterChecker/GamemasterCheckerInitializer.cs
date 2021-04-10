@@ -22,15 +22,14 @@
         public void Initialize(IServiceCollection collection)
         {
             collection.AddSingleton(typeof(GamemasterCheckerDatabase));
-            collection.AddHttpClient<GamemasterClient>()
-                .ConfigureHttpMessageHandlerBuilder(builder =>
+            collection.AddHttpClient<GamemasterClient>("Foo")
+                .ConfigurePrimaryHttpMessageHandler(() =>
                 {
-                    if (builder.PrimaryHandler is HttpClientHandler handler)
+                    return new HttpClientHandler()
                     {
-                        // https://github.com/dotnet/extensions/issues/872
-                        handler.UseCookies = false;
-                        handler.AllowAutoRedirect = false;
-                    }
+                        UseCookies = false,
+                        AllowAutoRedirect = false,
+                    };
                 });
             collection.AddTransient(typeof(GamemasterSignalRClient));
             collection.AddTransient(typeof(GamemasterClient));

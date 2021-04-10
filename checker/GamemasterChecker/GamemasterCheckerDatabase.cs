@@ -16,8 +16,8 @@
     {
         private readonly IMongoCollection<GamemasterUser> users;
         private readonly IMongoCollection<GamemasterToken> tokens;
-        private readonly InsertOneOptions insertOneOptions = new InsertOneOptions() { BypassDocumentValidation = false };
-        private readonly InsertManyOptions insertManyOptions = new InsertManyOptions() { IsOrdered = false };
+        private readonly InsertOneOptions insertOneOptions = new() { BypassDocumentValidation = false };
+        private readonly InsertManyOptions insertManyOptions = new() { IsOrdered = false };
         private readonly ILogger logger;
 
         public GamemasterCheckerDatabase(ILogger<GamemasterCheckerDatabase> logger)

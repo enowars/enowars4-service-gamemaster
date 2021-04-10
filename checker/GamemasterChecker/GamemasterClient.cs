@@ -27,10 +27,10 @@
         private GamemasterUser? user;
         private string? address;
 
-        public GamemasterClient(HttpClient httpClient, ILogger<GamemasterClient> logger)
+        public GamemasterClient(IHttpClientFactory httpFactory, ILogger<GamemasterClient> logger)
         {
             this.logger = logger;
-            this.httpClient = httpClient;
+            this.httpClient = httpFactory.CreateClient("Foo");
             this.jsonOptions = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
