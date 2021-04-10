@@ -57,7 +57,7 @@
            switch (task.FlagIndex % 1)
             {
                 case 0:
-                    // await this.HavocChat(task, token);
+                    await this.HavocChat(task, token);
                     break;
             }
         }
@@ -215,7 +215,7 @@
 
             if (task.RoundId == task.RelatedRoundId)
             {
-                await this.CheckSessionList(client, master, token);
+                await this.CheckSessionList(task.Address, client, master, token);
             }
 
             await client.LoginAsync(task.Address, users[0], token);
@@ -309,13 +309,13 @@
             await tcs.Task;
         }
 
-        private async Task CheckSessionList(GamemasterClient client, GamemasterUser master, CancellationToken token)
+        private async Task CheckSessionList(string address, GamemasterClient client, GamemasterUser master, CancellationToken token)
         {
             this.logger.LogDebug($"CheckSessionList looking for session of {master.Username} ({master.SessionId})");
             var i = 0;
             while (!token.IsCancellationRequested && i < 100 * 10)
             {
-                var sessions = await client.FetchSessionList(i, 100, token);
+                var sessions = await client.FetchSessionList(address, i, 100, token);
                 var first = sessions.FirstOrDefault();
                 var last = sessions.LastOrDefault();
                 if (first == null || last == null)

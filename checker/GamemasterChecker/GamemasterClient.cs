@@ -282,9 +282,9 @@
             return tsv;
         }
 
-        public async Task<SessionView[]> FetchSessionList(long skip, long take, CancellationToken token)
+        public async Task<SessionView[]> FetchSessionList(string address, long skip, long take, CancellationToken token)
         {
-            var url = $"{this.scheme}://{this.address}:{this.port}/api/gamesession/listrecent";
+            var url = $"{this.scheme}://{address}:{this.port}/api/gamesession/listrecent"; // why doesn't this warn about null with this.address?
             UriBuilder builder = new(url);
             builder.Query = $"skip={skip}&take={take}";
             var request = new HttpRequestMessage(HttpMethod.Get, builder.Uri);
