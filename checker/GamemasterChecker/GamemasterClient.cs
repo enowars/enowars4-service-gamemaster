@@ -1,159 +1,185 @@
-﻿using Bogus.DataSets;
-using EnoCore.Utils;
-using Gamemaster.Models.View;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Security.Principal;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace GamemasterChecker
+﻿namespace GamemasterChecker
 {
-    public class GamemasterClient : IDisposable
-    {
-        private readonly ILogger Logger;
-        private readonly string Address;
-        private readonly HttpClient HttpClient;
-        private readonly string UserAgent = FakeUsers.GetUserAgent();
-        private readonly string Scheme = "http";
-        private readonly int Port = 8001;
-        private readonly GamemasterUser User;
-        public IEnumerable<string>? Cookies;
-        private readonly JsonSerializerOptions JsonOptions;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Net.Http;
+    using System.Text;
+    using System.Text.Json;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using EnoCore;
+    using EnoCore.Checker;
+    using GamemasterChecker.DbModels;
+    using GamemasterChecker.Models;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Logging;
 
-        public GamemasterClient(HttpClient httpClient, string address, GamemasterUser user, ILogger logger)
+    public sealed class GamemasterClient : IDisposable
+    {
+        private readonly ILogger logger;
+        private readonly HttpClient httpClient;
+        private readonly string userAgent = Util.GenerateUserAgent();
+        private readonly string scheme = "http";
+        private readonly int port = 8001;
+        private readonly JsonSerializerOptions jsonOptions;
+        private IEnumerable<string>? cookies;
+        private GamemasterUser? user;
+        private string? address;
+
+        public GamemasterClient(HttpClient httpClient, ILogger<GamemasterClient> logger)
         {
-            Logger = logger;
-            User = user;
-            Address = address;
-            HttpClient = httpClient;
-            JsonOptions = new JsonSerializerOptions
+            this.logger = logger;
+            this.httpClient = httpClient;
+            this.jsonOptions = new JsonSerializerOptions
             {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             };
         }
 
         public void Dispose()
         {
-            HttpClient.Dispose();
+            this.httpClient.Dispose();
         }
 
-        public async Task RegisterAsync(CancellationToken token)
+        public async Task RegisterAsync(string address, GamemasterUser user, CancellationToken token)
         {
-            var url = $"{Scheme}://{Address}:{Port}/api/account/register";
+            this.address = address;
+            this.user = user;
+            var url = $"{this.scheme}://{address}:{this.port}/api/account/register";
             var request = new HttpRequestMessage(HttpMethod.Post, url)
             {
-                Content = new FormUrlEncodedContent(new List<KeyValuePair<string, string>>()
+                Content = new FormUrlEncodedContent(new List<KeyValuePair<string?, string?>>()
                 {
-                    new KeyValuePair<string, string>("username" , User.Username),
-                    new KeyValuePair<string, string>("email" , User.Email),
-                    new KeyValuePair<string, string>("password" , User.Password)
-                })
+                    new KeyValuePair<string?, string?>("username", user.Username),
+                    new KeyValuePair<string?, string?>("email", user.Email),
+                    new KeyValuePair<string?, string?>("password", user.Password),
+                }),
             };
             request.Headers.Add("Accept", "application/x-www-form-urlencoded");
-            request.Headers.Add("User-Agent", UserAgent);
+            request.Headers.Add("User-Agent", this.userAgent);
             HttpResponseMessage response;
             try
             {
-                response = await HttpClient.SendAsync(request, token);
+                response = await this.httpClient.SendAsync(request, token);
             }
             catch (Exception e)
             {
-                Logger.LogWarning($"{User.Username} failed: {e.ToFancyString()}");
+                this.logger.LogWarning($"{user.Username} failed: {e.ToFancyString()}");
                 throw new OfflineException("Registration failed");
             }
-            Logger.LogInformation($"{url} returned {response.StatusCode}");
-            if (!response.IsSuccessStatusCode)
-                throw new MumbleException("Registration failed");
 
-            if (Cookies != null)
-                throw new InvalidOperationException("User already has cookies");
-            var hasCookies = response.Headers.TryGetValues("Set-Cookie", out Cookies);
-            if (!hasCookies)
+            this.logger.LogInformation($"{url} returned {response.StatusCode}");
+            if (!response.IsSuccessStatusCode)
+            {
                 throw new MumbleException("Registration failed");
+            }
+
+            if (this.cookies != null)
+            {
+                throw new InvalidOperationException("User already has cookies");
+            }
+
+            var hasCookies = response.Headers.TryGetValues("Set-Cookie", out this.cookies);
+            if (!hasCookies)
+            {
+                throw new MumbleException("Registration failed");
+            }
         }
-        public async Task LoginAsync(CancellationToken token)
+
+        public async Task LoginAsync(string address, GamemasterUser user, CancellationToken token)
         {
-            Logger.LogInformation($"Login {User.Username}:{User.Password}");
-            var url = $"{Scheme}://{Address}:{Port}/api/account/login";
+            this.address = address;
+            this.user = user;
+            this.logger.LogInformation($"Login {user.Username}:{user.Password}");
+            var url = $"{this.scheme}://{address}:{this.port}/api/account/login";
             var request = new HttpRequestMessage(HttpMethod.Post, url)
             {
-                Content = new FormUrlEncodedContent(new List<KeyValuePair<string, string>>()
+                Content = new FormUrlEncodedContent(new List<KeyValuePair<string?, string?>>()
                 {
-                    new KeyValuePair<string, string>("username" , User.Username),
-                    new KeyValuePair<string, string>("password" , User.Password)
-                })
+                    new KeyValuePair<string?, string?>("username", user.Username),
+                    new KeyValuePair<string?, string?>("password", user.Password),
+                }),
             };
             request.Headers.Add("Accept", "application/x-www-form-urlencoded");
-            request.Headers.Add("User-Agent", UserAgent);
+            request.Headers.Add("User-Agent", this.userAgent);
             HttpResponseMessage response;
             try
             {
-                response = await HttpClient.SendAsync(request, token);
+                response = await this.httpClient.SendAsync(request, token);
             }
             catch (Exception e)
             {
-                Logger.LogWarning($"{User.Username} failed: {e.ToFancyString()}");
+                this.logger.LogWarning($"{user.Username} failed: {e.ToFancyString()}");
                 throw new OfflineException("Login failed");
             }
+
             if (!response.IsSuccessStatusCode)
+            {
                 throw new MumbleException("Login failed");
-            if (Cookies != null)
+            }
+
+            if (this.cookies != null)
+            {
                 throw new InvalidOperationException("User already has cookies");
-            var hasCookies = response.Headers.TryGetValues("Set-Cookie", out Cookies);
+            }
+
+            var hasCookies = response.Headers.TryGetValues("Set-Cookie", out this.cookies);
             if (!hasCookies)
+            {
                 throw new MumbleException("Login failed");
+            }
         }
 
         public async Task<SessionView> CreateSessionAsync(string name, string notes, string password, CancellationToken token)
         {
-            var url = $"{Scheme}://{Address}:{Port}/api/gamesession/create";
+            var url = $"{this.scheme}://{this.address!}:{this.port}/api/gamesession/create";
             var request = new HttpRequestMessage(HttpMethod.Post, url)
             {
-                Content = new FormUrlEncodedContent(new List<KeyValuePair<string, string>>()
+                Content = new FormUrlEncodedContent(new List<KeyValuePair<string?, string?>>()
                 {
-                    new KeyValuePair<string, string>("name" , name),
-                    new KeyValuePair<string, string>("notes" , notes),
-                    new KeyValuePair<string, string>("password" , password),
-                })
+                    new KeyValuePair<string?, string?>("name", name),
+                    new KeyValuePair<string?, string?>("notes", notes),
+                    new KeyValuePair<string?, string?>("password", password),
+                }),
             };
             request.Headers.Add("Accept", "application/x-www-form-urlencoded");
-            request.Headers.Add("User-Agent", UserAgent);
-            request.Headers.Add("Cookie", Cookies);
+            request.Headers.Add("User-Agent", this.userAgent);
+            request.Headers.Add("Cookie", this.cookies!);
             HttpResponseMessage response;
             try
             {
-                response = await HttpClient.SendAsync(request, token);
+                response = await this.httpClient.SendAsync(request, token);
             }
             catch (Exception e)
             {
-                Logger.LogWarning($"{User.Username} failed: {e.ToFancyString()}");
+                this.logger.LogWarning($"{this.user!.Username} failed: {e.ToFancyString()}");
                 throw new OfflineException("Create session failed");
             }
-            Logger.LogInformation($"{url} returned {response.StatusCode}");
+
+            this.logger.LogInformation($"{url} returned {response.StatusCode}");
             if (!response.IsSuccessStatusCode)
-                throw new MumbleException("Create session failed");
-            var responseString = await response.Content.ReadAsStringAsync(); //TODO find cancellable variant or verify that it is already cancelled
-            var view = JsonSerializer.Deserialize<SessionView>(responseString, JsonOptions);
-            if (view.Id <= 0 || view.Name == null || view.OwnerName == null || view.Timestamp == null)
             {
-                Logger.LogWarning($"{User.Username} create session failed: invalid view");
                 throw new MumbleException("Create session failed");
             }
+
+            var responseString = await response.Content.ReadAsStringAsync(token);
+            var view = JsonSerializer.Deserialize<SessionView>(responseString, this.jsonOptions)!;
+            if (view.Id <= 0 || view.Name == null || view.OwnerName == null)
+            {
+                this.logger.LogWarning($"{this.user!.Username} create session failed: invalid view");
+                throw new MumbleException("Create session failed");
+            }
+
             return view;
         }
-        public async Task<string> AddTokenAsync(string name, string description, bool isPrivate, byte[] ImageData, CancellationToken token)
+
+        public async Task<string> AddTokenAsync(string name, string description, bool isPrivate, byte[] imageData, CancellationToken token)
         {
-            var url = $"{Scheme}://{Address}:{Port}/api/account/addtoken";
-            var ImageContent = new ByteArrayContent(ImageData);
-            ImageContent.Headers.Add("Content-Type", "image/png");
-            ImageContent.Headers.Add("Content-Disposition", "form-data; name=\"icon\"; filename=\"Arrow.png\"");
+            var url = $"{this.scheme}://{this.address}:{this.port}/api/account/addtoken";
+            var imageContent = new ByteArrayContent(imageData);
+            imageContent.Headers.Add("Content-Type", "image/png");
+            imageContent.Headers.Add("Content-Disposition", "form-data; name=\"icon\"; filename=\"Arrow.png\"");
             var request = new HttpRequestMessage(HttpMethod.Post, url)
             {
                 Content = new MultipartFormDataContent
@@ -161,173 +187,226 @@ namespace GamemasterChecker
                     { new StringContent(name), "\"name\"" },
                     { new StringContent(description), "\"description\"" },
                     { new StringContent(isPrivate.ToString().ToLower()), "\"isPrivate\"" },
-                    { ImageContent, "\"icon\"", "\"Arrow.png\"" }
-                }
+                    { imageContent, "\"icon\"", "\"Arrow.png\"" },
+                },
             };
             request.Headers.Add("Accept", "application/json");
-            request.Headers.Add("User-Agent", UserAgent);
-            request.Headers.Add("Cookie", Cookies);
+            request.Headers.Add("User-Agent", this.userAgent);
+            request.Headers.Add("Cookie", this.cookies!);
             HttpResponseMessage response;
             try
             {
-                response = await HttpClient.SendAsync(request, token);
-                Logger.LogDebug($"{url} returned {response.StatusCode}");
+                response = await this.httpClient.SendAsync(request, token);
+                this.logger.LogDebug($"{url} returned {response.StatusCode}");
             }
             catch (Exception e)
             {
-                Logger.LogWarning($"{User.Username} failed: {e.ToFancyString()}");
+                this.logger.LogWarning($"{this.user!.Username} failed: {e.ToFancyString()}");
                 throw new OfflineException("Create token failed");
             }
+
             if (!response.IsSuccessStatusCode)
+            {
                 throw new MumbleException("Create token failed");
-            var responseString = await response.Content.ReadAsStringAsync(); //TODO find cancellable variant or verify that it is already cancelled
-            var uuid = responseString.Replace("\"", "");
+            }
+
+            var responseString = await response.Content.ReadAsStringAsync(token);
+            var uuid = responseString.Replace("\"", string.Empty);
             if (!IsValidUuid(uuid))
+            {
                 throw new MumbleException("Create token failed");
+            }
+
             return uuid;
         }
-        public async Task<TokenStrippedView> CheckTokenAsync(string UUID, CancellationToken token)
+
+        public async Task<TokenStrippedView> CheckTokenAsync(string uuid, CancellationToken token)
         {
-            var url = $"{Scheme}://{Address}:{Port}/api/token/info";
+            var url = $"{this.scheme}://{this.address}:{this.port}/api/token/info";
             var request = new HttpRequestMessage(HttpMethod.Post, url)
             {
-                Content = new FormUrlEncodedContent(new List<KeyValuePair<string, string>>()
+                Content = new FormUrlEncodedContent(new List<KeyValuePair<string?, string?>>()
                 {
-                    new KeyValuePair<string, string>("UUID" , UUID),
-                })
+                    new KeyValuePair<string?, string?>("UUID", uuid),
+                }),
             };
             request.Headers.Add("Accept", "application/x-www-form-urlencoded");
-            request.Headers.Add("User-Agent", UserAgent);
-            if (Cookies != null)
-                request.Headers.Add("Cookie", Cookies);
+            request.Headers.Add("User-Agent", this.userAgent);
+            if (this.cookies != null)
+            {
+                request.Headers.Add("Cookie", this.cookies);
+            }
+
             HttpResponseMessage response;
             try
             {
-                response = await HttpClient.SendAsync(request, token);
-                Logger.LogInformation($"{url} returned {response.StatusCode}");
+                response = await this.httpClient.SendAsync(request, token);
+                this.logger.LogInformation($"{url} returned {response.StatusCode}");
             }
             catch (Exception e)
             {
-                Logger.LogWarning($"{User.Username} failed: {e.ToFancyString()}");
+                this.logger.LogWarning($"{this.user!.Username} failed: {e.ToFancyString()}");
                 throw new OfflineException("Get token info failed");
             }
+
             TokenStrippedView tsv;
             try
             {
-                var responseString = await response.Content.ReadAsStringAsync(); //TODO find async variant?
-                tsv = JsonSerializer.Deserialize<TokenStrippedView>(responseString, JsonOptions);
-
+                var responseString = await response.Content.ReadAsStringAsync(token);
+                tsv = JsonSerializer.Deserialize<TokenStrippedView>(responseString, this.jsonOptions)!;
             }
             catch
             {
                 throw new MumbleException("Failed to Parse Result of /api/token/info");
             }
+
             if (tsv.Name == null || tsv.OwnerName == null || tsv.UUID == null || tsv.Description == null)
+            {
                 throw new MumbleException("Get token info failed");
+            }
+
             return tsv;
         }
+
         public async Task<SessionView[]> FetchSessionList(long skip, long take, CancellationToken token)
         {
-            var url = $"{Scheme}://{Address}:{Port}/api/gamesession/listrecent";
-            UriBuilder builder = new UriBuilder(url);
+            var url = $"{this.scheme}://{this.address}:{this.port}/api/gamesession/listrecent";
+            UriBuilder builder = new(url);
             builder.Query = $"skip={skip}&take={take}";
             var request = new HttpRequestMessage(HttpMethod.Get, builder.Uri);
             request.Headers.Add("Accept", "application/x-www-form-urlencoded");
-            request.Headers.Add("User-Agent", UserAgent);
-            if (Cookies != null)
-                request.Headers.Add("Cookie", Cookies);
+            request.Headers.Add("User-Agent", this.userAgent);
+            if (this.cookies != null)
+            {
+                request.Headers.Add("Cookie", this.cookies);
+            }
+
             HttpResponseMessage response;
             try
             {
-                response = await HttpClient.SendAsync(request, token);
-                Logger.LogInformation($"{url} returned {response.StatusCode}");
+                response = await this.httpClient.SendAsync(request, token);
+                this.logger.LogInformation($"{url} returned {response.StatusCode}");
             }
             catch (Exception e)
             {
-                Logger.LogWarning($"{nameof(FetchSessionList)} failed: {e.ToFancyString()}");
+                this.logger.LogWarning($"{nameof(this.FetchSessionList)} failed: {e.ToFancyString()}");
                 throw new OfflineException("Failed to List Sessions");
             }
+
             string? responseString = null;
             SessionView[]? sva = null;
             try
             {
-                responseString = await response.Content.ReadAsStringAsync(); //TODO find async variant?
-                sva = JsonSerializer.Deserialize<SessionView[]>(responseString, JsonOptions);
-
+                responseString = await response.Content.ReadAsStringAsync(token);
+                sva = JsonSerializer.Deserialize<SessionView[]>(responseString, this.jsonOptions)!;
             }
             catch (Exception e)
             {
-                Logger.LogWarning($"{nameof(FetchSessionList)} Deserializing: {responseString}");
-                Logger.LogWarning($"{nameof(FetchSessionList)} failed: {e.ToFancyString()}");
+                this.logger.LogWarning($"{nameof(this.FetchSessionList)} Deserializing: {responseString}");
+                this.logger.LogWarning($"{nameof(this.FetchSessionList)} failed: {e.ToFancyString()}");
                 throw new MumbleException("Failed to List Sessions");
             }
+
             if (!(sva.Length > 0))
+            {
                 throw new MumbleException("Failed to List Sessions");
+            }
+
             return sva;
         }
+
         public async Task<ExtendedSessionView> FetchSessionAsync(long sessionId, CancellationToken token)
         {
-            var url = $"{Scheme}://{Address}:{Port}/api/gamesession/getinfo";
+            var url = $"{this.scheme}://{this.address}:{this.port}/api/gamesession/getinfo";
             var request = new HttpRequestMessage(HttpMethod.Post, url)
             {
-                Content = new FormUrlEncodedContent(new List<KeyValuePair<string, string>>()
+                Content = new FormUrlEncodedContent(new List<KeyValuePair<string?, string?>>()
                 {
-                    new KeyValuePair<string, string>("id" , sessionId.ToString()),
-                })
+                    new KeyValuePair<string?, string?>("id", sessionId.ToString()),
+                }),
             };
             request.Headers.Add("Accept", "application/x-www-form-urlencoded");
-            request.Headers.Add("User-Agent", UserAgent);
-            request.Headers.Add("Cookie", Cookies);
+            request.Headers.Add("User-Agent", this.userAgent);
+            request.Headers.Add("Cookie", this.cookies!);
             HttpResponseMessage response;
             try
             {
-                response = await HttpClient.SendAsync(request, token);
-                Logger.LogInformation($"{url} returned {response.StatusCode}");
+                response = await this.httpClient.SendAsync(request, token);
+                this.logger.LogInformation($"{url} returned {response.StatusCode}");
             }
             catch (Exception e)
             {
-                Logger.LogWarning($"{User.Username} failed: {e.ToFancyString()}");
+                this.logger.LogWarning($"{this.user!.Username} failed: {e.ToFancyString()}");
                 throw new OfflineException("Get session info failed");
             }
-            var responseString = await response.Content.ReadAsStringAsync(); //TODO find async variant?
-            var esv = JsonSerializer.Deserialize<ExtendedSessionView>(responseString, JsonOptions);
+
+            var responseString = await response.Content.ReadAsStringAsync(token);
+            var esv = JsonSerializer.Deserialize<ExtendedSessionView>(responseString, this.jsonOptions)!; // TODO throw if null everywhere
             if (esv.Id <= 0 || esv.Name == null || esv.OwnerName == null || esv.Notes == null)
+            {
                 throw new MumbleException("Get session info failed");
+            }
+
             return esv;
         }
+
         public async Task AddUserToSessionAsync(long sessionId, string username, CancellationToken token)
         {
-            var url = $"{Scheme}://{Address}:{Port}/api/gamesession/adduser";
+            var url = $"{this.scheme}://{this.address}:{this.port}/api/gamesession/adduser";
             var request = new HttpRequestMessage(HttpMethod.Post, url)
             {
-                Content = new FormUrlEncodedContent(new List<KeyValuePair<string, string>>()
+                Content = new FormUrlEncodedContent(new List<KeyValuePair<string?, string?>>()
                 {
-                    new KeyValuePair<string, string>("sessionid" , sessionId.ToString()),
-                    new KeyValuePair<string, string>("username" , username)
-                })
+                    new KeyValuePair<string?, string?>("sessionid", sessionId.ToString()),
+                    new KeyValuePair<string?, string?>("username", username),
+                }),
             };
             request.Headers.Add("Accept", "application/x-www-form-urlencoded");
-            request.Headers.Add("User-Agent", UserAgent);
-            request.Headers.Add("Cookie", Cookies);
+            request.Headers.Add("User-Agent", this.userAgent);
+            request.Headers.Add("Cookie", this.cookies!);
             HttpResponseMessage response;
             try
             {
-                response = await HttpClient.SendAsync(request, token);
-                Logger.LogInformation($"{url} returned {response.StatusCode}");
+                response = await this.httpClient.SendAsync(request, token);
+                this.logger.LogInformation($"{url} returned {response.StatusCode}");
             }
             catch (Exception e)
             {
-                Logger.LogWarning($"{User.Username} failed: {e.ToFancyString()}");
+                this.logger.LogWarning($"{this.user!.Username} failed: {e.ToFancyString()}");
                 throw new OfflineException("Get session info failed");
             }
+
             if (!response.IsSuccessStatusCode)
+            {
                 throw new MumbleException("adduser failed");
+            }
         }
 
-
-        private bool IsValidUuid(string uuid)
+        public GamemasterSignalRClient CreateSignalRConnection(
+            string address,
+            TaskCompletionSource<bool>? source,
+            string? contentToCompare,
+            IServiceProvider serviceProvider,
+            CancellationToken token)
         {
-            if (uuid.Length != 512) return false;
+            var signalrclient = serviceProvider.GetRequiredService<GamemasterSignalRClient>();
+            signalrclient.Start(
+                address,
+                this.user!,
+                source,
+                contentToCompare,
+                this.cookies!,
+                token);
+            return signalrclient;
+        }
+
+        private static bool IsValidUuid(string uuid)
+        {
+            if (uuid.Length != 512)
+            {
+                return false;
+            }
+
             return true;
         }
     }

@@ -36,7 +36,7 @@ namespace GamemasterChecker.Controllers
         }
         [HttpGet]
         [Route("/service")]
-        public async Task<IActionResult> Service()
+        public IActionResult Service()
         {
             return Ok(JsonSerializer.Serialize(new CheckerInfoMessage()
             {
