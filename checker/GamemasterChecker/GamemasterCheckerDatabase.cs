@@ -21,6 +21,7 @@
 
         public GamemasterCheckerDatabase(ILogger<GamemasterCheckerDatabase> logger)
         {
+            logger.LogDebug("GamemasterCheckerDatabase()");
             this.logger = logger;
             var mongo = new MongoClient(MongoConnection);
             var db = mongo.GetDatabase("GamemasterDatabase");
@@ -31,6 +32,7 @@
             var tokenNotificationLogBuilder = Builders<GamemasterToken>.IndexKeys;
             this.tokens.Indexes.CreateOne(new CreateIndexModel<GamemasterToken>(Builders<GamemasterToken>.IndexKeys
                 .Ascending(gt => gt.Flag)));
+            logger.LogDebug("GamemasterCheckerDatabase() finished");
         }
 
         public static string MongoHost => Environment.GetEnvironmentVariable("MONGO_HOST") ?? "localhost";
