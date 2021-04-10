@@ -1,9 +1,9 @@
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:5.0-focal AS build
 WORKDIR /src
 
 # Fetch dependencies
-COPY WaspChecker.sln .
-COPY WaspChecker/WaspChecker.csproj WaspChecker/WaspChecker.csproj
+COPY GamemasterChecker.sln .
+COPY GamemasterChecker/GamemasterChecker.csproj GamemasterChecker/GamemasterChecker.csproj
 RUN dotnet restore
 
 # Publish
@@ -12,6 +12,6 @@ RUN dotnet publish -c Release --self-contained true -o /build
 
 # Copy to runtime container
 FROM ghcr.io/enowars/enochecker-dotnet:nightly
-COPY --from=build /build /WaspChecker
+COPY --from=build /build /GamemasterChecker
 
-CMD ["/WaspChecker/WaspChecker.dll"]
+CMD ["/GamemasterChecker/GamemasterChecker.dll"]

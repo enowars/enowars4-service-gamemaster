@@ -1,12 +1,12 @@
 version: '3'
 services:
-  wasp-checker:
+  gamemaster-checker:
     build: .
     environment:
       - MONGO_HOST=mongodb
       - MONGO_PORT=27017
       - USE_ELK=true
     ports:
-      - "8001:80"
+      - "127.0.0.1:8000:80"
   mongodb:
     image: mongo
