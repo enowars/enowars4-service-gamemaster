@@ -22,12 +22,12 @@
 
         public GamemasterCheckerDatabase(ILogger<GamemasterCheckerDatabase> logger)
         {
+            this.logger = logger;
             this.logger.LogDebug("GamemasterCheckerDatabase()");
             while (true)
             {
                 try
                 {
-                    this.logger = logger;
                     var mongo = new MongoClient(MongoConnection);
                     var db = mongo.GetDatabase("GamemasterDatabase");
                     this.users = db.GetCollection<GamemasterUser>("Users");
