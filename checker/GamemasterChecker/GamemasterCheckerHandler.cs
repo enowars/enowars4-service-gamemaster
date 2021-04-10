@@ -243,7 +243,7 @@
             }
 
             using var mclient = this.serviceProvider.GetRequiredService<GamemasterClient>();
-            TokenStrippedView retrievedToken = await mclient.CheckTokenAsync(gtoken, token);
+            TokenStrippedView retrievedToken = await mclient.CheckTokenAsync(task.Address, gtoken, token);
 
             if (!retrievedToken.Description.Equals(task.Flag))
             {

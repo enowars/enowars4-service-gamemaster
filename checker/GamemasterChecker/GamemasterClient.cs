@@ -226,9 +226,9 @@
             return uuid;
         }
 
-        public async Task<TokenStrippedView> CheckTokenAsync(string uuid, CancellationToken token)
+        public async Task<TokenStrippedView> CheckTokenAsync(string address, string uuid, CancellationToken token)
         {
-            var url = $"{this.scheme}://{this.address}:{this.port}/api/token/info";
+            var url = $"{this.scheme}://{address}:{this.port}/api/token/info"; // TODO this.address does not throw a warning but it can be null - why?
             var request = new HttpRequestMessage(HttpMethod.Post, url)
             {
                 Content = new FormUrlEncodedContent(new List<KeyValuePair<string?, string?>>()
