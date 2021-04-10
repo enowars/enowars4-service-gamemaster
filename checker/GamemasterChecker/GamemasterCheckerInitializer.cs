@@ -33,6 +33,7 @@
                     }
                 });
             collection.AddTransient(typeof(GamemasterClient));
+            collection.AddTransient(typeof(GamemasterSignalRClient));
         }
     }
 }
