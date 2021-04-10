@@ -392,7 +392,7 @@
 
             if (!response.IsSuccessStatusCode)
             {
-                this.logger.LogError($"Request failed: {response.Content.ReadAsStringAsync(token)}");
+                this.logger.LogError($"AddUserToSessionAsync failed: {await response.Content.ReadAsStringAsync(token)}");
                 throw new MumbleException("adduser failed");
             }
         }
