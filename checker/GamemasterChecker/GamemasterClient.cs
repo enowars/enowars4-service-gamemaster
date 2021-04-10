@@ -141,9 +141,10 @@
 
         public async Task<SessionView> CreateSessionAsync(string name, string notes, string password, CancellationToken token)
         {
+            this.logger.LogDebug($"CreateSessionAsync(name={name}, notes={notes}, password={password}, cookies={this.cookies!.First()})");
             if (this.cookies == null)
             {
-                throw new InvalidOperationException("not logged in");
+                throw new InvalidOperationException("Not logged in");
             }
 
             var url = $"{this.scheme}://{this.address!}:{this.port}/api/gamesession/create";

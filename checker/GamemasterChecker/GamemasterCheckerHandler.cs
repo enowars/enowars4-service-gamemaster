@@ -122,6 +122,8 @@
                 await registerTask;
             }
 
+            await Task.Delay(1000); // wat
+
             // Have master add all users to session
             this.logger.LogInformation($"Adding {users.Count} users to session");
             var addSessionTasks = new List<Task>(users.Count);
