@@ -91,10 +91,7 @@
         {
             // Register a new master
             var master = Util.GenerateFakeUser(task.Flag, true);
-            var users = new List<GamemasterUser>()
-            {
-                master,
-            };
+            var users = new List<GamemasterUser>();
             using var masterClient = this.serviceProvider.GetRequiredService<GamemasterClient>();
             await masterClient.RegisterAsync(task.Address, master, token).ConfigureAwait(false);
 
@@ -103,9 +100,8 @@
             master.SessionId = session.Id;
 
             // Create new users
-            var usersToCreate = ThreadSafeRandom.Next(3) + 2;
-            var newUsers = usersToCreate - users.Count;
-            this.logger.LogInformation($"Target User Count: {usersToCreate}");
+            var newUsers = ThreadSafeRandom.Next(3) + 2;
+            this.logger.LogInformation($"Target member count: {newUsers}");
             var registerTasks = new List<Task>();
             for (int i = 0; i < newUsers; i++)
             {
@@ -141,6 +137,7 @@
             }
 
             // Save all users to db
+            users.Add(master);
             this.logger.LogInformation($"Saving {users.Count} users to db");
             await this.checkerDb.InsertUsersAsync(users, token);
         }

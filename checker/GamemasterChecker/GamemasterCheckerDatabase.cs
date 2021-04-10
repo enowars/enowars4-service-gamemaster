@@ -35,7 +35,7 @@
                         ServerSelectionTimeout = TimeSpan.FromSeconds(3),
                         SocketTimeout = TimeSpan.FromSeconds(5),
                         DirectConnection = true,
-                        Server = new MongoServerAddress("mongodb"),
+                        Server = new MongoServerAddress("mongodb"), // TODO
                     });
                     var db = mongo.GetDatabase("GamemasterDatabase");
                     this.users = db.GetCollection<GamemasterUser>("Users");
