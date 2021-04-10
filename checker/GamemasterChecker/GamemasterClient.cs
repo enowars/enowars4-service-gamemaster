@@ -71,7 +71,7 @@
             }
             catch (Exception e)
             {
-                this.logger.LogWarning($"{user.Username} failed: {e.ToFancyString()}");
+                this.logger.LogWarning($"{user.Username} failed to register: {e.ToFancyString()}");
                 throw new OfflineException("Registration failed");
             }
 
@@ -118,7 +118,7 @@
             }
             catch (Exception e)
             {
-                this.logger.LogWarning($"{user.Username} failed: {e.ToFancyString()}");
+                this.logger.LogWarning($"{user.Username} failed to login: {e.ToFancyString()}");
                 throw new OfflineException("Login failed");
             }
 
@@ -167,7 +167,7 @@
             }
             catch (Exception e)
             {
-                this.logger.LogWarning($"{this.user!.Username} failed: {e.ToFancyString()}");
+                this.logger.LogWarning($"{this.user!.Username} failed to create session: {e.ToFancyString()}");
                 throw new OfflineException("Create session failed");
             }
 
@@ -215,7 +215,7 @@
             }
             catch (Exception e)
             {
-                this.logger.LogWarning($"{this.user!.Username} failed: {e.ToFancyString()}");
+                this.logger.LogWarning($"{this.user!.Username} failed to add token: {e.ToFancyString()}");
                 throw new OfflineException("Create token failed");
             }
 
@@ -259,7 +259,7 @@
             }
             catch (Exception e)
             {
-                this.logger.LogWarning($"{this.user!.Username} failed: {e.ToFancyString()}");
+                this.logger.LogWarning($"{this.user!.Username} failed to check token: {e.ToFancyString()}");
                 throw new OfflineException("Get token info failed");
             }
 
@@ -350,7 +350,7 @@
             }
             catch (Exception e)
             {
-                this.logger.LogWarning($"{this.user!.Username} failed: {e.ToFancyString()}");
+                this.logger.LogWarning($"{this.user!.Username} failed to fetch session: {e.ToFancyString()}");
                 throw new OfflineException("Get session info failed");
             }
 
@@ -387,7 +387,7 @@
             }
             catch (Exception e)
             {
-                this.logger.LogWarning($"{this.user!.Username} failed: {e.ToFancyString()}");
+                this.logger.LogWarning($"{this.user!.Username} failed to add user to session: {e.ToFancyString()}");
                 throw new OfflineException("Get session info failed");
             }
 
