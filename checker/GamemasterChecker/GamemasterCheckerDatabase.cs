@@ -28,6 +28,7 @@
             {
                 try
                 {
+                    this.logger.LogDebug($"MongoCLient({MongoConnection})");
                     var mongo = new MongoClient(MongoConnection);
                     var db = mongo.GetDatabase("GamemasterDatabase");
                     this.users = db.GetCollection<GamemasterUser>("Users");
