@@ -35,7 +35,7 @@
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             };
-            logger.LogDebug($"GamemasterClient() cookies={this.cookies}");
+            logger.LogDebug($"GamemasterClient()");
         }
 
         public void Dispose()
@@ -363,11 +363,7 @@
 
         public async Task AddUserToSessionAsync(long sessionId, string username, CancellationToken token)
         {
-            if (this.cookies == null)
-            {
-                throw new InvalidOperationException("not logged in");
-            }
-
+            this.logger.LogDebug($"AddUserToSessionAsync(sessionId={sessionId}, username={username}, cookie={this.cookies}");
             var url = $"{this.scheme}://{this.address}:{this.port}/api/gamesession/adduser";
             var request = new HttpRequestMessage(HttpMethod.Post, url)
             {
