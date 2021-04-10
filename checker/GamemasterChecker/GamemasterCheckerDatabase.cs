@@ -23,29 +23,18 @@
         public GamemasterCheckerDatabase(ILogger<GamemasterCheckerDatabase> logger)
         {
             this.logger = logger;
-            this.logger.LogDebug("GamemasterCheckerDatabase()");
+            this.logger.LogDebug($"GamemasterCheckerDatabase() via {MongoConnection})");
             var mongo = new MongoClient(MongoConnection);
-            while (true)
-            {
-                try
-                {
-                    this.logger.LogDebug($"GamemasterCheckerDatabase() attempting get db via {MongoConnection})");
-                    var db = mongo.GetDatabase("GamemasterDatabase");
-                    this.users = db.GetCollection<GamemasterUser>("Users");
-                    this.users.Indexes.CreateOne(new CreateIndexModel<GamemasterUser>(Builders<GamemasterUser>.IndexKeys
-                        .Ascending(gu => gu.Flag)));
-                    this.tokens = db.GetCollection<GamemasterToken>("Tokens");
-                    var tokenNotificationLogBuilder = Builders<GamemasterToken>.IndexKeys;
-                    this.tokens.Indexes.CreateOne(new CreateIndexModel<GamemasterToken>(Builders<GamemasterToken>.IndexKeys
-                        .Ascending(gt => gt.Flag)));
-                    break;
-                }
-                catch (Exception e)
-                {
-                    this.logger.LogError($"GamemasterCheckerDatabase() failed: {e.ToFancyString()}");
-                }
-            }
+            var db = mongo.GetDatabase("GamemasterDatabase");
+            this.users = db.GetCollection<GamemasterUser>("Users");
+            this.tokens = db.GetCollection<GamemasterToken>("Tokens");
+            /*
+             this.users.Indexes.CreateOne(new CreateIndexModel<GamemasterUser>(Builders<GamemasterUser>.IndexKeys
+                .Ascending(gu => gu.Flag)));
+            this.tokens.Indexes.CreateOne(new CreateIndexModel<GamemasterToken>(Builders<GamemasterToken>.IndexKeys
+                .Ascending(gt => gt.Flag)));
 
+             */
             this.logger.LogDebug("GamemasterCheckerDatabase() finished");
         }
 

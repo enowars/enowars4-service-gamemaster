@@ -32,8 +32,8 @@
                         handler.AllowAutoRedirect = false;
                     }
                 });
-            collection.AddTransient(typeof(GamemasterClient));
             collection.AddTransient(typeof(GamemasterSignalRClient));
+            collection.AddTransient(typeof(GamemasterClient));
         }
     }
 }
