@@ -6,6 +6,7 @@
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using EnoCore;
     using GamemasterChecker.DbModels;
     using Microsoft.Extensions.Logging;
     using MongoDB.Driver;
@@ -21,18 +22,30 @@
 
         public GamemasterCheckerDatabase(ILogger<GamemasterCheckerDatabase> logger)
         {
-            logger.LogDebug("GamemasterCheckerDatabase()");
-            this.logger = logger;
-            var mongo = new MongoClient(MongoConnection);
-            var db = mongo.GetDatabase("GamemasterDatabase");
-            this.users = db.GetCollection<GamemasterUser>("Users");
-            this.users.Indexes.CreateOne(new CreateIndexModel<GamemasterUser>(Builders<GamemasterUser>.IndexKeys
-                .Ascending(gu => gu.Flag)));
-            this.tokens = db.GetCollection<GamemasterToken>("Tokens");
-            var tokenNotificationLogBuilder = Builders<GamemasterToken>.IndexKeys;
-            this.tokens.Indexes.CreateOne(new CreateIndexModel<GamemasterToken>(Builders<GamemasterToken>.IndexKeys
-                .Ascending(gt => gt.Flag)));
-            logger.LogDebug("GamemasterCheckerDatabase() finished");
+            this.logger.LogDebug("GamemasterCheckerDatabase()");
+            while (true)
+            {
+                try
+                {
+                    this.logger = logger;
+                    var mongo = new MongoClient(MongoConnection);
+                    var db = mongo.GetDatabase("GamemasterDatabase");
+                    this.users = db.GetCollection<GamemasterUser>("Users");
+                    this.users.Indexes.CreateOne(new CreateIndexModel<GamemasterUser>(Builders<GamemasterUser>.IndexKeys
+                        .Ascending(gu => gu.Flag)));
+                    this.tokens = db.GetCollection<GamemasterToken>("Tokens");
+                    var tokenNotificationLogBuilder = Builders<GamemasterToken>.IndexKeys;
+                    this.tokens.Indexes.CreateOne(new CreateIndexModel<GamemasterToken>(Builders<GamemasterToken>.IndexKeys
+                        .Ascending(gt => gt.Flag)));
+                    break;
+                }
+                catch (Exception e)
+                {
+                    this.logger.LogError(e.ToFancyString());
+                }
+            }
+
+            this.logger.LogDebug("GamemasterCheckerDatabase() finished");
         }
 
         public static string MongoHost => Environment.GetEnvironmentVariable("MONGO_HOST") ?? "localhost";
