@@ -28,13 +28,11 @@
             var db = mongo.GetDatabase("GamemasterDatabase");
             this.users = db.GetCollection<GamemasterUser>("Users");
             this.tokens = db.GetCollection<GamemasterToken>("Tokens");
-            /*
-             this.users.Indexes.CreateOne(new CreateIndexModel<GamemasterUser>(Builders<GamemasterUser>.IndexKeys
+            this.users.Indexes.CreateOne(new CreateIndexModel<GamemasterUser>(Builders<GamemasterUser>.IndexKeys
                 .Ascending(gu => gu.Flag)));
             this.tokens.Indexes.CreateOne(new CreateIndexModel<GamemasterToken>(Builders<GamemasterToken>.IndexKeys
                 .Ascending(gt => gt.Flag)));
 
-             */
             this.logger.LogDebug("GamemasterCheckerDatabase() finished");
         }
 
