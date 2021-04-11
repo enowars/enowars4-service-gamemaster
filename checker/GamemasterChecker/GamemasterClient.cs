@@ -147,7 +147,7 @@
                 throw new InvalidOperationException("Not logged in");
             }
 
-            var url = $"{this.scheme}://{this.address!}:{this.port}/api/gamesession/create";
+            var url = $"{this.scheme}://{this.address}:{this.port}/api/gamesession/create";
             var request = new HttpRequestMessage(HttpMethod.Post, url)
             {
                 Content = new FormUrlEncodedContent(new List<KeyValuePair<string?, string?>>()
@@ -263,18 +263,18 @@
                 throw new OfflineException("Get token info failed");
             }
 
-            TokenStrippedView tsv;
+            TokenStrippedView? tsv;
             try
             {
                 var responseString = await response.Content.ReadAsStringAsync(token);
-                tsv = JsonSerializer.Deserialize<TokenStrippedView>(responseString, this.jsonOptions)!;
+                tsv = JsonSerializer.Deserialize<TokenStrippedView>(responseString, this.jsonOptions);
             }
             catch
             {
                 throw new MumbleException("Failed to Parse Result of /api/token/info");
             }
 
-            if (tsv.Name == null || tsv.OwnerName == null || tsv.UUID == null || tsv.Description == null)
+            if (tsv == null || tsv.Name == null || tsv.OwnerName == null || tsv.UUID == null || tsv.Description == null)
             {
                 throw new MumbleException("Get token info failed");
             }
@@ -312,7 +312,7 @@
             try
             {
                 responseString = await response.Content.ReadAsStringAsync(token);
-                sva = JsonSerializer.Deserialize<SessionView[]>(responseString, this.jsonOptions)!;
+                sva = JsonSerializer.Deserialize<SessionView[]>(responseString, this.jsonOptions);
             }
             catch (Exception e)
             {
@@ -321,7 +321,7 @@
                 throw new MumbleException("Failed to List Sessions");
             }
 
-            if (!(sva.Length > 0))
+            if (sva == null || !(sva.Length > 0))
             {
                 throw new MumbleException("Failed to List Sessions");
             }
@@ -355,8 +355,8 @@
             }
 
             var responseString = await response.Content.ReadAsStringAsync(token);
-            var esv = JsonSerializer.Deserialize<ExtendedSessionView>(responseString, this.jsonOptions)!; // TODO throw if null everywhere
-            if (esv.Id <= 0 || esv.Name == null || esv.OwnerName == null || esv.Notes == null)
+            var esv = JsonSerializer.Deserialize<ExtendedSessionView>(responseString, this.jsonOptions);
+            if (esv == null || esv.Id <= 0 || esv.Name == null || esv.OwnerName == null || esv.Notes == null)
             {
                 throw new MumbleException("Get session info failed");
             }
