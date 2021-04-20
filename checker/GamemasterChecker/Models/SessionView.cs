@@ -1,18 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-
-namespace Gamemaster.Models.View
+﻿namespace GamemasterChecker.Models
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using System.Linq;
+    using System.Runtime.InteropServices;
+    using System.Threading.Tasks;
+
 #pragma warning disable CS8618
     public class SessionView
     {
         public long Id { get; set; }
+
         public string OwnerName { get; set; }
+
         public DateTime Timestamp { get; set; }
+
         public string Name { get; set; }
     }
 #pragma warning restore CS8618

@@ -1,1 +1,0 @@
-enochecker_cli -A http://localhost:8000 -a 192.168.2.101 putflag %*
