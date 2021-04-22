@@ -33,7 +33,7 @@
                 throw new InvalidOperationException("Flag must not be null in getflag");
             }
 
-            switch (task.FlagIndex % 3)
+            switch (task.VariantId)
             {
                 case 0:
                     await this.GetFlagFromSession(task, token);
@@ -54,7 +54,7 @@
 
         public async Task HandleHavoc(CheckerTaskMessage task, CancellationToken token)
         {
-           switch (task.FlagIndex % 1)
+           switch (task.VariantId)
             {
                 case 0:
                     await this.HavocChat(task, token);
@@ -69,7 +69,7 @@
                 throw new InvalidOperationException("Flag must not be null in putflag");
             }
 
-            switch (task.FlagIndex % 3)
+            switch (task.VariantId)
             {
                 case 0:
                     await this.PutFlagToSession(task, token);
@@ -153,7 +153,7 @@
             await masterClient.RegisterAsync(task.Address, master, token).ConfigureAwait(false);
 
             // Create a new session
-            SessionView session = await masterClient.CreateSessionAsync(Util.GenerateFakeSessionName(), Util.GenerateFakeSessionNotes(task.RoundId), "password", token);
+            SessionView session = await masterClient.CreateSessionAsync(Util.GenerateFakeSessionName(), Util.GenerateFakeSessionNotes(task.RelatedRoundId.Value), "password", token);
             byte[] imgdata = new byte[64];
             ThreadSafeRandom.NextBytes(imgdata);
             var uuid = await masterClient.AddTokenAsync(Util.GenerateFakeTokenName(), task.Flag!, true, imgdata, token);
@@ -213,7 +213,7 @@
                 throw new MumbleException("Putflag failed");
             }
 
-            if (task.RoundId == task.RelatedRoundId)
+            if (task.CurrentRoundId == task.RelatedRoundId)
             {
                 await this.CheckSessionList(task.Address, client, master, token);
             }
