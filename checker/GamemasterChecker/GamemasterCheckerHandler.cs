@@ -44,6 +44,8 @@
                 case 2:
                     await this.GetFlagFromChat(task, token);
                     break;
+                default:
+                    throw new InvalidOperationException();
             }
         }
 
@@ -59,6 +61,8 @@
                 case 0:
                     await this.HavocChat(task, token);
                     break;
+                default:
+                    throw new InvalidOperationException();
             }
         }
 
@@ -80,6 +84,8 @@
                 case 2:
                     await this.PutFlagToChat(task, token);
                     break;
+                default:
+                    throw new InvalidOperationException();
             }
         }
 
