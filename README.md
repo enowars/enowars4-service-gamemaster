@@ -1,1 +1,1 @@
-# enowars4-service-gamemaster [![Build Status](https://droneci.sect.tu-berlin.de/api/badges/enowars/enowars4-service-gamemaster/status.svg)](https://droneci.sect.tu-berlin.de/enowars/enowars4-service-gamemaster)
+# enowars4-service-gamemaster ![](https://tokei.rs/b1/github/enowars/enowars4-service-gamemaster)
